@@ -6,8 +6,11 @@ import java.util.EnumMap;
  * Created by hanxuan on 9/17/15.
  */
 public class Label {
+
     private float[] vector = null;
+
     private Enum Category = null;
+
     private EnumMap map = null;
 
 

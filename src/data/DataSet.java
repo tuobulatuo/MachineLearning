@@ -1,7 +1,7 @@
 package data;
 
 import data.core.Label;
-import data.core.Matrix;
+import data.core.AMatrix;
 
 /**
  * Created by hanxuan on 9/17/15.
@@ -9,14 +9,14 @@ import data.core.Matrix;
 
 public class DataSet {
 
-    private Matrix featureMatrix = null;
+    private AMatrix featureMatrix = null;
     private Label labels = null;
 
-    public Matrix getFeatureMatrix() {
+    public AMatrix getFeatureMatrix() {
         return featureMatrix;
     }
 
-    public void setFeatureMatrix(Matrix featureMatrix) {
+    public void setFeatureMatrix(AMatrix featureMatrix) {
         this.featureMatrix = featureMatrix;
     }
 
@@ -27,7 +27,5 @@ public class DataSet {
     public void setLabels(Label labels) {
         this.labels = labels;
     }
-
-
 
 }
