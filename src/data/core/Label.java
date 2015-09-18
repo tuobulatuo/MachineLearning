@@ -8,6 +8,8 @@ import java.util.HashSet;
  */
 public class Label {
 
+
+
     private float[] vector = null;
 
     private HashSet<String> categories = null;
@@ -24,9 +26,17 @@ public class Label {
     }
 
     public boolean isCategoryLabel() {
+
         return isCategory;
     }
 
+    public float[] getVector() {
+        return vector;
+    }
+
+    public HashSet<String> getCategories() {
+        return categories;
+    }
 
     public static void main(String[] args) {
 

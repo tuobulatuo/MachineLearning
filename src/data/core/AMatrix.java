@@ -73,9 +73,27 @@ public abstract class AMatrix {
         log.debug("mean: {}", mean);
         log.debug("sd: {}", sd);
 
-        IntStream.range(0, featureLength).filter(indicator).parallel().forEach( i -> colSubtract(i, mean[i]));
+        IntStream.range(0, featureLength).filter(indicator).parallel().forEach(i -> colSubtract(i, mean[i]));
         IntStream.range(0, featureLength).filter(indicator).parallel().forEach( i -> colMultiply(i, 1.0 / sd[i]));
     }
+
+
+    public int getFeatureLength() {
+        return featureLength;
+    }
+
+    public String[] getFeatureNames() {
+        return featureNames;
+    }
+
+    public int getInstanceLength() {
+        return instanceLength;
+    }
+
+    public boolean[] getBooleanColumnIndicator() {
+        return booleanColumnIndicator;
+    }
+
 
     public static void main(String[] args) {
 
