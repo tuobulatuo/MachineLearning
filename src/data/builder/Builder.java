@@ -24,6 +24,8 @@ public abstract class Builder {
 
     protected boolean hasHeader = false;
 
+    protected boolean needBias = true;
+
     protected TIntHashSet categoryIndex = null;
 
     protected int featureCount = -1;
@@ -34,12 +36,13 @@ public abstract class Builder {
 
     protected DataSet dataSet = null;
 
-    public Builder(String path, String sep, boolean hasHeader, int m, int n, int[] categoryIndex,
+    public Builder(String path, String sep, boolean hasHeader, boolean needBias, int m, int n, int[] categoryIndex,
                                     boolean classification){
 
         this.path = path;
         this.sep = sep;
         this.hasHeader = hasHeader;
+        this.needBias = needBias;
         this.categoryIndex = new TIntHashSet(categoryIndex);
         this.featureCount = m;
         this.instanceCount = n;
@@ -58,11 +61,13 @@ public abstract class Builder {
         String path2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/spambase/spambase.data";
         String sep = ",";
         boolean hasHeader = false;
+        boolean needBias = false;
         int m = 57;
         int n = 4601;
         int[] featureCategoryIndex = new int[0];
 
-        Builder builder = new FullMatrixDataSetBuilder(path2, sep, hasHeader, m, n, featureCategoryIndex, false);
+        Builder builder =
+                new FullMatrixDataSetBuilder(path2, sep, hasHeader, needBias, m, n, featureCategoryIndex, true);
 
         builder.build();
 

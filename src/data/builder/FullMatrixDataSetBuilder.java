@@ -21,9 +21,9 @@ public class FullMatrixDataSetBuilder extends Builder{
 
     private static final Logger log = LogManager.getLogger(FullMatrixDataSetBuilder.class);
 
-    public FullMatrixDataSetBuilder(String path, String sep, boolean hasHeader, int m, int n, int[] categoryIndex,
-                                    boolean classification){
-        super(path, sep, hasHeader, m, n, categoryIndex, classification);
+    public FullMatrixDataSetBuilder(String path, String sep, boolean hasHeader, boolean needBias,
+                                    int m, int n, int[] categoryIndex, boolean classification){
+        super(path, sep, hasHeader, needBias, m, n, categoryIndex, classification);
     }
 
 
@@ -71,7 +71,7 @@ public class FullMatrixDataSetBuilder extends Builder{
             expand += ((Set)categoryCounter.get(key)).size();
         }
 
-        featureCount = featureCount - categoryIndex.size() * 2 + expand + 1;
+        featureCount = featureCount - categoryIndex.size() * 2 + expand + (needBias ? 1 : 0);
 
         int categoryFeatureStart = featureCount - (expand - categoryIndex.size());
         boolean[] categoryIndicator = new boolean[featureCount];
@@ -111,7 +111,7 @@ public class FullMatrixDataSetBuilder extends Builder{
         reader.lines().forEach(
                 line -> {
                     line = line.toUpperCase().trim();
-                    int currentFeaturePointer = 1;
+                    int currentFeaturePointer = needBias ? 1 : 0;
                     String[] es = line.split(sep);
                     for (int i = 0; i < es.length - 1; i++) {
                         if (categoryIndex.contains(i)) {
