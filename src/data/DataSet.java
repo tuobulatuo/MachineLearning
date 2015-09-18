@@ -23,17 +23,9 @@ public class DataSet {
         return featureMatrix;
     }
 
-//    public void setFeatureMatrix(AMatrix featureMatrix) {
-//        this.featureMatrix = featureMatrix;
-//    }
-
     public Label getLabels() {
 
         return labels;
     }
-
-//    public void setLabels(Label labels) {
-//        this.labels = labels;
-//    }
 
 }
