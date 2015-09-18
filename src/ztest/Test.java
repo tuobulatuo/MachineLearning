@@ -9,11 +9,16 @@ import java.util.*;
 public class Test {
 
     public static void main(String[] args) {
-        System.out.println("hello");
-        Clock c = Clock.systemUTC();
-        System.out.println();
-        List<String> name = Arrays.asList("baa", "1", "2s", "a");
-        Collections.sort(name, (String a, String b) -> b.length() > a.length() ? 1: -1);
-        System.out.println(name);
+//        System.out.println("hello");
+//        Clock c = Clock.systemUTC();
+//        System.out.println();
+//        List<String> name = Arrays.asList("baa", "1", "2s", "a");
+//        Collections.sort(name, (String a, String b) -> b.length() > a.length() ? 1: -1);
+//        System.out.println(name);
+
+
+        int[][] a = new int[2][3];
+        System.out.println(a.length);
+        System.out.println(a[0].length);
     }
 }
