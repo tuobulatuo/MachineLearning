@@ -30,8 +30,13 @@ public class Test {
 //        List<String> l = Arrays.asList("1", "2");
 
 //      System.out.print(new String[]{"1", "2", "3"}[-1]);
-        String a = "a        b";
-        System.out.println(Arrays.toString(a.split("\\s+")));
+//        String a = "a        b";
+//        System.out.println(Arrays.toString(a.split("\\s+")));
+
+        int[] a = {1,2,3,4}
+                ;
+
+        List<Integer> l = (List) Arrays.asList(a);
 
     }
 }
