@@ -29,11 +29,13 @@ public class DataSet {
     private int[][] kFoldIndex = null;
 
     public DataSet(AMatrix m, Label l) {
+
         this.featureMatrix = m;
         this.labels = l;
     }
 
     public DataSet(AMatrix m, Label l, int k) {
+
         this(m, l);
 //        this.kFold = k;
         TIntList instancesIndex = new TIntArrayList(IntStream.range(0, featureMatrix.getInstanceLength()).toArray());
@@ -51,20 +53,37 @@ public class DataSet {
     }
 
     public double[] getInstance(int i) {
+
         return featureMatrix.getRow(i);
     }
 
     public double getLabel(int i) {
+
         return labels.getRow(i);
     }
 
     public AMatrix getFeatureMatrix() {
+
         return featureMatrix;
     }
 
+    public int getInstanceLength() {
 
+        return featureMatrix.getInstanceLength();
+    }
+
+    public int getFeatureLength() {
+
+        return featureMatrix.getFeatureLength();
+    }
+
+    public String[] getFeatureNames() {
+
+        return featureMatrix.getFeatureNames();
+    }
 
     public Label getLabels() {
+
         return labels;
     }
 

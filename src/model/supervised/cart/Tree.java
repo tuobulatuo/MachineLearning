@@ -2,14 +2,15 @@ package model.supervised.cart;
 
 import data.DataSet;
 import gnu.trove.set.TIntSet;
-import model.supervised.SModel;
+import model.Predictable;
+import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Created by hanxuan on 9/17/15.
  */
-public abstract class Tree extends SModel{
+public abstract class Tree implements Trainable, Predictable{
 
     private static final Logger log = LogManager.getLogger(Tree.class);
 
@@ -35,10 +36,17 @@ public abstract class Tree extends SModel{
 
     }
 
+    protected abstract double growByCriteria(int[] group1, int[] group2);
+
     public void grow() {
+
+        int featureLength = dataSet.getFeatureLength();
+        int instanceLenght = dataSet.getInstanceLength();
+
+
 
     }
 
-    protected abstract double growByCriteria(int[] group1, int[] group2);
+
 
 }
