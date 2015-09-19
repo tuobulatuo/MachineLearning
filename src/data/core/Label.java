@@ -8,19 +8,19 @@ import java.util.HashSet;
  */
 public class Label {
 
-
-
     private float[] vector = null;
 
     private HashSet<String> categories = null;
 
     private boolean isCategory = false;
 
-    public Label (float[] data) {
-        this.vector = data;
-    }
+//    public Label (float[] data) {
+//
+//        this.vector = data;
+//    }
 
     public Label(float[] data, HashSet<String> categories) {
+
         this.vector = data;
         this.categories = categories;
     }
@@ -30,7 +30,13 @@ public class Label {
         return isCategory;
     }
 
+    public double getRow(int rowNum) {
+
+        return vector[rowNum];
+    }
+
     public float[] getVector() {
+
         return vector;
     }
 
