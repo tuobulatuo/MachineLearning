@@ -17,7 +17,7 @@ public class ClassificationTree extends Tree{
 
     private static final Logger log = LogManager.getLogger(ClassificationTree.class);
 
-    public static final double INFORMATION_GAIN_THRESHOLD = 0.1;
+    public static double INFORMATION_GAIN_THRESHOLD = 1;
 
     private double randomness = Integer.MAX_VALUE;
 
@@ -25,10 +25,9 @@ public class ClassificationTree extends Tree{
         super();
     }
 
-    public ClassificationTree(DataSet dataSet) {
-
-        this(0, dataSet, IntStream.range(0, dataSet.getInstanceLength()).toArray());
-    }
+//    public ClassificationTree(DataSet dataSet) {
+//        this(0, dataSet, IntStream.range(0, dataSet.getInstanceLength()).toArray());
+//    }
 
     public ClassificationTree(int depth, DataSet dataSet, int[] existIds) {
 
@@ -45,7 +44,7 @@ public class ClassificationTree extends Tree{
 
     @Override
     public double gainByCriteria(double[] labels, int position) {
-        return growByInformationGain(labels, position);
+        return InformationGain(labels, position);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class ClassificationTree extends Tree{
     }
 
 
-    private double growByInformationGain(double[] labels, int position) {
+    private double InformationGain(double[] labels, int position) {
 
         TIntIntHashMap counterB = new TIntIntHashMap();
         TIntIntHashMap counterC = new TIntIntHashMap();

@@ -132,9 +132,9 @@ public abstract class Tree implements Trainable, Predictable{
                         log.debug("{}/{}/{} -> impurityGain: {}", FEATURE_ID, threshold, pointer, impurityGain);
 
                         if (impurityGain > bestGain.get()) {
-                            bestGain.set(impurityGain);
-                            bestThreshold.set(threshold);
-                            bestFeatureId.set(FEATURE_ID);
+                            bestGain.getAndSet(impurityGain);
+                            bestThreshold.getAndSet(threshold);
+                            bestFeatureId.getAndSet(FEATURE_ID);
                             log.debug("Better pair found: {}/{} -> impurityGain: {}", FEATURE_ID, threshold, impurityGain);
                         }
                         ++ pointer;
@@ -154,7 +154,7 @@ public abstract class Tree implements Trainable, Predictable{
         }
         service.shutdown();
 
-        log.info("*KEY STEP: all task finished, service shutdown ...{}/{}", service.isTerminated(), service.isShutdown());
+        log.info("All task finished, service shutdown ...");
 
         log.info("Best FeatureId: {}, threshold: {}, gain: {}", bestFeatureId.get(), bestThreshold.get(), bestGain.get());
 
@@ -169,7 +169,6 @@ public abstract class Tree implements Trainable, Predictable{
         featureThreshold = bestThreshold.get();
 
         grow();
-
     }
 
     @Override
@@ -223,6 +222,5 @@ public abstract class Tree implements Trainable, Predictable{
         existIds = IntStream.range(0, d.getInstanceLength()).toArray();
         depth = 0;
     }
-
 
 }

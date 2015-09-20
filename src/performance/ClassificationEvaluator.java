@@ -12,8 +12,6 @@ import java.util.stream.IntStream;
  */
 public class ClassificationEvaluator extends Evaluator{
 
-//    private static final Logger log = LogManager.getLogger(ClassificationEvaluator.class);
-
     public ClassificationEvaluator() {}
 
     public ClassificationEvaluator(DataSet data) {
