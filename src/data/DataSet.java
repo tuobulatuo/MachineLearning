@@ -1,10 +1,12 @@
 package data;
 
+import com.google.common.primitives.Ints;
 import data.core.Label;
 import data.core.AMatrix;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +26,7 @@ public class DataSet {
 
     private Label labels = null;
 
-//    private int kFold = 0;
+    private int[] testSetIdx = null;
 
     private int[][] kFoldIndex = null;
 
@@ -34,22 +36,56 @@ public class DataSet {
         this.labels = l;
     }
 
-    public DataSet(AMatrix m, Label l, int k) {
+    public DataSet subDataSetByRow(int[] rowIndexes) {
+        AMatrix subMatrix = featureMatrix.subMatrixByRow(rowIndexes);
+        Label subLabels = labels.subLableByRow(rowIndexes);
+        return new DataSet(subMatrix, subLabels);
+    }
 
-        this(m, l);
-//        this.kFold = k;
-        TIntList instancesIndex = new TIntArrayList(IntStream.range(0, featureMatrix.getInstanceLength()).toArray());
-        instancesIndex.shuffle(new Random());
-        kFoldIndex = new int[k][];
-        int pointer = 0;
-        for (int i = 0; i < k; i++) {
-            int len = Math.min(featureMatrix.getInstanceLength() / k, instancesIndex.size() - pointer);
-            int[] a = new int[len];
-            for (int j = 0; j < len; j++) {
-                a[j] = instancesIndex.get(pointer++);
-            }
-            kFoldIndex[i] = a;
-        }
+    public void shiftCompressNorm(float[] min, float[] max) {
+        featureMatrix.shiftCompressNormalize(min, max);
+    }
+
+    public void shiftCompressNorm() {
+        featureMatrix.shiftCompressNormalize();
+    }
+
+    public void meanVarianceNorm(float[] mean, float[] sd) {
+        featureMatrix.meanVarianceNormalize(mean, sd);
+    }
+
+    public void meanVarianceNorm() {
+        featureMatrix.meanVarianceNormalize();
+    }
+
+//    public DataSet(AMatrix m, Label l, int k) {
+//
+//        this(m, l);
+//        TIntList instancesIndex = new TIntArrayList(IntStream.range(0, featureMatrix.getInstanceLength()).toArray());
+//        instancesIndex.shuffle(new Random());
+//        kFoldIndex = new int[k][];
+//        int pointer = 0;
+//        for (int i = 0; i < k; i++) {
+//            int len = Math.min(featureMatrix.getInstanceLength() / k, instancesIndex.size() - pointer);
+//            int[] a = new int[len];
+//            for (int j = 0; j < len; j++) {
+//                a[j] = instancesIndex.get(pointer++);
+//            }
+//            kFoldIndex[i] = a;
+//        }
+//    }
+
+
+
+//    public int[] testSet() {
+//        return getSetIds(testSetIdx);
+//    }
+
+    public int[] getSetIds(int[] idx) {
+
+        TIntHashSet set = new TIntHashSet();
+        Arrays.stream(idx).forEach(i -> set.addAll(kFoldIndex[i]));
+        return set.toArray();
     }
 
     public double getEntry(int i, int j){
@@ -95,6 +131,23 @@ public class DataSet {
     public Label getLabels() {
 
         return labels;
+    }
+
+    public int[] getTestSetIdx() {
+        return testSetIdx;
+    }
+
+    public void setTestSetIdx(int[] testSetIdx) {
+        this.testSetIdx = testSetIdx;
+    }
+
+
+    public float[] getMeanOrMin() {
+        return featureMatrix.getMeanOrMin();
+    }
+
+    public float[] getSdOrMax() {
+        return featureMatrix.getSdOrMax();
     }
 
 }

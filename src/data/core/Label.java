@@ -1,7 +1,9 @@
 package data.core;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 9/17/15.
@@ -42,6 +44,12 @@ public class Label {
 
     public HashSet<String> getCategories() {
         return categories;
+    }
+
+    public Label subLableByRow (int[] subIndexes) {
+        float[] suVector = new float[subIndexes.length];
+        IntStream.range(0, subIndexes.length).forEach(i -> suVector[i] = vector[subIndexes[i]]);
+        return new Label(suVector, this.categories);
     }
 
     public static void main(String[] args) {

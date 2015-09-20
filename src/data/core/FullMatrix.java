@@ -83,6 +83,13 @@ public class FullMatrix extends AMatrix {
         IntStream.range(0, instanceLength).forEach(i -> data[i][colNum] *= x);
     }
 
+    @Override
+    public AMatrix subMatrixByRow(int[] rowIndexes) {
+        float[][] subData = new float[rowIndexes.length][];
+        IntStream.range(0, rowIndexes.length).forEach(i -> subData[i] = data[rowIndexes[i]].clone());
+        return new FullMatrix(subData, this.booleanColumnIndicator, this.featureNames);
+    }
+
 
     public static void main(String[] args) {
 
@@ -103,9 +110,14 @@ public class FullMatrix extends AMatrix {
 
         log.info(fm.colMean(0));
 
-        fm.shiftCompressNormalize();
+//        fm.shiftCompressNormalize();
         IntStream.range(0, fm.instanceLength).forEach(i -> log.info(Arrays.toString(fm.getRow(i))));
         fm.meanVarianceNormalize();
         log.info("after: {}", m0);
+
+        int[] subIndexes = {1,2,3};
+        AMatrix sub = fm.subMatrixByRow(subIndexes);
+        IntStream.range(0, sub.instanceLength).forEach(i -> log.info(Arrays.toString(sub.getRow(i))));
+
     }
 }

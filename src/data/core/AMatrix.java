@@ -23,8 +23,11 @@ public abstract class AMatrix {
 
     protected boolean[] booleanColumnIndicator = null;
 
-    protected IntPredicate indicator = i -> !booleanColumnIndicator[i];
+    protected IntPredicate nonBooleanFeature = i -> !booleanColumnIndicator[i];
 
+    private float[] meanOrMin = null;
+
+    private float[] sdOrMax = null;
 
     //************************
 
@@ -46,37 +49,60 @@ public abstract class AMatrix {
 
     public abstract void colMultiply(int colNum, double x);
 
+    public abstract AMatrix subMatrixByRow(int[] rowIndexes);
+
     //************************
 
 
     public void shiftCompressNormalize() {
 
-        final double[] ds = new double[featureLength];
-        IntStream.range(0, featureLength).filter(indicator).parallel().forEach(i -> ds[i] = colMin(i));
-        log.debug("min: {}", ds);
-        IntStream.range(0, featureLength).filter(indicator).parallel().forEach(i -> colSubtract(i, ds[i]));
-        IntStream.range(0, featureLength).filter(indicator).parallel().forEach(i -> ds[i] = colMax(i));
-        log.debug("max: {}", ds);
-        IntStream.range(0, featureLength).filter(indicator).parallel().forEach( i -> colMultiply(i, 1.0 / ds[i]));
+        meanOrMin = new float[featureLength];
+        sdOrMax = new float[featureLength];
+        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> meanOrMin[i] = (float) colMin(i));
+        log.debug("min: {}", meanOrMin);
+        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> sdOrMax[i] = (float) colMax(i));
+        log.debug("max: {}", sdOrMax);
+
+        scn();
+    }
+
+    public void shiftCompressNormalize(float[] min, float[] max) {
+        meanOrMin = min;
+        sdOrMax = max;
+        scn();
+    }
+
+    private void scn() {
+        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> colSubtract(i, meanOrMin[i]));
+        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> colMultiply(i, 1.0 / sdOrMax[i]));
     }
 
 
     public void meanVarianceNormalize() {
 
-        final double[] mean = new double[featureLength];
-        final double[] sd = new double[featureLength];
-        IntStream.range(0, featureLength).filter(indicator).parallel().forEach(
+        meanOrMin = new float[featureLength];
+        sdOrMax = new float[featureLength];
+        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(
                 i -> {
-                    mean[i] = colMean(i);
-                    sd[i] = colSd(i);
+                    meanOrMin[i] = (float) colMean(i);
+                    sdOrMax[i] = (float) colSd(i);
                 }
         );
 
-        log.debug("mean: {}", mean);
-        log.debug("sd: {}", sd);
+        log.debug("meanOrMin: {}", meanOrMin);
+        log.debug("sdOrMax: {}", sdOrMax);
+        mvn();
+    }
 
-        IntStream.range(0, featureLength).filter(indicator).parallel().forEach(i -> colSubtract(i, mean[i]));
-        IntStream.range(0, featureLength).filter(indicator).parallel().forEach( i -> colMultiply(i, 1.0 / sd[i]));
+    public void meanVarianceNormalize(float[] mean, float[] sd) {
+        meanOrMin = mean;
+        sdOrMax = sd;
+        mvn();
+    }
+
+    private void mvn() {
+        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> colSubtract(i, meanOrMin[i]));
+        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach( i -> colMultiply(i, 1.0 / sdOrMax[i]));
     }
 
 
@@ -94,6 +120,14 @@ public abstract class AMatrix {
 
     public boolean[] getBooleanColumnIndicator() {
         return booleanColumnIndicator;
+    }
+
+    public float[] getMeanOrMin() {
+        return meanOrMin;
+    }
+
+    public float[] getSdOrMax() {
+        return sdOrMax;
     }
 
 
