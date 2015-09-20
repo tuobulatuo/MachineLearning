@@ -28,6 +28,8 @@ public abstract class AMatrix {
 
     //************************
 
+    public abstract double getEntry(int rowNun, int column);
+
     public abstract double[] getRow(int rowNum);
 
     public abstract double[] getCol(int colNum);

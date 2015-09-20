@@ -1,6 +1,7 @@
 package ztest;
 
 import gnu.trove.impl.sync.TSynchronizedIntObjectMap;
+import gnu.trove.map.hash.TDoubleIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 
@@ -31,12 +32,7 @@ public class Test {
 
 //      System.out.print(new String[]{"1", "2", "3"}[-1]);
 //        String a = "a        b";
-//        System.out.println(Arrays.toString(a.split("\\s+")));
-
-        int[] a = {1,2,3,4}
-                ;
-
-        List<Integer> l = (List) Arrays.asList(a);
+//        System.out.println(Arrays.toString(a.newTree("\\s+")));
 
     }
 }

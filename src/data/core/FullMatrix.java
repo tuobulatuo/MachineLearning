@@ -29,6 +29,11 @@ public class FullMatrix extends AMatrix {
     }
 
     @Override
+    public double getEntry(int rowNum, int column) {
+        return data[rowNum][column];
+    }
+
+    @Override
     public double[] getRow(int rowNum) {
         double[] out = new double[featureLength];
         IntStream.range(0, featureLength).parallel().forEach(i -> out[i] = (double) data[rowNum][i]);

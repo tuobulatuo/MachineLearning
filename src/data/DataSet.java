@@ -52,9 +52,19 @@ public class DataSet {
         }
     }
 
+    public double getEntry(int i, int j){
+
+        return featureMatrix.getEntry(i, j);
+    }
+
     public double[] getInstance(int i) {
 
         return featureMatrix.getRow(i);
+    }
+
+    public double[] getFeature(int i) {
+
+        return featureMatrix.getCol(i);
     }
 
     public double getLabel(int i) {
