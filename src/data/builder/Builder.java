@@ -49,7 +49,7 @@ public abstract class Builder {
         this.isClassification = classification;
     }
 
-    protected abstract void build() throws IOException;
+    public abstract void build() throws IOException;
 
     public DataSet getDataSet() {
         return dataSet;
@@ -60,11 +60,11 @@ public abstract class Builder {
         String path1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/house.test.txt";
         String path2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/spambase/spambase.data";
         String sep = ",";
-        boolean hasHeader = false;
+        boolean hasHeader = true;
         boolean needBias = false;
         int m = 57;
-        int n = 4601;
-        int[] featureCategoryIndex = new int[0];
+        int n = 100;
+        int[] featureCategoryIndex = {};
 
         Builder builder =
                 new FullMatrixDataSetBuilder(path2, sep, hasHeader, needBias, m, n, featureCategoryIndex, true);
@@ -80,7 +80,7 @@ public abstract class Builder {
         log.info("getBooleanColumnIndicator: {}", Arrays.toString(ma.getBooleanColumnIndicator()));
 
 
-        IntStream.range(0, ma.getInstanceLength()).forEach(i -> log.info("row{}: {}", i, ma.getRow(i)));
+//        IntStream.range(0, ma.getInstanceLength()).forEach(i -> log.info("row{}: {}", i, ma.getRow(i)));
         IntStream.range(0, ma.getFeatureLength()).forEach(i -> log.info("{} Mean:{}", i, ma.colMean(i)));
 
         Label l = dataset.getLabels();
