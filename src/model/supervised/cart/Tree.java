@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntPredicate;
+import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 9/17/15.
@@ -27,7 +28,7 @@ public abstract class Tree implements Trainable, Predictable{
 
     public static int MIN_INSTANCE_COUNT = 5;
 
-    public static int MAX_THREADS = 7;
+    public static int MAX_THREADS = 4;
 
     protected int td;
 
@@ -51,7 +52,10 @@ public abstract class Tree implements Trainable, Predictable{
 
     private CountDownLatch countDownLatch = null;
 
+    public Tree() {}
+
     public Tree(int depth, DataSet dataSet, int[] existIds) {
+
         this.depth = depth;
         this.dataSet = dataSet;
         this.existIds = existIds;
@@ -59,46 +63,50 @@ public abstract class Tree implements Trainable, Predictable{
     }
 
 
-    protected abstract double gainByCriteria(int[] ids, int position);
+    protected abstract double gainByCriteria(double[] labels, int position);
 
     protected abstract boolean lessThanImpurityGainThreshold(double gain);
 
     protected abstract void setTreeLabel();
 
-    protected abstract void newTree(int[] leftGroup, int[] rightGroup);
+    protected abstract void split(int[] leftGroup, int[] rightGroup);
 
-    private boolean stopGrow() {
+    @Override
+    public double predict(double[] feature) {
 
-        return depth >= MAX_DEPTH || existIds.length <= MIN_INSTANCE_COUNT;
+        if (left == null) {
+            return treeLabel;
+        }else if(feature[featureId] < featureThreshold) {
+            return this.left.predict(feature);
+        }else {
+            return this.right.predict(feature);
+        }
     }
 
-    private boolean pure() {
-        double first = dataSet.getLabel(existIds[0]);
-        IntPredicate pred = (i) -> dataSet.getLabel(i) != first;
-        return Arrays.stream(existIds).anyMatch(pred);
-    }
-
-    public void grow() {
+    @Override
+    public void train() {
 
         if (pure()) {
-            log.info("[STOP GROW] pure node ...");
-            return;
-        }
-
-        if (stopGrow()) {
-
-            log.info("[STOP GROW] depth >= MAX_DEPTH || existIds.length <= MIN_INSTANCE_COUNT");
+            log.info("[STOP GROW] pure node {} ...", td);
             setTreeLabel();
             return;
         }
 
-        int featureLength = dataSet.getFeatureLength();
+        if (stopGrow()) {
+            log.info("[STOP GROW] depth({}) >= MAX_DEPTH({}) || existIds.length({}) <= MIN_INSTANCE_COUNT({})",
+                    depth, MAX_DEPTH, existIds.length, MIN_INSTANCE_COUNT);
+            setTreeLabel();
+            return;
+        }
+
+        final int featureLength = dataSet.getFeatureLength();
         final AtomicInteger bestFeatureId = new AtomicInteger(Integer.MIN_VALUE);
         final AtomicDouble bestThreshold = new AtomicDouble(Integer.MIN_VALUE);
         final AtomicDouble bestGain = new AtomicDouble(Integer.MIN_VALUE);
 
         service = Executors.newFixedThreadPool(MAX_THREADS);
         countDownLatch = new CountDownLatch(featureLength);
+        log.info("Task Count: {}", countDownLatch.getCount());
 
         for (int i = 0; i < featureLength; i++) {
             final int FEATURE_ID = i;
@@ -108,8 +116,8 @@ public abstract class Tree implements Trainable, Predictable{
 
                     int[] ids = existIds.clone();
                     double[] features = new double[ids.length];
-                    fillFeature(ids, features, FEATURE_ID);
-                    SortIntDoubleUtils.sort(ids, features);
+                    double[] labels = new double[ids.length];
+                    sortFeatureLabel(ids, labels, features, FEATURE_ID);
 
                     int pointer = 1;
                     while (pointer < ids.length) {
@@ -118,34 +126,35 @@ public abstract class Tree implements Trainable, Predictable{
                             continue;
                         }
 
-                        double impurityGain = gainByCriteria(ids, pointer);
+                        double impurityGain = gainByCriteria(labels, pointer);
                         double threshold = features[pointer];
 
-                        log.info("{}/{}/{} -> impurityGain: {}", FEATURE_ID, threshold, pointer, impurityGain);
+                        log.debug("{}/{}/{} -> impurityGain: {}", FEATURE_ID, threshold, pointer, impurityGain);
 
                         if (impurityGain > bestGain.get()) {
                             bestGain.set(impurityGain);
                             bestThreshold.set(threshold);
                             bestFeatureId.set(FEATURE_ID);
-                            log.info("Better pair found: {}/{} -> impurityGain: {}", FEATURE_ID, threshold, impurityGain);
+                            log.debug("Better pair found: {}/{} -> impurityGain: {}", FEATURE_ID, threshold, impurityGain);
                         }
+                        ++ pointer;
                     }
                 } catch (Throwable e) {
                     log.error(e.getMessage(), e);
                 }
+                countDownLatch.countDown();
             });
-            countDownLatch.countDown();
         }
 
         try {
-            TimeUnit.SECONDS.sleep(1);
+            TimeUnit.MILLISECONDS.sleep(10);
             countDownLatch.await();
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
         }
         service.shutdown();
 
-        log.info("*KEY STEP: all task finished, service shutdown ...");
+        log.info("*KEY STEP: all task finished, service shutdown ...{}/{}", service.isTerminated(), service.isShutdown());
 
         log.info("Best FeatureId: {}, threshold: {}, gain: {}", bestFeatureId.get(), bestThreshold.get(), bestGain.get());
 
@@ -159,11 +168,16 @@ public abstract class Tree implements Trainable, Predictable{
         featureId = bestFeatureId.get();
         featureThreshold = bestThreshold.get();
 
-        splitGrow();
+        grow();
 
     }
 
-    private void splitGrow() {
+    @Override
+    public Predictable offer() {
+        return this;
+    }
+
+    private void grow() {
 
         TIntHashSet left = new TIntHashSet();
         TIntHashSet right = new TIntHashSet();
@@ -174,24 +188,40 @@ public abstract class Tree implements Trainable, Predictable{
                 right.add(i);
             }
         }
-        newTree(left.toArray(), right.toArray());
+
+        split(left.toArray(), right.toArray());
+
+        this.left.train();
+        this.right.train();
+
+        log.info("[TREE NODE] {}", td);
+
+    }
+
+    private void sortFeatureLabel(int[] ids, double[] labelArray, double[] featureArray, int featureId) {
+        IntStream.range(0, ids.length).forEach(i -> featureArray[i] = dataSet.getEntry(ids[i], featureId));
+        SortIntDoubleUtils.sort(ids, featureArray);
+        IntStream.range(0, ids.length).forEach(i -> labelArray[i] = dataSet.getLabel(ids[i]));
     }
 
 
-    private void fillFeature(int[] ids, double[] featureArray, int featureId) {
-        for (int i = 0; i < ids.length; i++) {
-            featureArray[i] = dataSet.getEntry(ids[i], featureId);
-        }
+    private boolean stopGrow() {
+
+        return depth >= MAX_DEPTH || existIds.length <= MIN_INSTANCE_COUNT;
+    }
+
+    private boolean pure() {
+
+        double first = dataSet.getLabel(existIds[0]);
+        IntPredicate pred = (i) -> dataSet.getLabel(i) == first;
+        return Arrays.stream(existIds).allMatch(pred);
     }
 
     @Override
-    public void predict() {
-
-    }
-
-    @Override
-    public void train() {
-        this.grow();
+    public void initialize(DataSet d) {
+        dataSet = d;
+        existIds = IntStream.range(0, d.getInstanceLength()).toArray();
+        depth = 0;
     }
 
 

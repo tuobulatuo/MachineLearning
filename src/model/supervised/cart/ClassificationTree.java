@@ -21,21 +21,31 @@ public class ClassificationTree extends Tree{
 
     private double randomness = Integer.MAX_VALUE;
 
-    public ClassificationTree(int depth, DataSet dataSet, int[] existInstanceIndex) {
+    public ClassificationTree() {
+        super();
+    }
 
-        super(depth, dataSet, existInstanceIndex);
+    public ClassificationTree(DataSet dataSet) {
+
+        this(0, dataSet, IntStream.range(0, dataSet.getInstanceLength()).toArray());
+    }
+
+    public ClassificationTree(int depth, DataSet dataSet, int[] existIds) {
+
+        super(depth, dataSet, existIds);
 
         TIntIntHashMap counter = new TIntIntHashMap();
-        Arrays.stream(existIds).forEach(id -> counter.increment((int) dataSet.getLabel(id)));
+        Arrays.stream(existIds).forEach(id -> counter.adjustOrPutValue((int) dataSet.getLabel(id), 1, 1));
         double[] pa = Arrays.stream(counter.values()).mapToDouble(i -> i * 1.0 / existIds.length).toArray();
         randomness = h(pa);
 
-        log.info("Tree {} constructed, randomness: {}", td, randomness);
+        log.debug("Distribution: {}", pa);
+        log.info("Tree {} @depth {} constructed, randomness: {}, has {} points ...", td, depth, randomness, existIds.length);
     }
 
     @Override
-    public double gainByCriteria(int[] ids, int position) {
-        return growByInformationGain(ids, position);
+    public double gainByCriteria(double[] labels, int position) {
+        return growByInformationGain(labels, position);
     }
 
     @Override
@@ -47,34 +57,32 @@ public class ClassificationTree extends Tree{
     protected void setTreeLabel() {
 
         TDoubleIntHashMap counter = new TDoubleIntHashMap();
-        Arrays.stream(existIds).forEach(i -> counter.increment(dataSet.getLabel(existIds[i])));
+        Arrays.stream(existIds).forEach(i -> counter.adjustOrPutValue(dataSet.getLabel(i), 1, 1));
 
         double[] keys = counter.keys();
         double[] values = Arrays.stream(keys).map(k -> counter.get(k)).toArray();
 
         SortDoubleDoubleUtils.sort(keys, values);
-        treeLabel = keys[0];
+        treeLabel = keys[keys.length - 1];
         log.info("[LEAF NODE] id: {}, label: {}", td, treeLabel);
         log.info("[LEAF NODE] categories: {}", Arrays.toString(keys));
         log.info("[LEAF NODE] counts: {}", Arrays.toString(values));
     }
 
     @Override
-    protected void newTree(int[] leftGroup, int[] rightGroup) {
+    protected void split(int[] leftGroup, int[] rightGroup) {
 
         left = new ClassificationTree(this.depth + 1, this.dataSet, leftGroup);
         right = new ClassificationTree(this.depth + 1, this.dataSet, rightGroup);
-        left.grow();
-        right.grow();
     }
 
 
-    private double growByInformationGain(int[] ids, int position) {
+    private double growByInformationGain(double[] labels, int position) {
 
         TIntIntHashMap counterB = new TIntIntHashMap();
         TIntIntHashMap counterC = new TIntIntHashMap();
-        IntStream.range(0, position).forEach(i -> counterB.increment((int) dataSet.getLabel(ids[i])));
-        IntStream.range(position, existIds.length).forEach(i -> counterC.increment((int) dataSet.getLabel(ids[i])));
+        Arrays.stream(labels, 0, position).forEach(i -> counterB.adjustOrPutValue((int) i, 1, 1));
+        Arrays.stream(labels, position, existIds.length).forEach(i -> counterC.adjustOrPutValue((int) i, 1, 1));
 
         double[] pb = Arrays.stream(counterB.values()).mapToDouble(i -> i * 1.0 / position).toArray();
         double[] pc = Arrays.stream(counterC.values()).mapToDouble(i -> i * 1.0 / (existIds.length - position)).toArray();

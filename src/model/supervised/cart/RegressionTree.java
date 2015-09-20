@@ -14,8 +14,8 @@ public class RegressionTree extends Tree{
     }
 
     @Override
-    public double gainByCriteria(int[] ids, int position) {
-        return growByCostDrop(ids, position);
+    public double gainByCriteria(double[] labels, int position) {
+        return growByCostDrop(labels, position);
     }
 
     @Override
@@ -29,11 +29,11 @@ public class RegressionTree extends Tree{
     }
 
     @Override
-    protected void newTree(int[] leftGroup, int[] rightGroup) {
+    protected void split(int[] leftGroup, int[] rightGroup) {
 
     }
 
-    private double growByCostDrop(int[] ids, int position) {
+    private double growByCostDrop(double[] labels, int position) {
         return 0;
     }
 }
