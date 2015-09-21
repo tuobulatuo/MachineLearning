@@ -4,6 +4,9 @@ import gnu.trove.impl.sync.TSynchronizedIntObjectMap;
 import gnu.trove.map.hash.TDoubleIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -78,16 +81,25 @@ public class Test {
 //
 //        return;
 
-        int[] ids = {1,1,2,2,2,3,3,3,4,5,6,7,7,7};
-        int p = 1;
-        while (p < ids.length) {
-            if (ids[p] == ids[p - 1]) {
-                ++ p;
-                continue;
-            }
+//
 
-            log.info("{} {}", p, ids[p]);
-            ++ p;
-        }
+
+        double[][] m0 = new double[][] {
+                {1, 96,    26,    26,    55},
+                {1, 55,    82,    62,    92},
+                {1, 14,    25,    48,    29},
+                {1, 15,    93,    36,    76},
+                {1, 26,    35,    84,    76},
+                {1, 85,    20,    59,    39}
+
+        };
+
+        RealMatrix p = new Array2DRowRealMatrix(m0, false);
+
+        p = p.transpose().multiply(p);
+
+        RealMatrix pInverse = new LUDecomposition(p).getSolver().getInverse();
+
+        log.info(Arrays.deepToString(pInverse.getData()));
     }
 }

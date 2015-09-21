@@ -75,6 +75,7 @@ public class FullMatrixDataSetBuilder extends Builder{
 
         int categoryFeatureStart = featureCount - (expand - categoryIndex.size());
         boolean[] categoryIndicator = new boolean[featureCount];
+        if (needBias) categoryIndicator[0] = true;
         Arrays.fill(categoryIndicator, categoryFeatureStart, categoryIndicator.length, true);
 
         int pos = categoryFeatureStart;

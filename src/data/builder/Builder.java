@@ -60,8 +60,8 @@ public abstract class Builder {
         String path1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/house.test.txt";
         String path2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/spambase/spambase.data";
         String sep = ",";
-        boolean hasHeader = true;
-        boolean needBias = false;
+        boolean hasHeader = false;
+        boolean needBias = true;
         int m = 57;
         int n = 100;
         int[] featureCategoryIndex = {};
@@ -72,6 +72,7 @@ public abstract class Builder {
         builder.build();
 
         DataSet dataset = builder.getDataSet();
+//        dataset.meanVarianceNorm();
         AMatrix ma = dataset.getFeatureMatrix();
 
         log.info("getFeatureLength: {}", ma.getFeatureLength());

@@ -1,6 +1,5 @@
 package performance;
 
-import com.google.common.primitives.Ints;
 import data.DataSet;
 import data.core.Norm;
 import gnu.trove.list.TIntList;
@@ -8,13 +7,11 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 import model.Predictable;
 import model.Trainable;
-import model.supervised.cart.ClassificationTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Random;
 import java.util.function.IntPredicate;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 /**
@@ -26,13 +23,9 @@ public class CrossValidationEvaluator {
 
     private DataSet rowDataSet = null;
 
-//    private int k = 0;
-
     private int[][] kFoldIndex = null;
 
     private Evaluator evaluator;
-
-    private boolean needNorm = true;
 
     private Norm norm;
 

@@ -26,10 +26,6 @@ public class DataSet {
 
     private Label labels = null;
 
-    private int[] testSetIdx = null;
-
-    private int[][] kFoldIndex = null;
-
     public DataSet(AMatrix m, Label l) {
 
         this.featureMatrix = m;
@@ -56,36 +52,6 @@ public class DataSet {
 
     public void meanVarianceNorm() {
         featureMatrix.meanVarianceNormalize();
-    }
-
-//    public DataSet(AMatrix m, Label l, int k) {
-//
-//        this(m, l);
-//        TIntList instancesIndex = new TIntArrayList(IntStream.range(0, featureMatrix.getInstanceLength()).toArray());
-//        instancesIndex.shuffle(new Random());
-//        kFoldIndex = new int[k][];
-//        int pointer = 0;
-//        for (int i = 0; i < k; i++) {
-//            int len = Math.min(featureMatrix.getInstanceLength() / k, instancesIndex.size() - pointer);
-//            int[] a = new int[len];
-//            for (int j = 0; j < len; j++) {
-//                a[j] = instancesIndex.get(pointer++);
-//            }
-//            kFoldIndex[i] = a;
-//        }
-//    }
-
-
-
-//    public int[] testSet() {
-//        return getSetIds(testSetIdx);
-//    }
-
-    public int[] getSetIds(int[] idx) {
-
-        TIntHashSet set = new TIntHashSet();
-        Arrays.stream(idx).forEach(i -> set.addAll(kFoldIndex[i]));
-        return set.toArray();
     }
 
     public double getEntry(int i, int j){
@@ -131,14 +97,6 @@ public class DataSet {
     public Label getLabels() {
 
         return labels;
-    }
-
-    public int[] getTestSetIdx() {
-        return testSetIdx;
-    }
-
-    public void setTestSetIdx(int[] testSetIdx) {
-        this.testSetIdx = testSetIdx;
     }
 
 
