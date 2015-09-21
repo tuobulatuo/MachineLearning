@@ -57,8 +57,8 @@ public class ClassificationTree extends Tree{
         double[] values = Arrays.stream(keys).map(k -> counter.get(k)).toArray();
 
         SortDoubleDoubleUtils.sort(keys, values);
-        treeLabel = keys[keys.length - 1];
-        log.info("[LEAF NODE] id: {}, label: {}", td, treeLabel);
+        meanResponse = keys[keys.length - 1];
+        log.info("[LEAF NODE] id: {}, label: {}", td, meanResponse);
         log.info("[LEAF NODE] categories: {}", Arrays.toString(keys));
         log.info("[LEAF NODE] counts: {}", Arrays.toString(values));
     }

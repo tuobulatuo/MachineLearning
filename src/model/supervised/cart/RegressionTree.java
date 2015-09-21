@@ -42,8 +42,8 @@ public class RegressionTree extends Tree{
     @Override
     protected void setTreeLabel() {
 
-        treeLabel = Arrays.stream(existIds).mapToDouble(id -> dataSet.getLabel(id)).average().getAsDouble();
-        log.info("[LEAF NODE] id: {}, label: {}", td, treeLabel);
+        meanResponse = Arrays.stream(existIds).mapToDouble(id -> dataSet.getLabel(id)).average().getAsDouble();
+        log.info("[LEAF NODE] id: {}, label: {}", td, meanResponse);
     }
 
     @Override

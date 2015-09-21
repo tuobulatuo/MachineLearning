@@ -36,7 +36,7 @@ public abstract class Tree implements Trainable, Predictable{
 
     protected Tree right = null;
 
-    protected double treeLabel = 0;
+    protected double meanResponse = 0;
 
     protected int depth = 0;
 
@@ -75,7 +75,7 @@ public abstract class Tree implements Trainable, Predictable{
     public double predict(double[] feature) {
 
         if (left == null) {
-            return treeLabel;
+            return meanResponse;
         }else if(feature[featureId] < featureThreshold) {
             return this.left.predict(feature);
         }else {
