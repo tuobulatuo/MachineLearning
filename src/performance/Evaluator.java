@@ -14,18 +14,11 @@ import java.util.stream.IntStream;
  */
 public class Evaluator {
 
-    private static final Logger log = LogManager.getLogger(Evaluator.class);
-
     protected DataSet testSet = null;
 
     protected Label predictLabel = null;
 
     public Evaluator() {}
-
-    public Evaluator(DataSet data) {
-
-        testSet = data;
-    }
 
     public void getPredictLabel(Predictable model) {
 

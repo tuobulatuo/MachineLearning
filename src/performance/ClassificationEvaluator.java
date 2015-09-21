@@ -14,10 +14,6 @@ public class ClassificationEvaluator extends Evaluator{
 
     public ClassificationEvaluator() {}
 
-    public ClassificationEvaluator(DataSet data) {
-        super(data);
-    }
-
     public double evaluate() {
 
         Label trueLabel = testSet.getLabels();

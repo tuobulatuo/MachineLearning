@@ -56,6 +56,7 @@ public abstract class Builder {
     }
 
     public static void main(String[] args) throws IOException {
+
         String path0 = "src/ztest/feature.txt";
         String path1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/house.test.txt";
         String path2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/spambase/spambase.data";

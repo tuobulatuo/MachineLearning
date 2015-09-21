@@ -64,11 +64,6 @@ public class DataSet {
         return featureMatrix.getRow(i);
     }
 
-    public double[] getFeature(int i) {
-
-        return featureMatrix.getCol(i);
-    }
-
     public double getLabel(int i) {
 
         return labels.getRow(i);
@@ -89,16 +84,10 @@ public class DataSet {
         return featureMatrix.getFeatureLength();
     }
 
-    public String[] getFeatureNames() {
-
-        return featureMatrix.getFeatureNames();
-    }
-
     public Label getLabels() {
 
         return labels;
     }
-
 
     public float[] getMeanOrMin() {
         return featureMatrix.getMeanOrMin();

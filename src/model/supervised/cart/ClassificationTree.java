@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import org.neu.util.sort.SortDoubleDoubleUtils;
 
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 9/17/15.
@@ -24,10 +23,6 @@ public class ClassificationTree extends Tree{
     public ClassificationTree() {
         super();
     }
-
-//    public ClassificationTree(DataSet dataSet) {
-//        this(0, dataSet, IntStream.range(0, dataSet.getInstanceLength()).toArray());
-//    }
 
     public ClassificationTree(int depth, DataSet dataSet, int[] existIds) {
 

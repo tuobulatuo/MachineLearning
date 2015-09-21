@@ -1,8 +1,6 @@
 package model.supervised.linearregression;
 
 import data.DataSet;
-import data.builder.Builder;
-import data.builder.FullMatrixDataSetBuilder;
 import model.Predictable;
 import model.Trainable;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -10,8 +8,6 @@ import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
 
 /**
  * Created by hanxuan on 9/17/15.
@@ -28,10 +24,6 @@ public class NormalEquation implements Predictable, Trainable{
 
     public NormalEquation() {}
 
-    public NormalEquation(DataSet dataSet) {
-        initialize(dataSet);
-    }
-
     @Override
     public double predict(double[] feature) {
 
@@ -46,6 +38,8 @@ public class NormalEquation implements Predictable, Trainable{
         RealMatrix inverseMatrix = matrix.transpose().multiply(matrix);
         RealMatrix pInverse = new LUDecomposition(inverseMatrix).getSolver().getInverse();
         w = pInverse.multiply(matrix.transpose()).multiply(y);
+
+        log.debug("Normal Equation Training finished ...");
     }
 
     @Override
@@ -65,11 +59,8 @@ public class NormalEquation implements Predictable, Trainable{
         }
         matrix = new Array2DRowRealMatrix(data, false);
         y = new Array2DRowRealMatrix(label, false);
-    }
 
-    public static void main(String[] args) throws IOException {
-
-
+        log.info("Matrix initialized, dim: {} by {}", matrix.getRowDimension(), matrix.getColumnDimension());
     }
 }
 
