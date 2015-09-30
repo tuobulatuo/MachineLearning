@@ -15,7 +15,7 @@ public class Main {
 
     public static void normEquaSpamTest () throws IOException {
 
-        String path1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/spambase/spambase.data";
+        String path1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spambase/spambase.data";
         String sep = ",";
         boolean hasHeader = false;
         boolean needBias = true;
@@ -41,7 +41,7 @@ public class Main {
 
     public static void normEquaHouseTest () throws IOException {
 
-        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/house.txt";
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/house.txt";
         String sep = "\\s+";
         boolean hasHeader = false;
         boolean needBias = true;
@@ -65,8 +65,11 @@ public class Main {
 
 
     public static void main(String[] args) throws IOException {
-        normEquaSpamTest ();
-        normEquaHouseTest();
 
+        NormalEquation.LAMBDA = 0.3;
+
+        normEquaSpamTest ();
+        System.out.println("\n\n\n");
+        normEquaHouseTest();
     }
 }

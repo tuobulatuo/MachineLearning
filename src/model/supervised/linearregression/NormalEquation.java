@@ -5,6 +5,7 @@ import model.Predictable;
 import model.Trainable;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,9 +17,13 @@ public class NormalEquation implements Predictable, Trainable{
 
     private static final Logger log = LogManager.getLogger(NormalEquation.class);
 
+    public static double LAMBDA = 0;
+
     private RealMatrix w = null;    // m by 1
 
     private RealMatrix matrix = null;   // n by m
+
+    private RealMatrix identity = null;
 
     private RealMatrix y = null;    // n by 1
 
@@ -36,6 +41,9 @@ public class NormalEquation implements Predictable, Trainable{
     @Override
     public void train() {
         RealMatrix inverseMatrix = matrix.transpose().multiply(matrix);
+        if (identity != null) {
+            inverseMatrix = inverseMatrix.add(identity);
+        }
         RealMatrix pInverse = new LUDecomposition(inverseMatrix).getSolver().getInverse();
         w = pInverse.multiply(matrix.transpose()).multiply(y);
 
@@ -59,6 +67,10 @@ public class NormalEquation implements Predictable, Trainable{
         }
         matrix = new Array2DRowRealMatrix(data, false);
         y = new Array2DRowRealMatrix(label, false);
+
+        if (LAMBDA > 0) {
+            identity = MatrixUtils.createRealIdentityMatrix(matrix.getColumnDimension());
+        }
 
         log.info("Matrix initialized, dim: {} by {}", matrix.getRowDimension(), matrix.getColumnDimension());
     }
