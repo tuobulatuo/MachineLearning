@@ -60,17 +60,26 @@ public class CrossValidationEvaluator {
             IntPredicate pred = (n) -> !testIndexes.contains(n);
             int[] trainIndexes = IntStream.range(0, rowDataSet.getInstanceLength()).filter(pred).toArray();
 
-            DataSet trainSet = rowDataSet.subDataSetByRow(trainIndexes);
-            DataSet testSet = rowDataSet.subDataSetByRow(testIndexes.toArray());
+
 
             if (norm == null){}
             else if (norm.equals(Norm.MEANSD)) {
-                trainSet.meanVarianceNorm();
-                testSet.meanVarianceNorm(trainSet.getMeanOrMin(), trainSet.getSdOrMax());
-            } else if (norm.equals(Norm.MINMAX)) {
-                trainSet.shiftCompressNorm();
-                testSet.shiftCompressNorm(trainSet.getMeanOrMin(), trainSet.getSdOrMax());
+                rowDataSet.meanVarianceNorm();
+            }else if (norm.equals(Norm.MINMAX)) {
+                rowDataSet.shiftCompressNorm();
             }
+
+            DataSet trainSet = rowDataSet.subDataSetByRow(trainIndexes);
+            DataSet testSet = rowDataSet.subDataSetByRow(testIndexes.toArray());
+
+//            if (norm == null){}
+//            else if (norm.equals(Norm.MEANSD)) {
+//                trainSet.meanVarianceNorm();
+//                testSet.meanVarianceNorm(trainSet.getMeanOrMin(), trainSet.getSdOrMax());
+//            } else if (norm.equals(Norm.MINMAX)) {
+//                trainSet.shiftCompressNorm();
+//                testSet.shiftCompressNorm(trainSet.getMeanOrMin(), trainSet.getSdOrMax());
+//            }
 
             model.initialize(trainSet);
             model.train();
