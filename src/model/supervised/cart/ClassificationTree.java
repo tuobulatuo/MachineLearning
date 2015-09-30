@@ -93,7 +93,7 @@ public class ClassificationTree extends Tree{
 
         ClassificationTree ct = new ClassificationTree(0, null, new int[0]);
 
-        double[] p0 = {0.5, 0.5};
+        double[] p0 = {0.3333, 0.3333, 0.3333};
         log.info(ct.h(p0));
     }
 }
