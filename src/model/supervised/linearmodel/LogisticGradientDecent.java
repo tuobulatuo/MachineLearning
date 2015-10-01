@@ -7,8 +7,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import data.DataSet;
 import model.Predictable;
 import model.Trainable;
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,8 +34,6 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
 
     protected double[] w = null;
 
-//    protected RealMatrix w = null;
-
     public LogisticGradientDecent() {}
 
 
@@ -47,8 +43,7 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
         double[] initTheta = new double[data.getFeatureLength()];
         double finalCost = loop(data, BUCKET_COUNT, initTheta);
         log.info("Training finished, final cost: {}", finalCost);
-//        w = MatrixUtils.createColumnRealMatrix(initTheta);
-        w = Arrays.copyOf(initTheta, initTheta.length);
+        w = initTheta;
     }
 
     @Override
@@ -63,9 +58,6 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
 
     @Override
     public double predict(double[] feature) {
-
-//        RealMatrix featureMatrix = MatrixUtils.createRowRealMatrix(feature);
-//        return sigmoid(featureMatrix.multiply(w).getEntry(0, 0)) > POSITIVE_THRESHOLD ? 1 : 0;
 
         return hypothesis(w, feature) > POSITIVE_THRESHOLD ? 1 : 0;
     }
