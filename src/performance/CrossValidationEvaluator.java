@@ -60,8 +60,6 @@ public class CrossValidationEvaluator {
             IntPredicate pred = (n) -> !testIndexes.contains(n);
             int[] trainIndexes = IntStream.range(0, rowDataSet.getInstanceLength()).filter(pred).toArray();
 
-
-
             if (norm == null){}
             else if (norm.equals(Norm.MEANSD)) {
                 rowDataSet.meanVarianceNorm();
@@ -71,15 +69,6 @@ public class CrossValidationEvaluator {
 
             DataSet trainSet = rowDataSet.subDataSetByRow(trainIndexes);
             DataSet testSet = rowDataSet.subDataSetByRow(testIndexes.toArray());
-
-//            if (norm == null){}
-//            else if (norm.equals(Norm.MEANSD)) {
-//                trainSet.meanVarianceNorm();
-//                testSet.meanVarianceNorm(trainSet.getMeanOrMin(), trainSet.getSdOrMax());
-//            } else if (norm.equals(Norm.MINMAX)) {
-//                trainSet.shiftCompressNorm();
-//                testSet.shiftCompressNorm(trainSet.getMeanOrMin(), trainSet.getSdOrMax());
-//            }
 
             model.initialize(trainSet);
             model.train();
@@ -94,7 +83,7 @@ public class CrossValidationEvaluator {
             double performOnTrain = evaluator.evaluate();
 
 
-            log.info("FOLD {}/test{}/train{}", i, performOnTest, performOnTrain);
+            log.info("FOLD {}/test({})/train({})", i, performOnTest, performOnTrain);
 
             avgOnTest += performOnTest;
             avgOnTrain += performOnTrain;
@@ -102,6 +91,6 @@ public class CrossValidationEvaluator {
 
         avgOnTest /= kFoldIndex.length;
         avgOnTrain /= kFoldIndex.length;
-        log.info("avgOnTest {}, avgOnTrain {}", avgOnTest, avgOnTrain);
+        log.info("avgOnTest ({}), avgOnTrain ({})", avgOnTest, avgOnTrain);
     }
 }
