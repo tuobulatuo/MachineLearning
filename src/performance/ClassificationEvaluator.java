@@ -34,10 +34,10 @@ public class ClassificationEvaluator extends Evaluator{
         for (int i = 0; i < instanceLength; i++) {
             double trueValue = trueLabel.getRow(i);
             double predictValue = predictLabel.getRow(i);
-            if (trueValue == 1 && predictValue == 1) ++ truePos;
-            if (trueValue == 0 && predictValue == 1) ++ falsePos;
-            if (trueValue == 1 && predictValue == 0) ++ falseNeg;
-            if (trueValue == 0 && predictValue == 0) ++ trueNeg;
+            if (trueValue > 0 && predictValue > 0) ++ truePos;
+            if (trueValue <=0 && predictValue > 0) ++ falsePos;
+            if (trueValue > 0 && predictValue <= 0) ++ falseNeg;
+            if (trueValue <= 0 && predictValue <= 0) ++ trueNeg;
         }
 
         printConfusionMatrix();
