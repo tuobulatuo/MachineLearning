@@ -22,8 +22,6 @@ public class ClassificationEvaluator extends Evaluator{
 
     private int falseNeg = 0;
 
-//    private int correct = 0;
-
     public ClassificationEvaluator() {}
 
     public double evaluate() {
