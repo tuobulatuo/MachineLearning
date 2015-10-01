@@ -7,6 +7,10 @@ import data.DataSet;
  */
 public interface Trainable {
     void train();
-    Predictable offer();
+
+    default Predictable offer(){
+        return (Predictable) this;
+    }
+
     void initialize(DataSet d);
 }
