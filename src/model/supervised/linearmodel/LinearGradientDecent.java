@@ -8,8 +8,6 @@ import com.google.common.util.concurrent.AtomicDouble;
 import data.DataSet;
 import model.Predictable;
 import model.Trainable;
-import org.apache.commons.math3.linear.MatrixUtils;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,16 +31,14 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
 
     protected DataSet data = null;
 
-    protected RealMatrix w = null;
+    protected double[] w = null;
 
     public LinearGradientDecent() {}
 
     @Override
     public double predict(double[] feature) {
 
-        RealMatrix featureMatrix = MatrixUtils.createRowRealMatrix(feature);
-        return featureMatrix.multiply(w).getEntry(0, 0);
-//        return featureMatrix.multiply(w).getEntry(0, 0) > 0.5 ? 1 : 0;
+        return hypothesis(feature, w);
     }
 
     @Override
@@ -51,7 +47,7 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
         double[] initTheta = new double[data.getFeatureLength()];
         double finalCost = loop(data, BUCKET_COUNT, initTheta);
         log.info("Training finished, final cost: {}", finalCost);
-        w = MatrixUtils.createColumnRealMatrix(initTheta);
+        w = initTheta;
     }
 
     @Override
