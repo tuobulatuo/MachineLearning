@@ -12,17 +12,49 @@ import java.util.stream.IntStream;
  */
 public class ClassificationEvaluator extends Evaluator{
 
+    private static final Logger log = LogManager.getLogger(ClassificationEvaluator.class);
+
+    private int truePos = 0;
+
+    private int falsePos = 0;
+
+    private int trueNeg = 0;
+
+    private int falseNeg = 0;
+
+//    private int correct = 0;
+
     public ClassificationEvaluator() {}
 
     public double evaluate() {
 
+        truePos = trueNeg = falsePos = falseNeg = 0;
+
         Label trueLabel = testSet.getLabels();
-        int correct = 0;
+
         int instanceLength = testSet.getInstanceLength();
         for (int i = 0; i < instanceLength; i++) {
-            if (trueLabel.getRow(i) == predictLabel.getRow(i)) ++ correct;
+            double trueValue = trueLabel.getRow(i);
+            double predictValue = predictLabel.getRow(i);
+            if (trueValue == 1 && predictValue == 1) ++ truePos;
+            if (trueValue == 0 && predictValue == 1) ++ falsePos;
+            if (trueValue == 1 && predictValue == 0) ++ falseNeg;
+            if (trueValue == 0 && predictValue == 0) ++ trueNeg;
         }
 
-        return correct * 1.0 / instanceLength;
+        printConfusionMatrix();
+
+        return (truePos + trueNeg) / (double) instanceLength;
+    }
+
+    public void printConfusionMatrix() {
+        log.info("================= confusion matrix =================");
+
+        log.info("TruePos: {}   FalsePos: {}", truePos, falsePos);
+        log.info("FalseNeg: {}  TrueNeg: {}", falseNeg, trueNeg);
+        log.info("precision: {} recall: {}", truePos / (double) (truePos + falsePos),
+                truePos / (double) (truePos + falseNeg));
+        log.info("accuracy: {}", (truePos + trueNeg) / (double) (truePos + trueNeg + falsePos + falseNeg));
+        log.info("================= ================ =================");
     }
 }
