@@ -33,22 +33,9 @@ public class NNMain {
 
         DataSet dataset = builder.getDataSet();
         dataset.meanVarianceNorm();
-
-
-//        System.out.println(dataset.getFeatureLength());
-//        System.out.println(dataset.getInstanceLength());
-//        System.out.println(dataset.getLabel(0));
-//
-//        Perceptron perceptron = new Perceptron();
-//        perceptron.initialize(dataset);
-//        perceptron.train();
-
-        Evaluator eva = new ClassificationEvaluator();
-        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.MEANSD);
         Perceptron perceptron = new Perceptron();
-        crossEvaluator.crossValidateEvaluate(perceptron);
-
-
+        perceptron.initialize(dataset);
+        perceptron.train();
 
     }
 

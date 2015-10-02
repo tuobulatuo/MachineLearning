@@ -51,6 +51,8 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
         double[] initTheta = RandomUtils.randomZeroOneArray(data.getFeatureLength());
         double finalCost = loop(data, BUCKET_COUNT, initTheta);
         log.info("Training finished, final cost: {}", finalCost);
+        log.info("theta: {}", initTheta);
+        log.info("Norm theta: {}", Arrays.stream(initTheta).map(x -> x / initTheta[0]).toArray());
         w = initTheta;
     }
 
@@ -95,7 +97,7 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
                 }
         );
 
-//        log.info("ITERATION: {}, TOTAL_MISTAKE : {}, COST: {}", ITER_COUNT++, counter.get(), cost.get());
+        log.info("ITERATION: {}, TOTAL_MISTAKE : {}, COST: {}", ITER_COUNT++, counter.get(), cost.get());
 
         return cost.get();
     }
