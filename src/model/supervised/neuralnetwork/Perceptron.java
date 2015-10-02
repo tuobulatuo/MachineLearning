@@ -49,7 +49,7 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
     public void train() {
 
         double[] initTheta = RandomUtils.randomZeroOneArray(data.getFeatureLength());
-        double finalCost = loop(data, BUCKET_COUNT, initTheta);
+        double finalCost = loop(data.getInstanceLength(), BUCKET_COUNT, initTheta);
         log.info("Training finished, final cost: {}", finalCost);
         log.info("theta: {}", initTheta);
         log.info("Norm theta: {}", Arrays.stream(initTheta).map(x -> x / initTheta[0]).toArray());
@@ -57,7 +57,9 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
     }
 
     @Override
-    public double[] gGradient(DataSet data, int start, int end, double[] theta) {
+    public <T> void gGradient(int start, int end, T params) {
+
+        double[] theta = (double[]) params;
 
         TIntHashSet mistakes = new TIntHashSet();
         IntStream.range(0, data.getInstanceLength()).forEach(
@@ -77,12 +79,12 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
         );
 
         IntStream.range(0, theta.length).forEach(i -> theta[i] += ALPHA * g[i]);
-
-        return theta;
     }
 
     @Override
-    public double cost(DataSet data, double[] theta) {
+    public <T> double cost(T params) {
+
+        double[] theta = (double[]) params;
 
         AtomicDouble cost = new AtomicDouble(0);
         AtomicInteger counter = new AtomicInteger(0);
@@ -103,8 +105,8 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
     }
 
     @Override
-    public void parameterGradient(DataSet data, int start, int end, double[] theta) {
-        gGradient(data, start, end, theta);
+    public <T> void parameterGradient(int start, int end, T theta) {
+        gGradient(start, end, theta);
     }
 
     private double hypothesis(double[] X, double[] theta) {

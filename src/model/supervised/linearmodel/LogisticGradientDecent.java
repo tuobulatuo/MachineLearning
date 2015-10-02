@@ -9,6 +9,7 @@ import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.NumericalComputation;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -41,7 +42,7 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
     public void train() {
 
         double[] initTheta = new double[data.getFeatureLength()];
-        double finalCost = loop(data, BUCKET_COUNT, initTheta);
+        double finalCost = loop(data.getInstanceLength(), BUCKET_COUNT, initTheta);
         log.info("Training finished, final cost: {}", finalCost);
         w = initTheta;
     }
@@ -63,7 +64,9 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
     }
 
     @Override
-    public double[] gGradient(DataSet data, int start, int end, double[] theta) {
+    public <T> void gGradient(int start, int end, T params) {
+
+        double[] theta = (double[]) params;
 
         double[] g = new double[theta.length];
         IntStream.range(0, g.length).forEach(
@@ -78,13 +81,12 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
         log.debug("g : {}", g);
         IntStream.range(1, g.length).forEach(i -> g[i] += LAMBDA * theta[i]);
         IntStream.range(0, theta.length).forEach(i -> theta[i] -= ALPHA * g[i]);
-
-        return theta;
     }
 
     @Override
-    public double cost(DataSet data, double[] theta) {
+    public <T> double cost(T params) {
 
+        double[] theta = (double[]) params;
         int instanceLength = data.getInstanceLength();
         AtomicDouble cost = new AtomicDouble(0);
         IntStream.range(0, instanceLength).parallel().forEach(
@@ -105,27 +107,15 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
     }
 
     @Override
-    public void parameterGradient(DataSet data, int start, int end, double[] theta) {
+    public <T> void parameterGradient(int start, int end, T theta) {
         if (type == DecentType.GRADIENT) {
-            gGradient(data, start, end, theta);
+            gGradient(start, end, theta);
         }else {
 
         }
     }
 
     private double hypothesis(double[] x, double[] theta) {
-        return sigmoid(IntStream.range(0, x.length).mapToDouble(i -> x[i] * theta[i]).sum());
-    }
-
-    private double sigmoid(double x) {
-        return 1 / (1 + Math.exp(-x));
-    }
-
-    public static void main(String[] args) {
-        LogisticGradientDecent lg = new LogisticGradientDecent();
-        System.out.println(lg.sigmoid(1));
-        System.out.println(lg.sigmoid(0));
-        System.out.println(lg.sigmoid(2));
-        System.out.println(Math.exp(1));
+        return NumericalComputation.sigmoid(IntStream.range(0, x.length).mapToDouble(i -> x[i] * theta[i]).sum());
     }
 }

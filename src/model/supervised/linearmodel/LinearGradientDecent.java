@@ -45,7 +45,7 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
     public void train() {
 
         double[] initTheta = new double[data.getFeatureLength()];
-        double finalCost = loop(data, BUCKET_COUNT, initTheta);
+        double finalCost = loop(data.getInstanceLength(), BUCKET_COUNT, initTheta);
         log.info("Training finished, final cost: {}", finalCost);
         w = initTheta;
     }
@@ -61,7 +61,9 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
     }
 
     @Override
-    public double[] gGradient(DataSet data, int start, int end, double[] theta) {
+    public <T> void gGradient(int start, int end, T params) {
+
+        double[] theta = (double[]) params;
 
         double[] g = new double[theta.length];
         IntStream.range(0, g.length).forEach(
@@ -77,11 +79,12 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
         IntStream.range(1, g.length).forEach(i -> g[i] += LAMBDA * theta[i] / (end - start));
         IntStream.range(0, theta.length).forEach(i -> theta[i] -= ALPHA * g[i]);
 
-        return theta;
     }
 
     @Override
-    public double cost(DataSet data, double[] theta) {
+    public <T> double cost(T params) {
+
+        double[] theta = (double[]) params;
 
         int instanceLength = data.getInstanceLength();
         AtomicDouble cost = new AtomicDouble(0);
@@ -101,9 +104,9 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
     }
 
     @Override
-    public void parameterGradient(DataSet data, int start, int end, double[] theta) {
+    public <T> void parameterGradient(int start, int end, T theta) {
         if (type == DecentType.GRADIENT) {
-            gGradient(data, start, end, theta);
+            gGradient(start, end, theta);
         }else {
 
         }
