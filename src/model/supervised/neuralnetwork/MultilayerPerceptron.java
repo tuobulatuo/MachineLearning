@@ -22,6 +22,8 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
 
     private static final Logger log = LogManager.getLogger(MultilayerPerceptron.class);
 
+    public static boolean PRINT_HIDDEN = false;
+
     public static double ALPHA = 0.01;   // learning rate
 
     public static double LAMBDA = 0.0;  // punish rate
@@ -80,6 +82,14 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
         int[] index = RandomUtils.getIndexes(labels.length);
         SortIntDoubleUtils.sort(index, labels);
         return index[index.length - 1];
+    }
+
+    @Override
+    public double score(double[] feature) {
+        double[] labels = Arrays.stream(feedForward(feature, theta)).map(x -> x * 1000000).toArray();
+        int[] index = RandomUtils.getIndexes(labels.length);
+        SortIntDoubleUtils.sort(index, labels);
+        return labels[index.length - 1];
     }
 
     @Override
@@ -240,6 +250,12 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
             }
         }
 
+        if (PRINT_HIDDEN) {
+            for (int i = 1; i < A.length - 1; i++) {
+                System.out.println("HIDDEN " + i + " : " + Arrays.toString(A[i]));
+            }
+        }
+
         return A[A.length - 1];
     }
 
@@ -254,10 +270,6 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
     @Override
     public <T> void parameterGradient(int start, int end, T params) {
         gGradient(start, end, params);
-    }
-
-    public double[][][] getTheta() {
-        return theta;
     }
 
     public double[] yVector(int idx) {

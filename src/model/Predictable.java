@@ -5,4 +5,7 @@ package model;
  */
 public interface Predictable {
     double predict(double[] feature);
+    default double score(double[] feature){
+        return predict(feature);
+    }
 }

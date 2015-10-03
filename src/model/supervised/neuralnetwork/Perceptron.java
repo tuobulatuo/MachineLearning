@@ -41,8 +41,12 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
 
     @Override
     public double predict(double[] feature) {
+        return score(feature) > 0 ? 1 : -1;
+    }
 
-        return hypothesis(feature, w) > 0 ? 1 : -1;
+    @Override
+    public double score(double[] feature) {
+        return hypothesis(feature, w);
     }
 
     @Override

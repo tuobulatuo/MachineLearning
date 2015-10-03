@@ -35,7 +35,14 @@ public class NormalEquation implements Predictable, Trainable{
         double[][] feature1MatrixData = new double[1][];
         feature1MatrixData[0] = feature;
         RealMatrix feature1Matrix = new Array2DRowRealMatrix(feature1MatrixData, false);
-//        return feature1Matrix.multiply(w).getEntry(0, 0) > 0.5 ? 1 : 0;
+        return feature1Matrix.multiply(w).getEntry(0, 0) > 0.5 ? 1 : 0;
+    }
+
+    @Override
+    public double score(double[] feature) {
+        double[][] feature1MatrixData = new double[1][];
+        feature1MatrixData[0] = feature;
+        RealMatrix feature1Matrix = new Array2DRowRealMatrix(feature1MatrixData, false);
         return feature1Matrix.multiply(w).getEntry(0, 0);
     }
 

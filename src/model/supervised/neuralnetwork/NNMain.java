@@ -64,6 +64,7 @@ public class NNMain {
         nn.initialize(dataset);
         nn.train();
 
+        MultilayerPerceptron.PRINT_HIDDEN = false;
         for (int i = 0; i < dataset.getInstanceLength(); i++) {
             double[] X = dataset.getInstance(i);
             System.out.println(Arrays.toString(X) + " => " + Arrays.toString(nn.yVector((int)nn.predict(X))));

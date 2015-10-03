@@ -37,7 +37,6 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
 
     @Override
     public double predict(double[] feature) {
-
         return hypothesis(feature, w);
     }
 

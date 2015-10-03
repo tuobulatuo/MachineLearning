@@ -59,8 +59,12 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
 
     @Override
     public double predict(double[] feature) {
+        return score(feature) > POSITIVE_THRESHOLD ? 1 : 0;
+    }
 
-        return hypothesis(w, feature) > POSITIVE_THRESHOLD ? 1 : 0;
+    @Override
+    public double score(double[] feature) {
+        return hypothesis(w, feature);
     }
 
     @Override
