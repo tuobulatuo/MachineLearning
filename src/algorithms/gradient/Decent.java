@@ -13,9 +13,9 @@ public interface Decent {
 
     Logger log = LogManager.getLogger(Decent.class);
 
-    double COST_DECENT_THRESHOLD = 0.001;
+    double COST_DECENT_THRESHOLD = 0.0000000;
 
-    int MAX_ROUND = 50000;
+    int MAX_ROUND = 1000000;
 
     <T> double cost(T theta);
 
@@ -46,7 +46,7 @@ public interface Decent {
                     miniCost = cost;
                 }
 
-                if (ii % 100 == 0) {
+                if (ii % 10000 == 0) {
 
                     log.info("round {}, cost {}, theta {}", ii, cost, theta);
                     if (deltaCost < COST_DECENT_THRESHOLD || ii > MAX_ROUND) {
