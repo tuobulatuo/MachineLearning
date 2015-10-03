@@ -1,23 +1,11 @@
 package ztest;
 
-import gnu.trove.impl.sync.TSynchronizedIntObjectMap;
-import gnu.trove.map.hash.TDoubleIntHashMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.map.hash.TObjectIntHashMap;
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
-import org.apache.commons.math3.linear.LUDecomposition;
-import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.neu.util.rand.RandomUtils;
+import org.neu.util.sort.SortIntDoubleUtils;
 
-import java.time.Clock;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
+import java.util.Arrays;
 
 /**
  * Created by hanxuan on 9/10/15.
@@ -84,22 +72,38 @@ public class Test {
 //
 
 
-        double[][] m0 = new double[][] {
-                {1, 96,    26,    26,    55},
-                {1, 55,    82,    62,    92},
-                {1, 14,    25,    48,    29},
-                {1, 15,    93,    36,    76},
-                {1, 26,    35,    84,    76},
-                {1, 85,    20,    59,    39}
+//        double[][] m0 = new double[][] {
+//                {1, 96,    26,    26,    55},
+//                {1, 55,    82,    62,    92},
+//                {1, 14,    25,    48,    29},
+//                {1, 15,    93,    36,    76},
+//                {1, 26,    35,    84,    76},
+//                {1, 85,    20,    59,    39}
+//
+//        };
 
-        };
+//        RealMatrix p = new Array2DRowRealMatrix(m0, false);
+//
+//        p = p.transpose().multiply(p);
+//
+//        RealMatrix pInverse = new LUDecomposition(p).getSolver().getInverse();
+//
+//        log.info(Arrays.deepToString(pInverse.getData()));
 
-        RealMatrix p = new Array2DRowRealMatrix(m0, false);
 
-        p = p.transpose().multiply(p);
+//        double[][] m1 = ;
+//
+//        log.info(m1);
+//
+//        m1[0][1] = 0;
+//        log.info(Arrays.deepToString(m0));
 
-        RealMatrix pInverse = new LUDecomposition(p).getSolver().getInverse();
 
-        log.info(Arrays.deepToString(pInverse.getData()));
+
+        double[] a = {0.16472572793853585, 0.16473288429423177, 0.16364715196495644, 0.16387661017209518, 0.1623304921994822, 0.006160342174793988, 0.0024250452754503546, 0.1614497432746957};
+        int[] idx = RandomUtils.getIndexes(a.length);
+        SortIntDoubleUtils.sort(idx, a);
+        System.out.println(Arrays.toString(a));
+        System.out.println(Arrays.toString(idx));
     }
 }

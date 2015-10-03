@@ -2,8 +2,11 @@
   <dictionary name="hanxuan">
     <words>
       <w>accu</w>
+      <w>aremove</w>
       <w>equa</w>
+      <w>perceptron</w>
       <w>pred</w>
+      <w>sigm</w>
     </words>
   </dictionary>
 </component>
