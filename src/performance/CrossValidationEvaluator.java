@@ -74,12 +74,12 @@ public class CrossValidationEvaluator {
             model.train();
             Predictable trainedModel = model.offer();
 
-            evaluator.setTestSet(testSet);
-            evaluator.getPredictLabel(trainedModel);
+            evaluator.initialize(testSet, trainedModel);
+            evaluator.getPredictLabel();
             double performOnTest = evaluator.evaluate();
 
-            evaluator.setTestSet(trainSet);
-            evaluator.getPredictLabel(trainedModel);
+            evaluator.initialize(trainSet, trainedModel);
+            evaluator.getPredictLabel();
             double performOnTrain = evaluator.evaluate();
 
 

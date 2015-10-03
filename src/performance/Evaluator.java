@@ -18,9 +18,11 @@ public class Evaluator {
 
     protected Label predictLabel = null;
 
+    protected Predictable model = null;
+
     public Evaluator() {}
 
-    public void getPredictLabel(Predictable model) {
+    public void getPredictLabel() {
 
         int instanceLength = testSet.getInstanceLength();
         float[] predict = new float[instanceLength];
@@ -41,7 +43,8 @@ public class Evaluator {
         return accu.get() / (double) instanceLength;
     }
 
-    public void setTestSet(DataSet testSet) {
+    public void initialize(DataSet testSet, Predictable model) {
+        this.model = model;
         this.testSet = testSet;
     }
 
