@@ -157,7 +157,7 @@ public class LRMain {
 
 //        normEquaSpamTest();
 //        lmSpamTest();
-
+        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "2");
         LogisticGradientDecent.BUCKET_COUNT = 100;
         LogisticGradientDecent.LAMBDA = 0.0;
         LogisticGradientDecent.ALPHA = 0.00005;
