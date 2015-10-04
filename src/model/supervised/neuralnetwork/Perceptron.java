@@ -24,6 +24,12 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
 
     public static final int BUCKET_COUNT = 1;
 
+    public static double COST_DECENT_THRESHOLD = 0.00000001;
+
+    public static int MAX_ROUND = 5000;
+
+    public static int PRINT_GAP = 500;
+
     private static int ITER_COUNT = 1;
 
     private static final Logger log = LogManager.getLogger(Perceptron.class);
@@ -53,7 +59,7 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
     public void train() {
 
         double[] initTheta = RandomUtils.randomZeroOneArray(data.getFeatureLength());
-        double finalCost = loop(data.getInstanceLength(), BUCKET_COUNT, initTheta);
+        double finalCost = loop(data.getInstanceLength(), BUCKET_COUNT, initTheta, COST_DECENT_THRESHOLD, MAX_ROUND, PRINT_GAP);
         log.info("Training finished, final cost: {}", finalCost);
         log.info("theta: {}", initTheta);
         log.info("Norm theta: {}", Arrays.stream(initTheta).map(x -> x / initTheta[0]).toArray());

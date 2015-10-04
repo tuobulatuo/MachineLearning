@@ -13,15 +13,12 @@ public interface Decent {
 
     Logger log = LogManager.getLogger(Decent.class);
 
-    double COST_DECENT_THRESHOLD = 0.0000000;
-
-    int MAX_ROUND = 1000000;
-
     <T> double cost(T theta);
 
     <T> void parameterGradient(int start, int end, T theta);
 
-    default <T> double loop(int instanceLength, int bucketCount, T theta) {
+    default <T> double loop(int instanceLength, int bucketCount, T theta, double costDecentThreshold, int maxRound,
+                            int printGap) {
 
         bucketCount = Math.min(bucketCount, instanceLength);
         int BUCKET_LENGTH = instanceLength / bucketCount;
@@ -46,10 +43,11 @@ public interface Decent {
                     miniCost = cost;
                 }
 
-                if (ii % 10000 == 0) {
+                if (ii % printGap == 0) {
 
-                    log.info("round {}, cost {}, theta {}", ii, cost, theta);
-                    if (deltaCost < COST_DECENT_THRESHOLD || ii > MAX_ROUND) {
+                    log.info("round {}, cost {}", ii, cost);
+                    log.debug("theta: {}", theta);
+                    if (deltaCost < costDecentThreshold || ii > maxRound) {
                         return miniCost;
                     }
                 }

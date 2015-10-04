@@ -25,6 +25,12 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
 
     public static int BUCKET_COUNT = 1;   // mini batch
 
+    public static double COST_DECENT_THRESHOLD = 0.00000001;
+
+    public static int MAX_ROUND = 5000;
+
+    public static int PRINT_GAP = 100;
+
     private static final Logger log = LogManager.getLogger(LinearGradientDecent.class);
 
     protected DecentType type = DecentType.GRADIENT;
@@ -44,7 +50,8 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
     public void train() {
 
         double[] initTheta = new double[data.getFeatureLength()];
-        double finalCost = loop(data.getInstanceLength(), BUCKET_COUNT, initTheta);
+        double finalCost = loop(data.getInstanceLength(), BUCKET_COUNT, initTheta, COST_DECENT_THRESHOLD, MAX_ROUND,
+                PRINT_GAP);
         log.info("Training finished, final cost: {}", finalCost);
         w = initTheta;
     }
