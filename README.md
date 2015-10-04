@@ -1,12 +1,12 @@
 # MachineLearning
 machine learning code for Northeastern University fall 2015
 
-(1) ALL models use Java multi-thread 
-    - Regression Tree & Classification Tree 
-    - Linear Regression
-    - Logistic Regression
-    - Perceptron
-    - Neural Network
+(1) ALL models use Java multi-thread <br/>
+    - Regression Tree & Classification Tree <br/>
+    - Linear Regression<br/>
+    - Logistic Regression<br/>
+    - Perceptron<br/>
+    - Neural Network<br/>
 
 (2) Implemented Gradient Decent framework for all models
 
