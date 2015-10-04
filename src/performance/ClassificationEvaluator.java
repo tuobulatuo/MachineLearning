@@ -21,6 +21,8 @@ public class ClassificationEvaluator extends Evaluator{
 
     public static boolean ROC = false;
 
+    public static boolean CONFUSION_MATRIX = false;
+
     public static double EPSILON = 0.45;
 
     private int truePos = 0;
@@ -57,7 +59,9 @@ public class ClassificationEvaluator extends Evaluator{
             if (trueValue <= 0 && predictValue <= 0) ++ trueNeg;
         }
 
-        printConfusionMatrix();
+        if (CONFUSION_MATRIX) {
+            printConfusionMatrix();
+        }
 
         if (ROC) {
             printROC();
