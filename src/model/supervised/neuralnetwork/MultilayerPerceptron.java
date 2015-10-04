@@ -22,7 +22,15 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
 
     private static final Logger log = LogManager.getLogger(MultilayerPerceptron.class);
 
+    public static double COST_DECENT_THRESHOLD = 0.00000001;
+
+    public static int MAX_ROUND = 5000;
+
+    public static int PRINT_GAP = 100;
+
     public static boolean PRINT_HIDDEN = false;
+
+    public static double EPSILON = 1;
 
     public static double ALPHA = 0.01;   // learning rate
 
@@ -62,15 +70,17 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
             }
 
             double[][] w = new double[layerOut][];
-            double epsilonInit = Math.sqrt(6 / (double)(layerIn + layerOut));
+            double epsilonInit = EPSILON * Math.sqrt(6 / (double)(layerIn + layerOut));
             int randMin = Math.min(layerIn, layerOut);
             int randMax = Math.max(layerIn, layerOut) + 1;
             for (int j = 0; j < layerOut; j++) {
                 w[j] = Arrays.stream(RandomUtils.randomIntRangeArray(randMin, randMax, layerIn)).
-                        mapToDouble(x -> x * 2.0 * epsilonInit - epsilonInit).toArray();
+                        mapToDouble(x ->  epsilonInit * (x * 2.0  - 1)).toArray();
             }
             theta[i - 1] = w;
         }
+
+        log.info("Initial theta: {}", Arrays.deepToString(theta));
 
         log.info("Neural Network initialized, with {} layers, theta dimension: {}, bias = {}",
                 layerCount, structure, biased);
@@ -94,19 +104,24 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
 
     @Override
     public void train() {
-        loop(data.getInstanceLength(), BUCKET_COUNT, theta);
+
+        double initialCost = cost(theta);
+        log.info("Training started, initialCost: {}", initialCost);
+        loop(data.getInstanceLength(), BUCKET_COUNT, theta, COST_DECENT_THRESHOLD, MAX_ROUND, PRINT_GAP);
         log.info("Training finished ...");
     }
 
     @Override
-    public <T> double cost(T theta) {
+    public <T> double cost(T params) {
+
+        double[][][] theta = (double[][][]) params;
 
         AtomicDouble cost = new AtomicDouble(0);
 
         IntStream.range(0, data.getInstanceLength()).parallel().forEach(
                 i -> {
                     double[] X = data.getInstance(i);
-                    double[] labels = feedForward(X, (double[][][])theta);
+                    double[] labels = feedForward(X, theta);
                     double[] ys = yVector(i);
                     double accu = 0;
                     for (int j = 0; j < ys.length; j++) {
@@ -115,7 +130,18 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
                     cost.getAndAdd(accu);
                 }
         );
-        return cost.get();
+
+        AtomicDouble punish = new AtomicDouble(0);
+        IntStream.range(0, theta.length).forEach(i -> {
+            double[][] currentTheta = theta[i];
+            for (int j = 0; j < currentTheta.length; j++) {
+                for (int k = 1; k < currentTheta[0].length; k++) {
+                    punish.getAndAdd(Math.pow(currentTheta[j][k], 2));
+                }
+            }
+        });
+
+        return cost.get() + punish.get() * LAMBDA;
     }
 
     @Override
@@ -215,6 +241,7 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
                 synchronized (g) {
                     for (int l = 0; l < g.length; l++) {
                         g[l] += DELTA[j + 1][k] * A[j][l];
+                        g[l] += l > 0 ? LAMBDA * theta[j][k][l] : 0;
                     }
                 }
             }
@@ -240,6 +267,10 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
             }
 
             double[] AZ = a(Z[j]);
+
+            log.debug("HIDDEN Z: {}-{}", j, Z[j]);
+            log.debug("HIDDEN A: {}-{}", j, AZ);
+
             if (j < layerCount - 1 && biased) {
                 int activeNodeLength = Z[j].length + 1;
                 A[j] = new double[activeNodeLength];
@@ -278,6 +309,8 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
         yVector[(int) y] = 1;
         return yVector;
     }
+
+    public double[][][] getTheta(){return theta;}
 
     public static void main(String[] args) {
         int[] struct = new int[]{6, 4, 2, 1};
