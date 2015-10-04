@@ -2,17 +2,20 @@ package ztest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.neu.util.io.FileUtils;
 import org.neu.util.rand.RandomUtils;
 import org.neu.util.sort.SortIntDoubleUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by hanxuan on 9/10/15.
  */
 public class Test {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
 //        System.out.println("hello");
 //        Clock c = Clock.systemUTC();
 //        System.out.println();
@@ -100,10 +103,29 @@ public class Test {
 
 
 
-        double[] a = {0.16472572793853585, 0.16473288429423177, 0.16364715196495644, 0.16387661017209518, 0.1623304921994822, 0.006160342174793988, 0.0024250452754503546, 0.1614497432746957};
-        int[] idx = RandomUtils.getIndexes(a.length);
-        SortIntDoubleUtils.sort(idx, a);
-        System.out.println(Arrays.toString(a));
-        System.out.println(Arrays.toString(idx));
+//        double[] a = {0.16472572793853585, 0.16473288429423177, 0.16364715196495644, 0.16387661017209518, 0.1623304921994822, 0.006160342174793988, 0.0024250452754503546, 0.1614497432746957};
+//        int[] idx = RandomUtils.getIndexes(a.length);
+//        SortIntDoubleUtils.sort(idx, a);
+//        System.out.println(Arrays.toString(a));
+//        System.out.println(Arrays.toString(idx));
+
+
+        String file1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.X.txt";
+        String file2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.y.txt";
+
+        List<String> X = FileUtils.readLines(file1);
+        List<String> y = FileUtils.readLines(file2);
+
+        List<String> l = new ArrayList<>();
+
+        for (int i = 0; i < X.size(); i++) {
+            double yi = Double.parseDouble(y.get(i));
+            if (yi == 10) yi = 0;
+            l.add(X.get(i) + "\t" + yi);
+        }
+
+        String output = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.Xy.txt";
+        FileUtils.writeLines(output, l);
+
     }
 }
