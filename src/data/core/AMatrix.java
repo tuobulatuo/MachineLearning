@@ -4,6 +4,7 @@ package data.core;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -22,6 +23,8 @@ public abstract class AMatrix {
     protected String[] featureNames = null;
 
     protected boolean[] booleanColumnIndicator = null;
+
+    protected IntPredicate constantColumn = i -> i == 0;
 
     protected IntPredicate nonBooleanFeature = i -> !booleanColumnIndicator[i];
 
@@ -60,7 +63,7 @@ public abstract class AMatrix {
         sdOrMax = new float[featureLength];
         IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> meanOrMin[i] = (float) colMin(i));
         log.debug("min: {}", meanOrMin);
-        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> sdOrMax[i] = (float) colMax(i));
+        IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> sdOrMax[i] = (float) (colMax(i) - colMin(i)));
         log.debug("max: {}", sdOrMax);
 
         scn();
@@ -73,6 +76,8 @@ public abstract class AMatrix {
     }
 
     private void scn() {
+
+        filterZeroSd();
         IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> colSubtract(i, meanOrMin[i]));
         IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> colMultiply(i, 1.0 / sdOrMax[i]));
     }
@@ -101,8 +106,20 @@ public abstract class AMatrix {
     }
 
     private void mvn() {
+
+        filterZeroSd();
         IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach(i -> colSubtract(i, meanOrMin[i]));
         IntStream.range(0, featureLength).filter(nonBooleanFeature).parallel().forEach( i -> colMultiply(i, 1.0 / sdOrMax[i]));
+    }
+
+    private void filterZeroSd() {
+
+        IntStream.range(0, sdOrMax.length).forEach(i -> {
+            if (sdOrMax[i] == 0) {
+                sdOrMax[i] = Integer.MAX_VALUE;
+                log.warn("WARNING: Feature {}: sdOrMax == 0, set it to  Integer.MAX_VALUE !!", i);
+            }
+        });
     }
 
 
