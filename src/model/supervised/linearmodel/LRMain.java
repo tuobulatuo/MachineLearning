@@ -36,7 +36,11 @@ public class LRMain {
         DataSet dataset = builder.getDataSet();
         dataset.meanVarianceNorm();
 
-        Evaluator eva = new ClassificationEvaluator();
+        NormalEquation.LAMBDA = 0.1;
+
+        ClassificationEvaluator eva = new ClassificationEvaluator();
+        ClassificationEvaluator.ROC = true;
+        ClassificationEvaluator.EPSILON = 0.45;
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, null);
         NormalEquation normalEquation= new NormalEquation();
         crossEvaluator.crossValidateEvaluate(normalEquation);
@@ -85,6 +89,9 @@ public class LRMain {
 
         DataSet dataset = builder.getDataSet();
 
+        LinearGradientDecent.BUCKET_COUNT = 5;
+        LinearGradientDecent.LAMBDA = 0.0;
+
         Evaluator eva = new Evaluator();
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.MEANSD);
         LinearGradientDecent lm = new LinearGradientDecent();
@@ -108,7 +115,9 @@ public class LRMain {
         builder.build();
 
         DataSet dataset = builder.getDataSet();
-        dataset.meanVarianceNorm();
+
+        LinearGradientDecent.BUCKET_COUNT = 5;
+        LinearGradientDecent.LAMBDA = 0.0;
 
         Evaluator eva = new ClassificationEvaluator();
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.MEANSD);
@@ -136,7 +145,12 @@ public class LRMain {
         DataSet dataset = builder.getDataSet();
         dataset.meanVarianceNorm();
 
-        Evaluator eva = new ClassificationEvaluator();
+        LogisticGradientDecent.BUCKET_COUNT = 100;
+        LogisticGradientDecent.LAMBDA = 0.1;
+        LogisticGradientDecent.ALPHA = 0.00005;
+        ClassificationEvaluator.ROC = true;
+
+        ClassificationEvaluator eva = new ClassificationEvaluator();
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.MEANSD);
         LogisticGradientDecent lg = new LogisticGradientDecent();
         crossEvaluator.crossValidateEvaluate(lg);
@@ -146,21 +160,11 @@ public class LRMain {
 
     public static void main(String[] args) throws IOException {
 
-//        NormalEquation.LAMBDA = 0.1;
-//        LinearGradientDecent.BUCKET_COUNT = 5;
-//        LinearGradientDecent.LAMBDA = 0.0;
+        normEquaHouseTest();
+        lmHouseTest();
 
-
-
-//        normEquaHouseTest();
-//        lmHouseTest();
-
-//        normEquaSpamTest();
-//        lmSpamTest();
-        System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "2");
-        LogisticGradientDecent.BUCKET_COUNT = 100;
-        LogisticGradientDecent.LAMBDA = 0.0;
-        LogisticGradientDecent.ALPHA = 0.00005;
+        normEquaSpamTest();
+        lmSpamTest();
         lgSpamTest();
     }
 }
