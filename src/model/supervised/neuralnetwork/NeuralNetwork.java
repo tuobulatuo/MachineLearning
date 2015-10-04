@@ -18,9 +18,9 @@ import java.util.stream.IntStream;
 /**
  * Created by hanxuan on 10/1/15 for machine_learning.
  */
-public class MultilayerPerceptron implements Trainable, Predictable, GradientDecent, Decent {
+public class NeuralNetwork implements Trainable, Predictable, GradientDecent, Decent {
 
-    private static final Logger log = LogManager.getLogger(MultilayerPerceptron.class);
+    private static final Logger log = LogManager.getLogger(NeuralNetwork.class);
 
     public static double COST_DECENT_THRESHOLD = 0.00000001;
 
@@ -48,7 +48,7 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
 
     private DataSet data = null;
 
-    public MultilayerPerceptron(int[] structure, boolean bias) {
+    public NeuralNetwork(int[] structure, boolean bias) {
         this.structure = structure;
         this.biased = bias;
     }
@@ -99,7 +99,7 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
         double[] labels = Arrays.stream(feedForward(feature, theta)).map(x -> x * 1000000).toArray();
         int[] index = RandomUtils.getIndexes(labels.length);
         SortIntDoubleUtils.sort(index, labels);
-        return labels[index.length - 1];
+        return index[index.length - 1] == 1 ? labels[index.length - 1] / (double) 1000000 : 1 - labels[index.length - 1] / (double) 1000000;
     }
 
     @Override
@@ -314,7 +314,7 @@ public class MultilayerPerceptron implements Trainable, Predictable, GradientDec
 
     public static void main(String[] args) {
         int[] struct = new int[]{6, 4, 2, 1};
-        MultilayerPerceptron mp = new MultilayerPerceptron(struct, false);
+        NeuralNetwork mp = new NeuralNetwork(struct, false);
         mp.initialize(null);
         log.info(Arrays.deepToString(mp.theta));
     }
