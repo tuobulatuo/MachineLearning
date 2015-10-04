@@ -1,9 +1,7 @@
 package performance;
 
-import data.DataSet;
 import data.core.Label;
-import gnu.trove.list.array.TIntArrayList;
-import model.Predictable;
+import gnu.trove.list.array.TDoubleArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neu.util.rand.RandomUtils;
@@ -35,9 +33,9 @@ public class ClassificationEvaluator extends Evaluator{
 
     private int correct = 0;
 
-    TIntArrayList truePositiveList;
+    TDoubleArrayList truePositiveList;
 
-    TIntArrayList falsePositiveList;
+    TDoubleArrayList falsePositiveList;
 
     public ClassificationEvaluator() {}
 
@@ -81,43 +79,45 @@ public class ClassificationEvaluator extends Evaluator{
         int[] index = RandomUtils.getIndexes(score.length);
         SortIntDoubleUtils.sort(index, score);
 
-        truePositiveList = new TIntArrayList();
-        falsePositiveList = new TIntArrayList();
+        truePositiveList = new TDoubleArrayList();
+        falsePositiveList = new TDoubleArrayList();
 
         int pointer = score.length - 1;
         int tp = 0;
         int fp = 0;
-        while (score[pointer] > EPSILON) {
+        while (pointer >= 0 && score[pointer] > EPSILON) {
             if (testSet.getLabel(index[pointer]) == 1) ++ tp;
             if (testSet.getLabel(index[pointer]) != 1) ++ fp;
             truePositiveList.add(tp);
             falsePositiveList.add(fp);
             -- pointer;
         }
-//        log.info("score: {}", Arrays.toString(score));
+        log.debug("score: {}", Arrays.toString(score));
     }
 
     public void printROC() {
 
         getScore();
 
-        int[] tp = truePositiveList.toArray();
-        int[] fp = falsePositiveList.toArray();
+        double[] tp = truePositiveList.toArray();
+        double[] fp = falsePositiveList.toArray();
 
-        truePositiveList = new TIntArrayList();
-        falsePositiveList = new TIntArrayList();
+        truePositiveList = new TDoubleArrayList();
+        falsePositiveList = new TDoubleArrayList();
 
-        IntStream.range(1, fp.length).forEach(i -> {
-                    if (fp[i - 1] != fp[i]) {
-                        falsePositiveList.add(fp[i]);
-                        truePositiveList.add(tp[i]);
-                    }
-                }
-        );
+        for (int i = 1; i < fp.length; i++) {
+            if (fp[i - 1] != fp[i]) {
+                falsePositiveList.add(fp[i]);
+                truePositiveList.add(tp[i]);
+            }
+        }
+
+        tp = Arrays.stream(truePositiveList.toArray()).map(x -> x / truePositiveList.max()).toArray();
+        fp = Arrays.stream(falsePositiveList.toArray()).map(x -> x / falsePositiveList.max()).toArray();
 
         log.info("================= ROC curve =================");
-        log.info("TP: {}", Arrays.toString(truePositiveList.toArray()));
-        log.info("FP: {}", Arrays.toString(falsePositiveList.toArray()));
+        log.info("TP: {}", Arrays.toString(tp));
+        log.info("FP: {}", Arrays.toString(fp));
         log.info("================= ========= =================");
     }
 
