@@ -22,7 +22,7 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
 
     public static double ALPHA = 0.001;
 
-    public static final int BUCKET_COUNT = 1;
+    public static int BUCKET_COUNT = 1;
 
     public static double COST_DECENT_THRESHOLD = 0.00000001;
 
