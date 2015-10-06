@@ -21,8 +21,6 @@ public class ClassificationEvaluator extends Evaluator{
 
     public static boolean CONFUSION_MATRIX = false;
 
-    public static double EPSILON = 0.45;
-
     private int truePos = 0;
 
     private int falsePos = 0;
@@ -85,7 +83,7 @@ public class ClassificationEvaluator extends Evaluator{
         int pointer = score.length - 1;
         int tp = 0;
         int fp = 0;
-        while (pointer >= 0 && score[pointer] > EPSILON) {
+        while (pointer >= 0) {
             if (testSet.getLabel(index[pointer]) == 1) ++ tp;
             if (testSet.getLabel(index[pointer]) != 1) ++ fp;
             truePositiveList.add(tp);
@@ -115,9 +113,16 @@ public class ClassificationEvaluator extends Evaluator{
         tp = Arrays.stream(truePositiveList.toArray()).map(x -> x / truePositiveList.max()).toArray();
         fp = Arrays.stream(falsePositiveList.toArray()).map(x -> x / falsePositiveList.max()).toArray();
 
+        double area = 0;
+        for (int i = 1; i < tp.length; i++) {
+            area += (fp[i] - fp[i - 1]) * (tp[i - 1] + tp[i]);
+        }
+        area /= 2;
+
         log.info("================= ROC curve =================");
-        log.info("TP: {}", Arrays.toString(tp));
         log.info("FP: {}", Arrays.toString(fp));
+        log.info("TP: {}", Arrays.toString(tp));
+        log.info("AUC: {}", area);
         log.info("================= ========= =================");
     }
 
