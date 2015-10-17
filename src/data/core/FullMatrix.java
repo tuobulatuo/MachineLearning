@@ -36,20 +36,20 @@ public class FullMatrix extends AMatrix {
     @Override
     public double[] getRow(int rowNum) {
         double[] out = new double[featureLength];
-        IntStream.range(0, featureLength).parallel().forEach(i -> out[i] = (double) data[rowNum][i]);
+        IntStream.range(0, featureLength).forEach(i -> out[i] = (double) data[rowNum][i]);
         return out;
     }
 
     @Override
     public double[] getCol(int colNum) {
         double[] out = new double[instanceLength];
-        IntStream.range(0, instanceLength).parallel().forEach(i -> out[i] = (double) data[i][colNum]);
+        IntStream.range(0, instanceLength).forEach(i -> out[i] = (double) data[i][colNum]);
         return out;
     }
 
     @Override
     public double colMean(int colNum) {
-        return IntStream.range(0, instanceLength).parallel().mapToDouble(i -> data[i][colNum]).sum() / instanceLength;
+        return IntStream.range(0, instanceLength).mapToDouble(i -> data[i][colNum]).sum() / instanceLength;
     }
 
     @Override
