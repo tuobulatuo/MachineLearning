@@ -4,10 +4,12 @@ import data.core.Label;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.neu.util.array.ArrayUtil;
 import org.neu.util.rand.RandomUtils;
 import org.neu.util.sort.SortIntDoubleUtils;
 
 import java.util.Arrays;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
 /**
@@ -16,6 +18,10 @@ import java.util.stream.IntStream;
 public class ClassificationEvaluator extends Evaluator{
 
     private static final Logger log = LogManager.getLogger(ClassificationEvaluator.class);
+
+    public static int SAMPLES = 500;
+
+    public static int POS = 1;
 
     public static boolean ROC = false;
 
@@ -31,9 +37,9 @@ public class ClassificationEvaluator extends Evaluator{
 
     private int correct = 0;
 
-    TDoubleArrayList truePositiveList;
+    private double[] tpr;
 
-    TDoubleArrayList falsePositiveList;
+    private double[] fpr;
 
     public ClassificationEvaluator() {}
 
@@ -69,59 +75,59 @@ public class ClassificationEvaluator extends Evaluator{
     private void getScore() {
 
         int instanceLength = testSet.getInstanceLength();
-        double[] score = new double[instanceLength];
 
-        IntStream.range(0, instanceLength).forEach(
-                i -> score[i] = model.score(testSet.getInstance(i))
-        );
-        int[] index = RandomUtils.getIndexes(score.length);
-        SortIntDoubleUtils.sort(index, score);
+        double[] score = IntStream.range(0, instanceLength).mapToDouble(i -> model.score(testSet.getInstance(i))).toArray();
+        int[] label = IntStream.range(0, instanceLength).map(i -> (int) testSet.getLabel(i)).toArray();
 
-        truePositiveList = new TDoubleArrayList();
-        falsePositiveList = new TDoubleArrayList();
+        long positiveCount = Arrays.stream(label).filter(x -> x - POS == 0).count();
+        long negativeCount = instanceLength - positiveCount;
 
-        int pointer = score.length - 1;
-        int tp = 0;
+        SortIntDoubleUtils.sort(label, score);
+        ArrayUtil.reverse(label);
+        ArrayUtil.reverse(score);
+
+        int sampleLength = Math.min(SAMPLES, instanceLength);
+        TDoubleArrayList tprList = new TDoubleArrayList(sampleLength);
+        TDoubleArrayList fprList = new TDoubleArrayList(sampleLength);
+        int sampleGap = (int) Math.ceil(instanceLength / (double) sampleLength);
+
+        log.debug("positiveCount {}  negativeCount {} sampleGap {}", positiveCount, negativeCount, sampleGap);
+
+        int pointer = 0;
         int fp = 0;
-        while (pointer >= 0) {
-            if (testSet.getLabel(index[pointer]) == 1) ++ tp;
-            if (testSet.getLabel(index[pointer]) != 1) ++ fp;
-            truePositiveList.add(tp);
-            falsePositiveList.add(fp);
-            -- pointer;
+        int tp = 0;
+        while (pointer < instanceLength){
+
+            if (label[pointer] == POS){
+                ++ tp;
+            }else {
+                ++ fp;
+            }
+
+            if (pointer % sampleGap == 0) {
+                tprList.add(tp / (double) positiveCount);
+                fprList.add(fp / (double) negativeCount);
+            }
+            ++ pointer;
         }
-        log.debug("score: {}", Arrays.toString(score));
+
+        tpr = tprList.toArray();
+        fpr = fprList.toArray();
     }
 
     public void printROC() {
 
         getScore();
 
-        double[] tp = truePositiveList.toArray();
-        double[] fp = falsePositiveList.toArray();
-
-        truePositiveList = new TDoubleArrayList();
-        falsePositiveList = new TDoubleArrayList();
-
-        for (int i = 1; i < fp.length; i++) {
-            if (fp[i - 1] != fp[i]) {
-                falsePositiveList.add(fp[i]);
-                truePositiveList.add(tp[i]);
-            }
-        }
-
-        tp = Arrays.stream(truePositiveList.toArray()).map(x -> x / truePositiveList.max()).toArray();
-        fp = Arrays.stream(falsePositiveList.toArray()).map(x -> x / falsePositiveList.max()).toArray();
-
         double area = 0;
-        for (int i = 1; i < tp.length; i++) {
-            area += (fp[i] - fp[i - 1]) * (tp[i - 1] + tp[i]);
+        for (int i = 1; i < tpr.length; i++) {
+            area += (fpr[i] - fpr[i - 1]) * (tpr[i - 1] + tpr[i]);
         }
         area /= 2;
 
         log.info("================= ROC curve =================");
-        log.info("FP: {}", Arrays.toString(fp));
-        log.info("TP: {}", Arrays.toString(tp));
+        log.info("FP: {}", Arrays.toString(fpr));
+        log.info("TP: {}", Arrays.toString(tpr));
         log.info("AUC: {}", area);
         log.info("================= ========= =================");
     }
@@ -133,7 +139,9 @@ public class ClassificationEvaluator extends Evaluator{
         log.info("FalseNeg: {}  TrueNeg: {}", falseNeg, trueNeg);
         log.info("precision: {} recall: {}", truePos / (double) (truePos + falsePos),
                 truePos / (double) (truePos + falseNeg));
+        log.info("FP rate: {} FN rate {}", falsePos / (double) (falsePos + trueNeg), falseNeg / (double) (trueNeg + falseNeg));
         log.info("accuracy: {}", (truePos + trueNeg) / (double) (truePos + trueNeg + falsePos + falseNeg));
+        log.info("error: {}", (falsePos + falseNeg) / (double) (truePos + trueNeg + falsePos + falseNeg));
         log.info("================= ================ =================");
     }
 }

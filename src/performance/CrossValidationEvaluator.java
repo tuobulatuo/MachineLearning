@@ -9,7 +9,9 @@ import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.neu.util.rand.RandomUtils;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
@@ -35,7 +37,7 @@ public class CrossValidationEvaluator {
         rowDataSet = dataSet;
         this.norm = norm;
 
-        TIntList instancesIndex = new TIntArrayList(IntStream.range(0, rowDataSet.getInstanceLength()).toArray());
+        TIntList instancesIndex = new TIntArrayList(RandomUtils.getIndexes(dataSet.getInstanceLength()));
         instancesIndex.shuffle(new Random());
         kFoldIndex = new int[k][];
         int pointer = 0;
@@ -47,6 +49,10 @@ public class CrossValidationEvaluator {
             }
             kFoldIndex[i] = a;
         }
+
+//        double[] ls = IntStream.range(0, dataSet.getInstanceLength()).mapToDouble(i -> dataSet.getLabel(i)).toArray();
+//        System.out.println(Arrays.toString(ls));
+//        System.exit(0);
     }
 
     public void crossValidateEvaluate(Trainable model) {
@@ -60,8 +66,7 @@ public class CrossValidationEvaluator {
             IntPredicate pred = (n) -> !testIndexes.contains(n);
             int[] trainIndexes = IntStream.range(0, rowDataSet.getInstanceLength()).filter(pred).toArray();
 
-            if (norm == null){}
-            else if (norm.equals(Norm.MEANSD)) {
+            if (norm.equals(Norm.MEANSD)) {
                 rowDataSet.meanVarianceNorm();
             }else if (norm.equals(Norm.MINMAX)) {
                 rowDataSet.shiftCompressNorm();
@@ -83,7 +88,7 @@ public class CrossValidationEvaluator {
             double performOnTrain = evaluator.evaluate();
 
 
-            log.info("FOLD {}/test({})/train({})", i, performOnTest, performOnTrain);
+            log.info("[{}] TEST({}) TRAIN({})", i, performOnTest, performOnTrain);
 
             avgOnTest += performOnTest;
             avgOnTrain += performOnTrain;
@@ -91,6 +96,6 @@ public class CrossValidationEvaluator {
 
         avgOnTest /= kFoldIndex.length;
         avgOnTrain /= kFoldIndex.length;
-        log.info("avgOnTest ({}), avgOnTrain ({})", avgOnTest, avgOnTrain);
+        log.info("AVG_TEST ({}), AVG_TRAIN ({})", avgOnTest, avgOnTrain);
     }
 }
