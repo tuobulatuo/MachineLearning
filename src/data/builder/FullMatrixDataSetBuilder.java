@@ -87,10 +87,10 @@ public class FullMatrixDataSetBuilder extends Builder{
             }
         }
 
-        HashMap<String, Integer> classIndexMap = new HashMap<>();
+        HashMap<Integer, Integer> classIndexMap = new HashMap<>();
         int counter = 0;
         for (String c: classCounter) {
-            classIndexMap.put(c, counter++);
+            classIndexMap.put(Integer.parseInt(c), counter++);
         }
 
         if (instanceCount != n.get()) {
@@ -102,7 +102,7 @@ public class FullMatrixDataSetBuilder extends Builder{
 
         final float[][] data = new float[instanceCount][featureCount];
         IntStream.range(0, instanceCount).forEach(i -> data[i][0] = 1);
-        final float[] label_vec = new float[instanceCount];
+        final float[] labelVec = new float[instanceCount];
 
         reader = new BufferedReader(new FileReader(path), 1024 * 1024 * 64);
 
@@ -122,7 +122,7 @@ public class FullMatrixDataSetBuilder extends Builder{
                         }
                     }
 
-                    label_vec[n.get()] = isClassification ? classIndexMap.get(es[es.length - 1].trim()) :
+                    labelVec[n.get()] = isClassification ? classIndexMap.get(Integer.parseInt(es[es.length - 1].trim())) :
                             Float.parseFloat(es[es.length - 1].trim());
 
                     n.getAndIncrement();
@@ -132,7 +132,7 @@ public class FullMatrixDataSetBuilder extends Builder{
 
         FullMatrix matrix = new FullMatrix(data, categoryIndicator, featureNames);
 
-        Label label = new Label(label_vec, classCounter);
+        Label label = new Label(labelVec, classIndexMap);
 
         dataSet = new DataSet(matrix, label);
 
