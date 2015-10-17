@@ -3,9 +3,14 @@
     <words>
       <w>accu</w>
       <w>aremove</w>
+      <w>coef</w>
       <w>equa</w>
+      <w>meansd</w>
+      <w>minmax</w>
+      <w>multinoulli</w>
       <w>perceptron</w>
       <w>pred</w>
+      <w>probs</w>
       <w>sigm</w>
     </words>
   </dictionary>

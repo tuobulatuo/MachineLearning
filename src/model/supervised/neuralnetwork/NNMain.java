@@ -4,7 +4,6 @@ import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
 import data.core.Norm;
-import model.supervised.linearmodel.LogisticGradientDecent;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
 
@@ -34,8 +33,13 @@ public class NNMain {
         builder.build();
 
         DataSet dataset = builder.getDataSet();
+        dataset.shiftCompressNorm();
         dataset.meanVarianceNorm();
-        Perceptron.ALPHA = 0.0025;
+        Perceptron.ALPHA = 0.005;
+        Perceptron.PRINT_GAP = 10;
+        Perceptron.BUCKET_COUNT = 1;
+        Perceptron.COST_DECENT_THRESHOLD = 0.000000001;
+        Perceptron.MAX_ROUND = 100;
         Perceptron perceptron = new Perceptron();
         perceptron.initialize(dataset);
         perceptron.train();
@@ -63,15 +67,21 @@ public class NNMain {
 
         int[] structure = {8, 3, 8};
         boolean biased = false;
-        MultilayerPerceptron.BUCKET_COUNT = 1;
-        MultilayerPerceptron nn = new MultilayerPerceptron(structure, biased);
+        NeuralNetwork.BUCKET_COUNT = 1;
+        NeuralNetwork.MAX_ROUND = 40000;
+        NeuralNetwork.COST_DECENT_THRESHOLD = 0;
+        NeuralNetwork.PRINT_GAP = 10000;
+        NeuralNetwork.ALPHA = 0.01;
+        NeuralNetwork.LAMBDA = 0.001;
+        NeuralNetwork.EPSILON = 0.1;
+        NeuralNetwork nn = new NeuralNetwork(structure, biased);
         nn.initialize(dataset);
         nn.train();
 
-        MultilayerPerceptron.PRINT_HIDDEN = false;
+        NeuralNetwork.PRINT_HIDDEN = true;
         for (int i = 0; i < dataset.getInstanceLength(); i++) {
             double[] X = dataset.getInstance(i);
-            System.out.println(Arrays.toString(X) + " => " + Arrays.toString(nn.yVector((int)nn.predict(X))));
+            System.out.println(Arrays.toString(X) + " | " + Arrays.toString(nn.yVector((int)nn.predict(X))));
         }
     }
 
@@ -93,21 +103,22 @@ public class NNMain {
 
         DataSet dataset = builder.getDataSet();
 
-        int[] structure = {401, 51, 26, 10};
+        int[] structure = {401, 26, 10};
         boolean biased = true;
-        MultilayerPerceptron.BUCKET_COUNT = 10;
-        MultilayerPerceptron.ALPHA = 0.00125;
-        MultilayerPerceptron.LAMBDA = 0.00000;
-        MultilayerPerceptron.COST_DECENT_THRESHOLD = 0;
-        MultilayerPerceptron.MAX_ROUND = 3000;
-        MultilayerPerceptron.PRINT_HIDDEN = false;
-        MultilayerPerceptron.EPSILON = 0.0001;
-        MultilayerPerceptron nn = new MultilayerPerceptron(structure, biased);
+        NeuralNetwork.BUCKET_COUNT = 1;
+        NeuralNetwork.ALPHA = 0.001 / NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.LAMBDA = 0.001 / NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.COST_DECENT_THRESHOLD = 0;
+        NeuralNetwork.MAX_ROUND = 5000;
+        NeuralNetwork.PRINT_GAP = 10;
+        NeuralNetwork.PRINT_HIDDEN = false;
+        NeuralNetwork.EPSILON = 0.0001;
+        NeuralNetwork nn = new NeuralNetwork(structure, biased);
 
         // 0.91 accu
 
         ClassificationEvaluator eva = new ClassificationEvaluator();
-        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, null);
+        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.MEANSD);
         crossEvaluator.crossValidateEvaluate(nn);
     }
 
@@ -131,15 +142,17 @@ public class NNMain {
 
         int[] structure = {58, 15, 2};
         boolean biased = true;
-        MultilayerPerceptron.BUCKET_COUNT = 1;
-        MultilayerPerceptron.ALPHA = 0.00001;
-        MultilayerPerceptron.LAMBDA = 0.00000;
-        MultilayerPerceptron.COST_DECENT_THRESHOLD = 0;
-        MultilayerPerceptron.MAX_ROUND = 8000;
-        MultilayerPerceptron.PRINT_GAP = 50;
-        MultilayerPerceptron.PRINT_HIDDEN = false;
-        MultilayerPerceptron.EPSILON = 0.002;
-        MultilayerPerceptron nn = new MultilayerPerceptron(structure, biased);
+        NeuralNetwork.BUCKET_COUNT = 5;
+        NeuralNetwork.ALPHA = 0.0001 / (double) NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.LAMBDA = 0.00001 / (double) NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.COST_DECENT_THRESHOLD = 0;
+        NeuralNetwork.MAX_ROUND = 8000;
+        NeuralNetwork.PRINT_GAP = 50;
+        NeuralNetwork.PRINT_HIDDEN = false;
+        NeuralNetwork.EPSILON = 0.002;
+        NeuralNetwork nn = new NeuralNetwork(structure, biased);
+
+        ClassificationEvaluator.ROC = true;
 
         ClassificationEvaluator eva = new ClassificationEvaluator();
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.MEANSD);
@@ -148,12 +161,12 @@ public class NNMain {
 
     public static void main(String[] args) throws Exception{
 
-//        perceptronTest();
+        perceptronTest();
 
 //        neuralNetworkTest();
 
 //        neuralNetworkDigitsTest();
-
-        neuralNetworkSpam();
+//
+//        neuralNetworkSpam();
     }
 }

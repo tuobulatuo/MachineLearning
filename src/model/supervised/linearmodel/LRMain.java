@@ -40,7 +40,6 @@ public class LRMain {
 
         ClassificationEvaluator eva = new ClassificationEvaluator();
         ClassificationEvaluator.ROC = true;
-        ClassificationEvaluator.EPSILON = 0.45;
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, null);
         NormalEquation normalEquation= new NormalEquation();
         crossEvaluator.crossValidateEvaluate(normalEquation);
@@ -146,8 +145,9 @@ public class LRMain {
         dataset.meanVarianceNorm();
 
         LogisticGradientDecent.BUCKET_COUNT = 100;
-        LogisticGradientDecent.LAMBDA = 0.1;
+        LogisticGradientDecent.LAMBDA = 0.0;
         LogisticGradientDecent.ALPHA = 0.00005;
+        LogisticGradientDecent.MAX_ROUND = 8000;
         ClassificationEvaluator.ROC = true;
 
         ClassificationEvaluator eva = new ClassificationEvaluator();
@@ -160,11 +160,11 @@ public class LRMain {
 
     public static void main(String[] args) throws IOException {
 
-        normEquaHouseTest();
-        lmHouseTest();
+//        normEquaHouseTest();
+//        lmHouseTest();
 
-        normEquaSpamTest();
-        lmSpamTest();
+//        normEquaSpamTest();
+//        lmSpamTest();
         lgSpamTest();
     }
 }
