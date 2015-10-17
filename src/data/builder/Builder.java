@@ -86,7 +86,7 @@ public abstract class Builder {
         IntStream.range(0, ma.getFeatureLength()).forEach(i -> log.info("{} Mean:{}", i, ma.colMean(i)));
 
         Label l = dataset.getLabels();
-        log.info("getCategories: {}", l.getCategories());
+        log.info("getClassIndexMap: {}", l.getClassIndexMap());
         log.info("getVector: {}", l.getVector());
 
     }
