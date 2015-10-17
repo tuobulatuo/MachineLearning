@@ -1,20 +1,10 @@
 package data;
 
-import com.google.common.primitives.Ints;
 import data.core.Label;
 import data.core.AMatrix;
-import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
+import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
+import java.util.Set;
 
 /**
  * Created by hanxuan on 9/17/15.
@@ -34,7 +24,7 @@ public class DataSet {
 
     public DataSet subDataSetByRow(int[] rowIndexes) {
         AMatrix subMatrix = featureMatrix.subMatrixByRow(rowIndexes);
-        Label subLabels = labels.subLableByRow(rowIndexes);
+        Label subLabels = labels.subLabelByRow(rowIndexes);
         return new DataSet(subMatrix, subLabels);
     }
 
@@ -64,9 +54,27 @@ public class DataSet {
         return featureMatrix.getRow(i);
     }
 
+    public double[] getFeatureCol(int featureIndex) {
+        return featureMatrix.getCol(featureIndex);
+    }
+
+    public double[] getFeatureColFilteredByLabel(int col, Set<Integer> ls) {
+
+        TDoubleArrayList filterFeature = new TDoubleArrayList(getInstanceLength());
+        double[] feature = featureMatrix.getCol(col);
+        for (int i = 0; i < feature.length; i++) {
+            if (ls.contains((int) getLabel(i))) filterFeature.add(feature[i]);
+        }
+        return filterFeature.toArray();
+    }
+
     public double getLabel(int i) {
 
         return labels.getRow(i);
+    }
+
+    public double getCategoryProportion(int category) {
+        return labels.getLabelQuotient(category);
     }
 
     public AMatrix getFeatureMatrix() {
