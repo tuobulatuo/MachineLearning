@@ -5,5 +5,6 @@ package data.core;
  */
 public enum Norm {
     MEANSD,
-    MINMAX
+    MINMAX,
+    NULL
 }
