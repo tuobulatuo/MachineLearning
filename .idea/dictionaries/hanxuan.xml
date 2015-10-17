@@ -7,11 +7,13 @@
       <w>equa</w>
       <w>meansd</w>
       <w>minmax</w>
+      <w>minusmu</w>
       <w>multinoulli</w>
       <w>perceptron</w>
       <w>pred</w>
       <w>probs</w>
       <w>sigm</w>
+      <w>sigmam</w>
     </words>
   </dictionary>
 </component>
