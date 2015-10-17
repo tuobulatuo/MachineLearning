@@ -7,6 +7,10 @@ machine learning code for Northeastern University fall 2015
     - Logistic Regression<br/>
     - Perceptron<br/>
     - Neural Network<br/>
+    - Gaussian Discriminant Analysis<br/>
+        1) Single Gaussian Model<br/>
+        2) Mixed Gaussian Model <br/>
+    - Naive Bayes: Bernoulli + Gaussian<br/>
 
 (2) Implemented Gradient Decent framework for all models
 
