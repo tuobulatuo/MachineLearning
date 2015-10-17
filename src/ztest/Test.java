@@ -1,14 +1,17 @@
 package ztest;
 
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neu.util.io.FileUtils;
 import org.neu.util.rand.RandomUtils;
 import org.neu.util.sort.SortIntDoubleUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.IntPredicate;
 
 /**
  * Created by hanxuan on 9/10/15.
@@ -110,22 +113,49 @@ public class Test {
 //        System.out.println(Arrays.toString(idx));
 
 
-        String file1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.X.txt";
-        String file2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.y.txt";
+//        String file1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.X.txt";
+//        String file2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.y.txt";
+//
+//        List<String> X = FileUtils.readLines(file1);
+//        List<String> y = FileUtils.readLines(file2);
+//
+//        List<String> l = new ArrayList<>();
+//
+//        for (int i = 0; i < X.size(); i++) {
+//            double yi = Double.parseDouble(y.get(i));
+//            if (yi == 10) yi = 0;
+//            l.add(X.get(i) + "\t" + yi);
+//        }
+//
+//        String output = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.Xy.txt";
+//        FileUtils.writeLines(output, l);
 
-        List<String> X = FileUtils.readLines(file1);
-        List<String> y = FileUtils.readLines(file2);
+//        HashSet<Integer> set = new HashSet<>();
+//        set.add(1);
+//        set.add(2);
 
-        List<String> l = new ArrayList<>();
+//        HashSet<Integer> set = new HashSet<>(Arrays.asList(1));
+//        for (int e : set) System.out.println(e);
 
-        for (int i = 0; i < X.size(); i++) {
-            double yi = Double.parseDouble(y.get(i));
-            if (yi == 10) yi = 0;
-            l.add(X.get(i) + "\t" + yi);
-        }
 
-        String output = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.Xy.txt";
-        FileUtils.writeLines(output, l);
+        double[] x1 = new double[]{0, 0, 0, 0, 0};
+        double[] x2 = new double[]{6, 7, 8, 1, 2, 3, 4, 5};
+        double[] x3 = new double[]{2, 4, 6, 8, 10};
+        double[] x4 = new double[]{0, 0, 0, 0, 0};
+
+//        Percentile percentile = new Percentile();
+//        System.out.println(percentile.evaluate(x2, 100));
+//        Arrays.stream(x2).summaryStatistics();
+//        NormalDistribution[] nds = new NormalDistribution[3];
+//        for (int i = 0; i < 3; i++) {
+//            System.out.println(nds[i]);
+//        }
+
+//        TDoubleArrayList l = new TDoubleArrayList(x2);
+//        l.shuffle(new Random());
+//        System.out.println(Arrays.toString(l.toArray()));
+//        IntPredicate posIndicator = i -> testSet.getLabel(i) - POS == 0;
+//        long positiveCount = Arrays.stream(label).filter(posIndicator).summaryStatistics().getCount();
 
     }
 }

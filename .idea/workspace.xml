@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="eb70458a-c053-4831-92a2-c82109c57994" name="Default" comment="add get col filtered by category logic">
       <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/algorithms/Init.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/model/supervised/linearmodel/LRMain.java" afterPath="$PROJECT_DIR$/src/model/supervised/linearmodel/LRMain.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/model/supervised/neuralnetwork/NNMain.java" afterPath="$PROJECT_DIR$/src/model/supervised/neuralnetwork/NNMain.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/ztest/Test.java" afterPath="$PROJECT_DIR$/src/ztest/Test.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/hanxuan.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/hanxuan.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="machine_learning.iws" />
@@ -1069,12 +1066,6 @@
       <option name="number" value="Default" />
       <updated>1441908256759</updated>
     </task>
-    <task id="LOCAL-00031" summary="normalize all data set including training and testing">
-      <created>1443620400399</created>
-      <option name="number" value="00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1443620400399</updated>
-    </task>
     <task id="LOCAL-00032" summary="NormalEquation Ridge punishment">
       <created>1443620443370</created>
       <option name="number" value="00032" />
@@ -1363,7 +1354,13 @@
       <option name="project" value="LOCAL" />
       <updated>1445093826573</updated>
     </task>
-    <option name="localTasksCounter" value="80" />
+    <task id="LOCAL-00080" summary="minor change">
+      <created>1445093853842</created>
+      <option name="number" value="00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1445093853842</updated>
+    </task>
+    <option name="localTasksCounter" value="81" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1439,12 +1436,12 @@
     <MESSAGE value="add get col filtered by category logic" />
     <MESSAGE value="removed parallel" />
     <MESSAGE value="Index map -&gt; &lt;int, int&gt;" />
-    <MESSAGE value="minor change" />
     <MESSAGE value="add classIndex map and indexClass map" />
     <MESSAGE value="GDA finished" />
     <MESSAGE value="norm : + NULL" />
     <MESSAGE value="Naive Bayes models: Ber + Gaussian" />
-    <option name="LAST_COMMIT_MESSAGE" value="Naive Bayes models: Ber + Gaussian" />
+    <MESSAGE value="minor change" />
+    <option name="LAST_COMMIT_MESSAGE" value="minor change" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
