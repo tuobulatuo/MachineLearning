@@ -165,8 +165,7 @@ public class MixtureGaussianEM implements EM {
             }
 
             for (int i = 0; i < featureLength; i++) {
-//                if (sigmam[i][i] < Math.pow(STABLE_COEF, 2))
-                sigmam[i][i] += STABLE_COEF;    // smoothing diagonal
+                sigmam[i][i] += STABLE_COEF;    // smoothing diagonal (Math: put a normal prior to mu)
             }
 
             log.debug("sigma M ({}), {}:", component, sigmam);
