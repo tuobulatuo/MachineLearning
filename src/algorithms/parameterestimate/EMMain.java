@@ -30,7 +30,7 @@ public class EMMain {
 
         MixtureGaussianEM.MAX_ROUND = 500;
         MixtureGaussianEM.PRINT_GAP = 10;
-        MixtureGaussianEM.THRESHOLD = 1E-3;
+        MixtureGaussianEM.THRESHOLD = 1E-10;
 
         MixtureGaussianDiscriminantAnalysis.COMPONENTS = 2;
         MixtureGaussianDiscriminantAnalysis mixGDA = new MixtureGaussianDiscriminantAnalysis();
@@ -59,7 +59,7 @@ public class EMMain {
 
         MixtureGaussianEM.MAX_ROUND = 500;
         MixtureGaussianEM.PRINT_GAP = 10;
-        MixtureGaussianEM.THRESHOLD = 1E-5;
+        MixtureGaussianEM.THRESHOLD = 1E-10;
 
         MixtureGaussianDiscriminantAnalysis.COMPONENTS = 3;
         MixtureGaussianDiscriminantAnalysis mixGDA = new MixtureGaussianDiscriminantAnalysis();
