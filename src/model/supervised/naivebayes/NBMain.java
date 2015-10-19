@@ -66,9 +66,9 @@ public class NBMain {
 
         ClassificationEvaluator.ROC = true;
         ClassificationEvaluator.POS = 1;
-        ClassificationEvaluator.CONFUSION_MATRIX = true;
+        ClassificationEvaluator.CONFUSION_MATRIX = false;
         ClassificationEvaluator eva = new ClassificationEvaluator();
-        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.MEANSD);
+        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.NULL);
         crossEvaluator.crossValidateEvaluate(g);
 
     }

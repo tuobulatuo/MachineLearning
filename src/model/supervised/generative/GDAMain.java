@@ -1,5 +1,6 @@
 package model.supervised.generative;
 
+import algorithms.parameterestimate.MixtureGaussianEM;
 import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
@@ -30,17 +31,53 @@ public class GDAMain {
 
         DataSet dataset = builder.getDataSet();
 
-        GaussianDiscriminantAnalysis.COV_DISTINCT = false;
+        GaussianDiscriminantAnalysis.COV_DISTINCT = true;
         GaussianDiscriminantAnalysis gda = new GaussianDiscriminantAnalysis();
 
         ClassificationEvaluator.ROC = true;
         ClassificationEvaluator eva = new ClassificationEvaluator();
-        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.MEANSD);
+        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.NULL);
         crossEvaluator.crossValidateEvaluate(gda);
+
+    }
+
+    public static void mixtureGDATest() throws Exception{
+
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spambase/spambase.data";;
+        String sep = ",";
+        boolean hasHeader = false;
+        boolean needBias = false;
+        int m = 57;
+        int n = 4700;
+        int[] featureCategoryIndex = {};
+        boolean classification = true;
+
+        Builder builder =
+                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, classification);
+
+        builder.build();
+
+        DataSet dataset = builder.getDataSet();
+
+        MixtureGaussianEM.MAX_ROUND = 500;
+        MixtureGaussianEM.PRINT_GAP = 1;
+        MixtureGaussianEM.THRESHOLD = 1;
+
+        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 100;
+        MixtureGaussianDiscriminantAnalysis.MAX_THREADS = 2;
+        MixtureGaussianDiscriminantAnalysis mixGDA = new MixtureGaussianDiscriminantAnalysis();
+
+        ClassificationEvaluator.ROC = true;
+        ClassificationEvaluator.CONFUSION_MATRIX = false;
+        ClassificationEvaluator eva = new ClassificationEvaluator();
+        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.NULL);
+        crossEvaluator.crossValidateEvaluate(mixGDA);
 
     }
 
     public static void main(String[] args) throws Exception{
         gdaTest();
+
+        mixtureGDATest();
     }
 }

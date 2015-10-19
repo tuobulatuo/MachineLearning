@@ -22,15 +22,15 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
 
     private static Logger log = LogManager.getLogger(GaussianDiscriminantAnalysis.class);
 
-    private static double STABLE_COEF = 1E-15D;
+    private static double STABLE_COEF = 1E-5D;
 
     private MultivariateNormalDistribution[] models = null;
 
     private double[] priors = null;
 
-    private int categoryCount = Integer.MIN_VALUE;
+    private int classCount = Integer.MIN_VALUE;
 
-    private int featureCount = Integer.MIN_VALUE;
+    private int featureLength = Integer.MIN_VALUE;
 
     private double[][] covariancesCommon = null;
 
@@ -40,11 +40,11 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
 
     @Override
     public double predict(double[] feature) {
-        double[] probabilities = new double[categoryCount];
+        double[] probabilities = new double[classCount];
         for (int i = 0; i < models.length; i++) {
             probabilities[i] = models[i].density(feature) * priors[i];
         }
-        int[] index = RandomUtils.getIndexes(categoryCount);
+        int[] index = RandomUtils.getIndexes(classCount);
         SortIntDoubleUtils.sort(index, probabilities);
         log.debug(probabilities[probabilities.length - 1]);
         return index[index.length - 1];
@@ -53,18 +53,17 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
     @Override
     public void train() {
 
-        priors = new double[categoryCount];
+        priors = new double[classCount];
         for (int category : indexClassMap.keySet()) {
             priors[category] = data.getCategoryProportion(category);
         }
 
-        models = new MultivariateNormalDistribution[categoryCount];
         for (int category : indexClassMap.keySet()) {
-            final double[] means = new double[featureCount];
+            final double[] means = new double[featureLength];
             fillMean(new HashSet<>(Arrays.asList(category)), means);
             MultivariateNormalDistribution mnd;
             if (COV_DISTINCT) {
-                final double[][] covariances = new double[featureCount][featureCount];
+                final double[][] covariances = new double[featureLength][featureLength];
                 fillCovariance(new HashSet<>(Arrays.asList(category)), covariances);
                 mnd = new MultivariateNormalDistribution(means, covariances);
             } else {
@@ -78,7 +77,7 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
 
     private void fillMean(Set<Integer> category, double[] initMeans) {
 
-        for (int i = 0; i < featureCount; i++) {
+        for (int i = 0; i < featureLength; i++) {
             double[] x = data.getFeatureColFilteredByLabel(i, category);
             log.debug("label: {} x: {}", category, Arrays.toString(x));
             initMeans[i] = Arrays.stream(x).average().getAsDouble();
@@ -87,19 +86,17 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
 
     private void fillCovariance(Set<Integer> category, double[][] initCovs) {
 
-        Random rand = new Random();
-
         Covariance covariance = new Covariance();
-        for (int i = 0; i < featureCount; i++) {
+        for (int i = 0; i < featureLength; i++) {
             double[] x1 = data.getFeatureColFilteredByLabel(i, category);
             final int FEATURE_I = i;
-            IntStream.range(i, featureCount).parallel().forEach(
+            IntStream.range(i, featureLength).parallel().forEach(
                     j -> {
                         double[] x2 = data.getFeatureColFilteredByLabel(j, category);
                         double cov = covariance.covariance(x1, x2, true);
 
-                        if (j == FEATURE_I) {
-                            cov += rand.nextDouble() * STABLE_COEF;
+                        if (cov == 0) {
+                            cov = STABLE_COEF;
                         }
 
                         initCovs[FEATURE_I][j] = cov;
@@ -114,8 +111,9 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
 
         data = d;
         indexClassMap = d.getLabels().getIndexClassMap();
-        categoryCount = indexClassMap.size();
-        featureCount = data.getFeatureLength();
+        classCount = indexClassMap.size();
+        featureLength = data.getFeatureLength();
+        models = new MultivariateNormalDistribution[classCount];
         if (!COV_DISTINCT) {
             covariancesCommon = new double[data.getFeatureLength()][data.getFeatureLength()];
             fillCovariance(indexClassMap.keySet(), covariancesCommon);
