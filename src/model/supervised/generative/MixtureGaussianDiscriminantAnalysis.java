@@ -66,8 +66,7 @@ public class MixtureGaussianDiscriminantAnalysis implements Trainable, Predictab
         for (int i = 0; i < models.length; i++) {
             probabilities[i] = mixtureDensity(feature, i) * priors[i];
         }
-        double score = probabilities[1] / probabilities[0];
-        if (Double.isInfinite(score) || Double.isNaN(score)) score = Double.MAX_VALUE;
+        double score = probabilities[1] - probabilities[0];
         return score;
     }
 

@@ -92,15 +92,17 @@ public class NBMain {
 
         DataSet dataset = builder.getDataSet();
 
-        MixtureGaussianEM.THRESHOLD = 0;
+        MixtureGaussianEM.THRESHOLD = 1E-300;
+        MixtureGaussianEM.MAX_ROUND = 1000;
+        MixtureGaussianEM.PRINT_GAP = 200;
 
-        MixtureGaussian.COMPONENTS = 9;
+        MixtureGaussian.COMPONENTS = 3;
         MixtureGaussian.MAX_THREADS = 2;
         MixtureGaussian mixtureGaussianNB = new MixtureGaussian();
 
-        ClassificationEvaluator.ROC = false;
+        ClassificationEvaluator.ROC = true;
         ClassificationEvaluator.POS = 1;
-        ClassificationEvaluator.CONFUSION_MATRIX = false;
+        ClassificationEvaluator.CONFUSION_MATRIX = true;
         ClassificationEvaluator eva = new ClassificationEvaluator();
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.NULL);
         crossEvaluator.crossValidateEvaluate(mixtureGaussianNB);
