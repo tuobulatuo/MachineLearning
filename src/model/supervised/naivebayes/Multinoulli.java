@@ -36,7 +36,6 @@ public class Multinoulli extends NaiveBayes{
                 probabilities[classIndex] += Math.log(p[binIndex]);
             }
         }
-        IntStream.range(0, classCount).forEach(i -> probabilities[i] = NumericalComputation.sigmoid(probabilities[i]));
         return probabilities;
     }
 

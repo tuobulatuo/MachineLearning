@@ -68,7 +68,7 @@ public class MixtureGaussianEM implements EM {
         }
 
         for (int dataIndex = 0; dataIndex < dataLength; dataIndex++) {
-             Arrays.fill(z[dataIndex], 1 / (double) components);
+            z[dataIndex] =  RandomUtils.randomSumOneArray(components);
         }
 
         sigma();
@@ -165,6 +165,7 @@ public class MixtureGaussianEM implements EM {
             }
 
             for (int i = 0; i < featureLength; i++) {
+//                if (sigmam[i][i] < Math.pow(STABLE_COEF, 2))
                 sigmam[i][i] += STABLE_COEF;    // smoothing diagonal
             }
 

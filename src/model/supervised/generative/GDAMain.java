@@ -79,6 +79,6 @@ public class GDAMain {
 
         gdaTest();
 
-//        mixtureGDATest();
+        mixtureGDATest();
     }
 }

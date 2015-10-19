@@ -33,7 +33,6 @@ public class Gaussian extends NaiveBayes{
                 probabilities[classIndex] += Math.log(p);
             }
         }
-        IntStream.range(0, classCount).forEach(i -> probabilities[i] = NumericalComputation.sigmoid(probabilities[i]));
         return probabilities;
     }
 

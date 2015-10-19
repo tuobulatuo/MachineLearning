@@ -92,11 +92,11 @@ public class NBMain {
 
         DataSet dataset = builder.getDataSet();
 
-        MixtureGaussianEM.THRESHOLD = 1E-300;
+        MixtureGaussianEM.THRESHOLD = 1E-5;
         MixtureGaussianEM.MAX_ROUND = 1000;
         MixtureGaussianEM.PRINT_GAP = 200;
 
-        MixtureGaussian.COMPONENTS = 3;
+        MixtureGaussian.COMPONENTS = 9;
         MixtureGaussian.MAX_THREADS = 2;
         MixtureGaussian mixtureGaussianNB = new MixtureGaussian();
 
@@ -111,14 +111,13 @@ public class NBMain {
 
     public static void main(String[] args) throws Exception{
 
-//        multinoulliNBTest(2, new double[]{80});
-//        System.out.println("\n\n\n");
-//        multinoulliNBTest(4, new double[]{25, 50, 75});
-//        System.out.println("\n\n\n");
-//        multinoulliNBTest(9, new double[]{11, 22, 33, 44, 55, 66, 77, 88});
-//
-//        gaussianNBTest();
+        multinoulliNBTest(2, new double[]{80});
+        System.out.println("\n\n\n");
+        multinoulliNBTest(4, new double[]{25, 50, 75});
+        System.out.println("\n\n\n");
+        multinoulliNBTest(9, new double[]{11, 22, 33, 44, 55, 66, 77, 88});
 
+        gaussianNBTest();
 
         mixGaussianNBTest();
     }
