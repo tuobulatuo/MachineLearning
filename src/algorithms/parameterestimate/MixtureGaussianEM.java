@@ -3,26 +3,29 @@ package algorithms.parameterestimate;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.neu.util.array.ArraySumUtil;
+import org.neu.util.rand.RandomUtils;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 10/17/15 for machine_learning.
  */
-public class MixGaussianEM implements EM {
+public class MixtureGaussianEM implements EM {
 
-    public static int MAX_ROUND = 5000;
+    public static int MAX_ROUND = 500;
 
     public static int PRINT_GAP = 100;
 
     public static double THRESHOLD = 1E-5;
 
-    private static double STABLE_COEF = 1E-10;
+    private static double STABLE_COEF = 1E-1;
 
     private int round = 0;
 
-    private static Logger log = LogManager.getLogger(MixGaussianEM.class);
+    private static Logger log = LogManager.getLogger(MixtureGaussianEM.class);
 
     private DataPointSet data = null;
 
@@ -44,7 +47,7 @@ public class MixGaussianEM implements EM {
 
     private double currentLikelihood = Integer.MAX_VALUE;
 
-    public MixGaussianEM (DataPointSet data, int components) {
+    public MixtureGaussianEM(DataPointSet data, int components) {
 
         this.data = data;
         this.components = components;
@@ -60,33 +63,56 @@ public class MixGaussianEM implements EM {
         mu = new double[components][featureLength];
         pi = new double[components];
 
-        IntStream.range(0, components).forEach(i -> Arrays.fill(z[i], 1 / (double) components));
-        pi();
-        mu();
+        for (int component = 0; component < components; component++) {
+            pi[component] = 1 / (double) components;
+            mu[component] = RandomUtils.randomSumOneArray(featureLength);
+        }
+
+        for (int dataIndex = 0; dataIndex < dataLength; dataIndex++) {
+             Arrays.fill(z[dataIndex], 1 / (double) components);
+        }
+
         sigma();
 
-        log.info("MixGaussianEM initialized: {} components, {} data points, {} feature", components, dataLength, featureLength);
+        log.debug("init sigma: {}", sigma);
+
+        log.info("MixtureGaussianEM initialized: [{}] components, [{}] data points, [{}] feature", components, dataLength, featureLength);
     }
 
     @Override
     public void e() {
-        z();
 
-        if (round++ % PRINT_GAP == 0) {
-            log.info("[{}] round likelihood {}", currentLikelihood);
-        }
+        z();
     }
 
     @Override
     public void m() {
+
         pi();
         mu();
         sigma();
+
+        if (round++ % PRINT_GAP == 0) {
+            log.info("[{}] round likelihood {}", round, currentLikelihood);
+        }
     }
 
     @Override
     public boolean convergence() {
-        return (round > MAX_ROUND) || (currentLikelihood - previousLikelihood < THRESHOLD);
+
+        if ((round > MAX_ROUND) || (Math.abs(currentLikelihood - previousLikelihood) < THRESHOLD)) {
+            log.info("***** MixtureGaussianEM convergence met *****");
+            log.info("({}) / ({})", round, MAX_ROUND);
+            log.info("{} - {} < {}", currentLikelihood, previousLikelihood, THRESHOLD);
+            log.info("Final Params: ");
+            log.info("mu {}:", mu);
+            log.info("sigma {}", sigma);
+            log.info("pi {}", pi);
+            log.info("**************** Now stop EM ****************");
+            return true;
+        }
+
+        return false;
     }
 
     private void pi() {
@@ -94,9 +120,14 @@ public class MixGaussianEM implements EM {
             double zm = zm(component);
             pi[component] = zm / dataLength;
         }
+
+        log.debug("sum Pi : {}", ArraySumUtil.sum(pi));
     }
 
     private void mu () {
+
+        IntStream.range(0, components).forEach(i -> Arrays.fill(mu[i], 0));
+
         for (int component = 0; component < components; component++) {
             double zm = zm(component);
             for (int dataIndex = 0; dataIndex < dataLength; dataIndex++) {
@@ -105,10 +136,15 @@ public class MixGaussianEM implements EM {
                     mu[component][featureIndex] += x[featureIndex] * z[dataIndex][component] / zm;
                 }
             }
+
+            log.debug("mu M ({}), {}:", component, mu[component]);
         }
     }
 
     private void sigma() {
+
+        IntStream.range(0, components).forEach(
+                i -> IntStream.range(0, featureLength).forEach(j -> Arrays.fill(sigma[i][j], 0)));
 
         for (int component = 0; component < components; component++) {
             double zm = zm(component);
@@ -117,7 +153,10 @@ public class MixGaussianEM implements EM {
                 double[] x = data.getI(dataIndex);
                 double[] mum = mu[component];
                 for (int featureIndex1 = 0; featureIndex1 < featureLength; featureIndex1++) {
-                    for (int featureIndex2 = featureIndex1; featureIndex2 < featureLength; featureIndex2++) {
+
+                    sigmam[featureIndex1][featureIndex1] += Math.pow(x[featureIndex1] - mum[featureIndex1], 2) * z[dataIndex][component] / zm;
+
+                    for (int featureIndex2 = featureIndex1 + 1; featureIndex2 < featureLength; featureIndex2++) {
                         double accu = (x[featureIndex1] - mum[featureIndex1]) * (x[featureIndex2] - mum[featureIndex2]);
                         accu = accu * z[dataIndex][component] / zm;
                         sigmam[featureIndex1][featureIndex2] += accu;
@@ -126,47 +165,77 @@ public class MixGaussianEM implements EM {
                 }
             }
 
+//            Random rand = new Random();
             for (int i = 0; i < featureLength; i++) {
                 sigmam[i][i] += STABLE_COEF;    // smoothing diagonal
             }
+
+            log.debug("sigma M ({}), {}:", component, sigmam);
         }
     }
 
     private void z() {
 
-        double likelihood = 0;
+        IntStream.range(0, dataLength).forEach(i -> Arrays.fill(z[i], 0));
 
         double[] densitySum = new double[dataLength];
         for (int component = 0; component < components; component++) {
-            MultivariateNormalDistribution distribution = new MultivariateNormalDistribution(mu[component], sigma[component]);
+
+            MultivariateNormalDistribution distribution = null;
+            try{
+                distribution = new MultivariateNormalDistribution(mu[component], sigma[component]);
+            }catch (Exception e){
+                log.error(e.getMessage(), e);
+                log.error("sigmam: {}", sigma[component]);
+//                initialize();
+//                z();
+                System.exit(-1);
+            }
+
             for (int dataIndex = 0; dataIndex < dataLength; dataIndex++) {
                 double[] x = data.getI(dataIndex);
                 double density = distribution.density(x);
-                z[dataIndex][component] = density * pi[component];
-                densitySum[dataIndex] += density * pi[component];
 
-                likelihood += Math.log(density * pi[component]);
+                if (density == 0) {
+                    log.debug("0 density for data {} component {}", dataIndex, component);
+                }
+
+                z[dataIndex][component] = density * pi[component];
+
+                densitySum[dataIndex] += density * pi[component];
             }
         }
 
+        double likelihood = 0;
         for (int dataIndex = 0; dataIndex < dataLength; dataIndex++) {
             double[] zi = z[dataIndex];
             double normalizeFactor = densitySum[dataIndex];
-            Arrays.setAll(zi, i -> zi[i] / normalizeFactor );
+            if (normalizeFactor == 0) {
+                Arrays.fill(zi, 1 / (double) components);
+            }else {
+                likelihood += Math.log(normalizeFactor);
+                IntStream.range(0, components).forEach(i -> zi[i] /= normalizeFactor);
+            }
+            log.debug("zi {} {}", dataIndex, zi);
         }
 
+        double s = 0;
+        for (int i = 0; i < components; i++) {
+            s += zm(i);
+        }
+
+        log.debug("z sum {}", s);
+
+        likelihood /= dataLength;
         previousLikelihood = currentLikelihood;
         currentLikelihood = likelihood;
+
     }
 
     private double zm (int component) {
         double re = 0;
         for (int i = 0; i < dataLength; i++) re += z[i][component];
         return re;
-    }
-
-    public double[][] getZ() {
-        return z;
     }
 
     public double[][][] getSigma() {
