@@ -63,7 +63,7 @@ public class GDAMain {
         MixtureGaussianEM.PRINT_GAP = 1;
         MixtureGaussianEM.THRESHOLD = 0.5;
 
-        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 25;
+        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 100;
         MixtureGaussianDiscriminantAnalysis.MAX_THREADS = 2;
         MixtureGaussianDiscriminantAnalysis mixGDA = new MixtureGaussianDiscriminantAnalysis();
 

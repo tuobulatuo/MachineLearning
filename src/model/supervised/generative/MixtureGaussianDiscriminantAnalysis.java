@@ -74,7 +74,6 @@ public class MixtureGaussianDiscriminantAnalysis implements Trainable, Predictab
     @Override
     public void train() {
 
-        priors = new double[classCount];
         for (int classIndex : indexClassMap.keySet()) {
             priors[classIndex] = data.getCategoryProportion(classIndex);
         }
@@ -136,6 +135,7 @@ public class MixtureGaussianDiscriminantAnalysis implements Trainable, Predictab
         featureLength = data.getFeatureLength();
         models = new MultivariateNormalDistribution[classCount][];
         componentsPi = new double[classCount][];
+        priors = new double[classCount];
     }
 
     private double mixtureDensity(double[] feature, int modelIndex) {

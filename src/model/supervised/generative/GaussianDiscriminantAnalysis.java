@@ -63,7 +63,6 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
     @Override
     public void train() {
 
-        priors = new double[classCount];
         for (int category : indexClassMap.keySet()) {
             priors[category] = data.getCategoryProportion(category);
         }
@@ -124,6 +123,7 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
         classCount = indexClassMap.size();
         featureLength = data.getFeatureLength();
         models = new MultivariateNormalDistribution[classCount];
+        priors = new double[classCount];
         if (!COV_DISTINCT) {
             covariancesCommon = new double[data.getFeatureLength()][data.getFeatureLength()];
             fillCovariance(indexClassMap.keySet(), covariancesCommon);
