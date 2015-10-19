@@ -25,6 +25,8 @@ public abstract class NaiveBayes implements Predictable, Trainable{
 
     protected int classCount = Integer.MIN_VALUE;
 
+    private double[] priors = null;
+
 
     //******************************//
 
@@ -40,6 +42,9 @@ public abstract class NaiveBayes implements Predictable, Trainable{
     public double predict(double[] feature) {
 
         double[] probabilities = predictClassProbability(feature);
+        for (int i = 0; i < classCount; i++) {
+            probabilities[i] += Math.log(priors[i]);
+        }
         int[] indexes = RandomUtils.getIndexes(classCount);
         SortIntDoubleUtils.sort(indexes, probabilities);
         return indexes[indexes.length - 1];
@@ -55,6 +60,10 @@ public abstract class NaiveBayes implements Predictable, Trainable{
     @Override
     public void train() {
 
+        for (int category : indexClassMap.keySet()) {
+            priors[category] = data.getCategoryProportion(category);
+        }
+
         naiveBayesTrain();
     }
 
@@ -65,6 +74,7 @@ public abstract class NaiveBayes implements Predictable, Trainable{
         featureLength = d.getFeatureLength();
         indexClassMap = d.getLabels().getIndexClassMap();
         classCount = indexClassMap.size();
+        priors = new double[classCount];
         naiveBayesInit();
 
         log.info("Naive Bayes Model initializing, classCount: {}", classCount);

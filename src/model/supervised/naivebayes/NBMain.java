@@ -111,14 +111,14 @@ public class NBMain {
 
     public static void main(String[] args) throws Exception{
 
-        multinoulliNBTest(2, new double[]{80});
-        System.out.println("\n\n\n");
-        multinoulliNBTest(4, new double[]{25, 50, 75});
-        System.out.println("\n\n\n");
-        multinoulliNBTest(9, new double[]{11, 22, 33, 44, 55, 66, 77, 88});
+//        multinoulliNBTest(2, new double[]{50});
+//        System.out.println("\n\n\n");
+//        multinoulliNBTest(4, new double[]{25, 50, 75});
+//        System.out.println("\n\n\n");
+//        multinoulliNBTest(9, new double[]{11, 22, 33, 44, 55, 66, 77, 88});
 
-        gaussianNBTest();
+//        gaussianNBTest();
 
-        mixGaussianNBTest();
+//        mixGaussianNBTest();
     }
 }
