@@ -7,7 +7,6 @@ import org.neu.util.array.ArraySumUtil;
 import org.neu.util.rand.RandomUtils;
 
 import java.util.Arrays;
-import java.util.Random;
 import java.util.stream.IntStream;
 
 /**
@@ -165,7 +164,6 @@ public class MixtureGaussianEM implements EM {
                 }
             }
 
-//            Random rand = new Random();
             for (int i = 0; i < featureLength; i++) {
                 sigmam[i][i] += STABLE_COEF;    // smoothing diagonal
             }
@@ -187,8 +185,6 @@ public class MixtureGaussianEM implements EM {
             }catch (Exception e){
                 log.error(e.getMessage(), e);
                 log.error("sigmam: {}", sigma[component]);
-//                initialize();
-//                z();
                 System.exit(-1);
             }
 
