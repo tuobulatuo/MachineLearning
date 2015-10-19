@@ -51,6 +51,17 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
     }
 
     @Override
+    public double score(double[] feature) {
+        double[] probabilities = new double[classCount];
+        for (int i = 0; i < models.length; i++) {
+            probabilities[i] = models[i].density(feature) * priors[i];
+        }
+        double score = probabilities[1] / probabilities[0];
+        if (Double.isInfinite(score) || Double.isNaN(score)) score = Double.MAX_VALUE;
+        return score;
+    }
+
+    @Override
     public void train() {
 
         priors = new double[classCount];

@@ -31,7 +31,7 @@ public class GDAMain {
 
         DataSet dataset = builder.getDataSet();
 
-        GaussianDiscriminantAnalysis.COV_DISTINCT = true;
+        GaussianDiscriminantAnalysis.COV_DISTINCT = false;
         GaussianDiscriminantAnalysis gda = new GaussianDiscriminantAnalysis();
 
         ClassificationEvaluator.ROC = true;
@@ -61,9 +61,9 @@ public class GDAMain {
 
         MixtureGaussianEM.MAX_ROUND = 500;
         MixtureGaussianEM.PRINT_GAP = 1;
-        MixtureGaussianEM.THRESHOLD = 1;
+        MixtureGaussianEM.THRESHOLD = 0.5;
 
-        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 100;
+        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 25;
         MixtureGaussianDiscriminantAnalysis.MAX_THREADS = 2;
         MixtureGaussianDiscriminantAnalysis mixGDA = new MixtureGaussianDiscriminantAnalysis();
 
@@ -76,8 +76,9 @@ public class GDAMain {
     }
 
     public static void main(String[] args) throws Exception{
+
         gdaTest();
 
-        mixtureGDATest();
+//        mixtureGDATest();
     }
 }
