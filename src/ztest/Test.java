@@ -2,6 +2,7 @@ package ztest;
 
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.logging.log4j.LogManager;
@@ -12,6 +13,7 @@ import org.neu.util.sort.SortIntDoubleUtils;
 
 import java.util.*;
 import java.util.function.IntPredicate;
+import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 9/10/15.
@@ -113,18 +115,18 @@ public class Test {
 //        System.out.println(Arrays.toString(idx));
 
 
-//        String file1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.X.txt";
+//        String file1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.DataPointSet.txt";
 //        String file2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.y.txt";
 //
-//        List<String> X = FileUtils.readLines(file1);
+//        List<String> DataPointSet = FileUtils.readLines(file1);
 //        List<String> y = FileUtils.readLines(file2);
 //
 //        List<String> l = new ArrayList<>();
 //
-//        for (int i = 0; i < X.size(); i++) {
+//        for (int i = 0; i < DataPointSet.size(); i++) {
 //            double yi = Double.parseDouble(y.get(i));
 //            if (yi == 10) yi = 0;
-//            l.add(X.get(i) + "\t" + yi);
+//            l.add(DataPointSet.get(i) + "\t" + yi);
 //        }
 //
 //        String output = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.Xy.txt";
@@ -156,6 +158,23 @@ public class Test {
 //        System.out.println(Arrays.toString(l.toArray()));
 //        IntPredicate posIndicator = i -> testSet.getLabel(i) - POS == 0;
 //        long positiveCount = Arrays.stream(label).filter(posIndicator).summaryStatistics().getCount();
+
+//        Arrays.setAll(x2, i -> x2[i] / 10);
+
+//        log.info(Arrays.toString(x2));
+
+        double [][] cov = new double[57][57];
+        for (int i = 0; i < 57; i++) {
+            cov[i][i] = 1;
+        }
+
+        double[] mu = RandomUtils.randomSumOneArray(57);
+
+        MultivariateNormalDistribution distribution = new MultivariateNormalDistribution(mu, cov);
+
+        double[] x = RandomUtils.randomOneOneArray(57);
+
+        log.info("density {}", distribution.density(x));
 
     }
 }
