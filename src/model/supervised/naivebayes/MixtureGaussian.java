@@ -27,8 +27,6 @@ public class MixtureGaussian extends NaiveBayes {
 
     private double[][][] componentsPi = null;
 
-    private double[] priors = null;
-
     private ExecutorService service = null;
 
     private CountDownLatch countDownLatch = null;
@@ -37,18 +35,13 @@ public class MixtureGaussian extends NaiveBayes {
     protected double[] predictClassProbability(double[] features) {
         double[] probabilities = new double[classCount];
         for (int i = 0; i < models.length; i++) {
-            probabilities[i] = mixtureDensity(features, i) * priors[i];
+            probabilities[i] = mixtureDensity(features, i);
         }
         return probabilities;
     }
 
     @Override
     protected void naiveBayesTrain() {
-
-        priors = new double[classCount];
-        for (int classIndex : indexClassMap.keySet()) {
-            priors[classIndex] = data.getCategoryProportion(classIndex);
-        }
 
         service = Executors.newFixedThreadPool(MAX_THREADS);
         countDownLatch = new CountDownLatch(classCount);
@@ -77,6 +70,8 @@ public class MixtureGaussian extends NaiveBayes {
 
                         componentsPi[CLASS_INDEX][featureIndex] = pi;
                         models[CLASS_INDEX][featureIndex] = mixtureDistribution;
+
+                        log.info("class: {} feature {} finished EM ...", CLASS_INDEX, featureIndex);
                     }
 
                     log.info("class: {} finished EM ...", CLASS_INDEX);
