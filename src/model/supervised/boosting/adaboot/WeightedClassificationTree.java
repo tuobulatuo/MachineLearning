@@ -8,6 +8,7 @@ import model.supervised.cart.ClassificationTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neu.util.array.ArraySumUtil;
+import org.neu.util.rand.RandomUtils;
 import org.neu.util.sort.SortDoubleDoubleUtils;
 
 import java.util.Arrays;
@@ -22,9 +23,7 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
 
     private double[] weights = null;
 
-    public WeightedClassificationTree(int depth, DataSet dataSet, int[] existIds){
-
-    }
+    public WeightedClassificationTree(){}
 
     public WeightedClassificationTree(int depth, DataSet dataSet, int[] existIds, double[] weights){
 
@@ -34,6 +33,8 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
         Arrays.stream(existIds).forEach(id -> counter.adjustOrPutValue(dataSet.getLabel(id), weights[id], weights[id]));
         double[] pa = counter.values();
         randomness = h(pa);
+
+        log.info("Tree WEIGHTED randomness: {}", randomness);
     }
 
     @Override
@@ -80,20 +81,35 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
     }
 
     @Override
-    public void boost(double[] weights) {
+    public void boostInitialize(DataSet data, double[] weights) {
 
+        this.dataSet = data;
         this.weights = weights;
+        this.existIds = RandomUtils.getIndexes(data.getInstanceLength());
+
         TDoubleDoubleHashMap counter = new TDoubleDoubleHashMap();
         Arrays.stream(existIds).forEach(id -> counter.adjustOrPutValue(dataSet.getLabel(id), weights[id], weights[id]));
         double[] pa = counter.values();
         randomness = h(pa);
+    }
 
+    @Override
+    public void boost() {
         train();
-
     }
 
     @Override
     public double boostPredict(double[] feature) {
         return predict(feature);
+    }
+
+    @Override
+    public double getWeightedError() {
+        return 0;
+    }
+
+    @Override
+    public double[] getModifiedWeights() {
+        return new double[0];
     }
 }

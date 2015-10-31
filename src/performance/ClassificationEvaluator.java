@@ -27,19 +27,21 @@ public class ClassificationEvaluator extends Evaluator{
 
     public static boolean CONFUSION_MATRIX = false;
 
-    private int truePos = 0;
+    public int truePos = 0;
 
-    private int falsePos = 0;
+    public int falsePos = 0;
 
-    private int trueNeg = 0;
+    public int trueNeg = 0;
 
-    private int falseNeg = 0;
+    public int falseNeg = 0;
 
-    private int correct = 0;
+    public int correct = 0;
 
-    private double[] tpr;
+    public double[] tpr;
 
-    private double[] fpr;
+    public double[] fpr;
+
+    public double area;
 
     public ClassificationEvaluator() {}
 
@@ -66,6 +68,7 @@ public class ClassificationEvaluator extends Evaluator{
         }
 
         if (ROC) {
+            getArea();
             printROC();
         }
 
@@ -115,15 +118,19 @@ public class ClassificationEvaluator extends Evaluator{
         fpr = fprList.toArray();
     }
 
-    public void printROC() {
+    public double getArea(){
 
         getScore();
 
-        double area = 0;
         for (int i = 1; i < tpr.length; i++) {
             area += (fpr[i] - fpr[i - 1]) * (tpr[i - 1] + tpr[i]);
         }
         area /= 2;
+
+        return area;
+    }
+
+    public void printROC() {
 
         log.info("================= ROC curve =================");
         log.info("FP: {}", Arrays.toString(fpr));
