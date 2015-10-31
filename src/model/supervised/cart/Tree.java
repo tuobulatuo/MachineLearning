@@ -63,7 +63,7 @@ public abstract class Tree implements Trainable, Predictable{
     }
 
 
-    protected abstract double gainByCriteria(double[] labels, int position);
+    protected abstract double gainByCriteria(double[] labels, int position, int[] sortedIds);
 
     protected abstract boolean lessThanImpurityGainThreshold(double gain);
 
@@ -126,8 +126,8 @@ public abstract class Tree implements Trainable, Predictable{
                             continue;
                         }
 
-                        double impurityGain = gainByCriteria(labels, pointer);
-                        double threshold = features[pointer];
+                        double impurityGain = gainByCriteria(labels, pointer, ids);
+                        double threshold = (features[pointer - 1] + features[pointer]) / (double) 2;
 
                         log.debug("{}/{}/{} -> impurityGain: {}", FEATURE_ID, threshold, pointer, impurityGain);
 

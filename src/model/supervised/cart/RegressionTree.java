@@ -30,7 +30,7 @@ public class RegressionTree extends Tree{
     }
 
     @Override
-    public double gainByCriteria(double[] labels, int position) {
+    public double gainByCriteria(double[] labels, int position, int[] sortedIds) {
         return CostDrop(labels, position);
     }
 

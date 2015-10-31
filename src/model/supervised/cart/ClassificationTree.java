@@ -18,7 +18,7 @@ public class ClassificationTree extends Tree{
 
     public static double INFORMATION_GAIN_THRESHOLD = 1;
 
-    private double randomness = Integer.MAX_VALUE;
+    protected double randomness = Integer.MAX_VALUE;
 
     public ClassificationTree() {
         super();
@@ -38,7 +38,7 @@ public class ClassificationTree extends Tree{
     }
 
     @Override
-    public double gainByCriteria(double[] labels, int position) {
+    public double gainByCriteria(double[] labels, int position, int[] sortedIds) {
         return InformationGain(labels, position);
     }
 
@@ -84,7 +84,7 @@ public class ClassificationTree extends Tree{
         return randomness * existIds.length - h(pb) * position - h(pc) * (existIds.length - position);
     }
 
-    private double h(double[] p) {
+    protected double h(double[] p) {
         double loge2 = Math.log(2);
         return Arrays.stream(p).map(i -> -i * Math.log(i) / loge2).sum();
     }

@@ -34,7 +34,7 @@ public class CARTMain {
         DataSet dataset = builder.getDataSet();
 
         ClassificationEvaluator classifyEva = new ClassificationEvaluator();
-        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(classifyEva, dataset, 10, null);
+        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(classifyEva, dataset, 10, Norm.NULL);
 
         Tree classificationTree = new ClassificationTree();
         ClassificationTree.MAX_DEPTH = 9;
@@ -62,7 +62,7 @@ public class CARTMain {
         DataSet dataset = builder.getDataSet();
 
         Evaluator eva = new Evaluator();
-        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, null);
+        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.NULL);
 
         RegressionTree regressionTree = new RegressionTree();
         RegressionTree.MAX_DEPTH = Integer.MAX_VALUE;
@@ -73,7 +73,7 @@ public class CARTMain {
     }
 
     public static void main(String[] args) throws IOException {
-        classificationTest();
-//        regressionTest();
+//        classificationTest();
+        regressionTest();
     }
 }

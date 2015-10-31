@@ -163,18 +163,31 @@ public class Test {
 
 //        log.info(Arrays.toString(x2));
 
-        double [][] cov = new double[57][57];
-        for (int i = 0; i < 57; i++) {
-            cov[i][i] = 1;
-        }
+//        double [][] cov = new double[57][57];
+//        for (int i = 0; i < 57; i++) {
+//            cov[i][i] = 1;
+//        }
+//
+//        double[] mu = RandomUtils.randomSumOneArray(57);
+//
+//        MultivariateNormalDistribution distribution = new MultivariateNormalDistribution(mu, cov);
+//
+//        double[] x = RandomUtils.randomOneOneArray(57);
+//
+//        log.info("density {}", distribution.density(x));
 
-        double[] mu = RandomUtils.randomSumOneArray(57);
 
-        MultivariateNormalDistribution distribution = new MultivariateNormalDistribution(mu, cov);
+//        Stack<Integer> stack = new Stack<>();
+//        stack.push(0);
+//        stack.push(1);
+//        stack.push(2);
+//        stack.add(3);
+//        log.info(stack.get(0));
+//
+//        log.info(stack.peek());
 
-        double[] x = RandomUtils.randomOneOneArray(57);
+        System.out.println(Math.log(10) / Math.log(2));
 
-        log.info("density {}", distribution.density(x));
 
     }
 }
