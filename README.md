@@ -10,9 +10,12 @@ machine learning code for Northeastern University fall 2015
     - Gaussian Discriminant Analysis<br/>
         1) Single Gaussian Model<br/>
         2) Mixed Gaussian Model <br/>
-    - Naive Bayes: 
+    - Naive Bayes: <br/>
         1) Bernoulli + Multinoulli <br/>
         2) Gaussian<br/>
+    - Boosting:<br/>
+        1) AdaBoost by classification tree <br/>
+        2) GradientBoost by regression tree<br/>
 
 (2) Implemented Gradient Decent framework for all models
 
