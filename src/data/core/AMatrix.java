@@ -114,7 +114,7 @@ public abstract class AMatrix {
 
     private void filterZeroSd() {
 
-        IntStream.range(0, sdOrMax.length).forEach(i -> {
+        IntStream.range(0, sdOrMax.length).filter(nonBooleanFeature).forEach(i -> {
             if (sdOrMax[i] == 0) {
                 sdOrMax[i] = Integer.MAX_VALUE;
                 log.warn("WARNING: Feature {}: sdOrMax == 0, set it to  Integer.MAX_VALUE !!", i);
