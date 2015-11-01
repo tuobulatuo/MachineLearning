@@ -34,7 +34,7 @@ public class ClassificationTree extends Tree{
         randomness = h(pa);
 
         log.debug("Distribution: {}", pa);
-        log.info("Tree {} @depth {} constructed, randomness: {}, has {} points ...", td, depth, randomness, existIds.length);
+        log.debug("Tree {} @depth {} constructed, randomness: {}, has {} points ...", td, depth, randomness, existIds.length);
     }
 
     @Override
@@ -58,9 +58,9 @@ public class ClassificationTree extends Tree{
 
         SortDoubleDoubleUtils.sort(keys, values);
         meanResponse = keys[keys.length - 1];
-        log.info("[LEAF NODE] id: {}, label: {}", td, meanResponse);
-        log.info("[LEAF NODE] categories: {}", Arrays.toString(keys));
-        log.info("[LEAF NODE] counts: {}", Arrays.toString(values));
+        log.debug("[LEAF NODE] id: {}, label: {}", td, meanResponse);
+        log.debug("[LEAF NODE] categories: {}", Arrays.toString(keys));
+        log.debug("[LEAF NODE] counts: {}", Arrays.toString(values));
     }
 
     @Override

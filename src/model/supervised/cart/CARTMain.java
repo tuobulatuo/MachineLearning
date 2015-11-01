@@ -33,6 +33,8 @@ public class CARTMain {
 
         DataSet dataset = builder.getDataSet();
 
+        ClassificationEvaluator.ROC = true;
+        ClassificationEvaluator.CONFUSION_MATRIX = true;
         ClassificationEvaluator classifyEva = new ClassificationEvaluator();
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(classifyEva, dataset, 10, Norm.NULL);
 
@@ -73,7 +75,7 @@ public class CARTMain {
     }
 
     public static void main(String[] args) throws IOException {
-//        classificationTest();
+        classificationTest();
         regressionTest();
     }
 }

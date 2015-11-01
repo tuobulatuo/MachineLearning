@@ -19,11 +19,15 @@ public class DecisionStump extends WeightedClassificationTree{
 
     private static Logger log = LogManager.getLogger(DecisionStump.class);
 
-    public DecisionStump(){}
+    public DecisionStump(){
+        INFORMATION_GAIN_THRESHOLD = 0;
+        MAX_DEPTH = 1;
+    }
 
     public DecisionStump(int depth, DataSet dataSet, int[] existIds, double[] weights){
         super(depth, dataSet, existIds, weights);
-        log.info("DecisionStumpTest initialized ...");
+        log.debug("DecisionStump initialized, MAX_DEPTH restrict to {}, INFORMATION_GAIN_THRESHOLD restrict to {}",
+                MAX_DEPTH, INFORMATION_GAIN_THRESHOLD);
     }
 
     @Override

@@ -16,34 +16,35 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by hanxuan on 10/30/15 for machine_learning.
  */
-public class AdaBoostClassificationSAMME implements Trainable, Predictable{
+public class SAMME implements Trainable, Predictable{
 
-    private static Logger log = LogManager.getLogger(AdaBoostClassificationSAMME.class);
+    public static boolean NEED_ROUND_REPORT = false;
 
-    private DataSet trainingData = null;
+    private static Logger log = LogManager.getLogger(SAMME.class);
 
-    private DataSet testingData = null;
+    protected DataSet trainingData = null;
 
-    private double[] alpha = null;
+    protected DataSet testingData = null;
 
-    private double[] weights = null;
+    protected double[] alpha = null;
 
-    private int classCount = Integer.MIN_VALUE;
+    protected double[] weights = null;
 
-    private AdaBoostClassifier[] adaBoostClassifiers = null;
+    protected int classCount = Integer.MIN_VALUE;
 
-    private ClassificationEvaluator roundEvaluator = null;
+    protected AdaBoostClassifier[] adaBoostClassifiers = null;
 
-    private double[] roundTrainingError = null;
+    protected ClassificationEvaluator roundEvaluator = null;
 
-    private double[] roundTestingError = null;
+    protected double[] roundTrainingError = null;
 
-    private double[] roundError = null;
+    protected double[] roundTestingError = null;
 
-    private double[] roundTestingAUC = null;
+    protected double[] roundError = null;
 
-    public AdaBoostClassificationSAMME(){}
+    protected double[] roundTestingAUC = null;
 
+    public SAMME(){}
 
     @Override
     public double predict(double[] feature) {
@@ -77,37 +78,81 @@ public class AdaBoostClassificationSAMME implements Trainable, Predictable{
             classifier.boostInitialize(trainingData, weights);
             classifier.boost();
 
-            roundEvaluator.initialize(testingData, this);
-            roundEvaluator.getPredictLabel();
-            roundTestingError[i] = roundEvaluator.evaluate();
-            roundTestingAUC[i] = roundEvaluator.getArea();
+            double error = getWeightedError(classifier);
 
-            roundEvaluator.initialize(trainingData, this);
-            roundEvaluator.getPredictLabel();
-            roundTrainingError[i] = roundEvaluator.evaluate();
+            alpha[i] = Math.log((1 - error) / error) / 2 + Math.log(classCount - 1);
 
-            double error = classifier.getWeightedError();
-            roundError[i] = error;
-
-            alpha[i] = Math.log((1 - error) / error) + Math.log(classCount - 1);
-            weights = classifier.getModifiedWeights();
+            modifyWeights(classifier, alpha[i]);
             ArraySumUtil.normalize(weights);
+
+            if (NEED_ROUND_REPORT) {
+                statisticReport(i, error);
+            }
+
+            log.info("{} round boosting finished ...", i);
         }
 
-        log.info("AdaBoostClassificationSAMME Training finished ...");
-        log.info("roundTestingError: {}", roundTestingError);
-        log.info("roundTestingAUC: {}", roundTestingAUC);
-        log.info("roundTrainingError: {}", roundTrainingError);
-        log.info("roundError: {}", roundError);
-        log.info("alpha: {}", alpha);
+        log.info("SAMME Training finished ...");
 
+        if (NEED_ROUND_REPORT) {
+            printRoundReport();
+        }
 
         try{
             TimeUnit.SECONDS.sleep(1);
         }catch (Exception e){
             log.error(e.getMessage(), e);
         }
+    }
 
+    protected void printRoundReport() {
+
+        log.info("======================= Round Report =======================");
+        log.info("alpha: {}", alpha);
+        log.info("roundTestingError: {}", roundTestingError);
+        log.info("roundTestingAUC: {}", roundTestingAUC);
+        log.info("roundTrainingError: {}", roundTrainingError);
+        log.info("roundError: {}", roundError);
+        log.info("======================= ============ =======================");
+    }
+
+    protected void statisticReport(int round, double error){
+
+        roundError[round] = error;
+
+        roundEvaluator.initialize(testingData, this);
+        roundEvaluator.getPredictLabel();
+        roundTestingError[round] = 1 - roundEvaluator.evaluate();
+        roundTestingAUC[round] = roundEvaluator.getArea();
+
+        roundEvaluator.initialize(trainingData, this);
+        roundEvaluator.getPredictLabel();
+        roundTrainingError[round] = 1 - roundEvaluator.evaluate();
+    }
+
+    protected void modifyWeights(AdaBoostClassifier classifier, double alpha){
+
+        for (int i = 0; i < weights.length; i++) {
+            double[] feature = trainingData.getInstance(i);
+            if (classifier.boostPredict(feature) != trainingData.getLabel(i)){
+                weights[i] *= Math.exp(alpha);
+            }else {
+                weights[i] *= Math.exp(-alpha);
+            }
+        }
+    }
+
+    protected double getWeightedError(AdaBoostClassifier classifier) {
+
+        double weightedError = 0;
+        int instanceLength = trainingData.getInstanceLength();
+        for (int i = 0; i < instanceLength; i++) {
+            double[] feature = trainingData.getInstance(i);
+            if (classifier.boostPredict(feature) != trainingData.getLabel(i)){
+                weightedError += weights[i];
+            }
+        }
+        return weightedError;
     }
 
     @Override
@@ -140,7 +185,7 @@ public class AdaBoostClassificationSAMME implements Trainable, Predictable{
         roundEvaluator = evaluator;
         testingData = testData;
 
-        log.info("AdaBoostClassificationSAMME config: ");
+        log.info("SAMME config: ");
         log.info("classifiers count: {}", classifiers.length);
         log.info("classifiers CLASS: {}", classifiers.getClass().toString());
     }

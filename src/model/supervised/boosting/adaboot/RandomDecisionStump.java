@@ -17,7 +17,8 @@ public class RandomDecisionStump extends DecisionStump{
 
     public RandomDecisionStump(int depth, DataSet dataSet, int[] existIds, double[] weights){
         super(depth, dataSet, existIds, weights);
-        log.info("RandomDecisionStump initialized ...");
+        log.debug("RandomDecisionStump initialized, MAX_DEPTH restrict to {}, INFORMATION_GAIN_THRESHOLD restrict to {}",
+                MAX_DEPTH, INFORMATION_GAIN_THRESHOLD);
     }
 
     @Override

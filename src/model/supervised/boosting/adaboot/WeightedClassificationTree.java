@@ -21,7 +21,7 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
 
     private static Logger log = LogManager.getLogger(WeightedClassificationTree.class);
 
-    private double[] weights = null;
+    protected double[] weights = null;
 
     public WeightedClassificationTree(){}
 
@@ -34,7 +34,7 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
         double[] pa = counter.values();
         randomness = h(pa);
 
-        log.info("Tree WEIGHTED randomness: {}", randomness);
+        log.debug("Tree WEIGHTED randomness: {}, tree depth restricted to {}", randomness, MAX_DEPTH);
     }
 
     @Override
@@ -46,17 +46,17 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
 
     @Override
     public double gainByCriteria(double[] labels, int position, int[] sortedIds) {
-        return InformationGain(labels, position, sortedIds);
+        return weightedInformationGain(labels, position, sortedIds);
     }
 
-    private double InformationGain(double[] labels, int position, int[] sortedIds) {
+    private double weightedInformationGain(double[] labels, int position, int[] sortedIds) {
 
         TDoubleDoubleHashMap counterB = new TDoubleDoubleHashMap();
         TDoubleDoubleHashMap counterC = new TDoubleDoubleHashMap();
         IntStream.range(0, position).forEach(
                 i -> counterB.adjustOrPutValue(labels[i], weights[sortedIds[i]], weights[sortedIds[i]]));
         IntStream.range(position, existIds.length).forEach(
-                i -> counterB.adjustOrPutValue(labels[i], weights[sortedIds[i]], weights[sortedIds[i]]));
+                i -> counterC.adjustOrPutValue(labels[i], weights[sortedIds[i]], weights[sortedIds[i]]));
 
         double[] pb = ArraySumUtil.normalize(counterB.values());
         double[] pc = ArraySumUtil.normalize(counterC.values());
@@ -75,9 +75,9 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
 
         SortDoubleDoubleUtils.sort(keys, values);
         meanResponse = keys[keys.length - 1];
-        log.info("[LEAF NODE] id: {}, label: {}", td, meanResponse);
-        log.info("[LEAF NODE] categories: {}", Arrays.toString(keys));
-        log.info("[LEAF NODE] counts: {}", Arrays.toString(values));
+        log.debug("[LEAF NODE] id: {}, label: {}", td, meanResponse);
+        log.debug("[LEAF NODE] categories: {}", Arrays.toString(keys));
+        log.debug("[LEAF NODE] counts: {}", Arrays.toString(values));
     }
 
     @Override
@@ -91,6 +91,7 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
         Arrays.stream(existIds).forEach(id -> counter.adjustOrPutValue(dataSet.getLabel(id), weights[id], weights[id]));
         double[] pa = counter.values();
         randomness = h(pa);
+        log.debug("BoostInitialize finished, Tree WEIGHTED randomness: {}", randomness);
     }
 
     @Override
@@ -101,15 +102,5 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
     @Override
     public double boostPredict(double[] feature) {
         return predict(feature);
-    }
-
-    @Override
-    public double getWeightedError() {
-        return 0;
-    }
-
-    @Override
-    public double[] getModifiedWeights() {
-        return new double[0];
     }
 }

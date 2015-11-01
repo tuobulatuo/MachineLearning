@@ -87,13 +87,13 @@ public abstract class Tree implements Trainable, Predictable{
     public void train() {
 
         if (pure()) {
-            log.info("[STOP GROW] pure node {} ...", td);
+            log.debug("[STOP GROW] pure node {} ...", td);
             setTreeLabel();
             return;
         }
 
         if (stopGrow()) {
-            log.info("[STOP GROW] depth({}) >= MAX_DEPTH({}) || existIds.length({}) <= MIN_INSTANCE_COUNT({})",
+            log.debug("[STOP GROW] depth({}) >= MAX_DEPTH({}) || existIds.length({}) <= MIN_INSTANCE_COUNT({})",
                     depth, MAX_DEPTH, existIds.length, MIN_INSTANCE_COUNT);
             setTreeLabel();
             return;
@@ -106,7 +106,7 @@ public abstract class Tree implements Trainable, Predictable{
 
         service = Executors.newFixedThreadPool(MAX_THREADS);
         countDownLatch = new CountDownLatch(featureLength);
-        log.info("Task Count: {}", countDownLatch.getCount());
+        log.debug("Task Count: {}", countDownLatch.getCount());
 
         for (int i = 0; i < featureLength; i++) {
             final int FEATURE_ID = i;
@@ -154,13 +154,13 @@ public abstract class Tree implements Trainable, Predictable{
         }
         service.shutdown();
 
-        log.info("All task finished, service shutdown ...");
+        log.debug("All task finished, service shutdown ...");
 
-        log.info("Best FeatureId: {}, threshold: {}, gain: {}", bestFeatureId.get(), bestThreshold.get(), bestGain.get());
+        log.debug("Best FeatureId: {}, threshold: {}, gain: {}", bestFeatureId.get(), bestThreshold.get(), bestGain.get());
 
         if (lessThanImpurityGainThreshold(bestGain.get())) {
 
-            log.info("[STOP GROW] lessThanImpurityGainThreshold ...");
+            log.info("[STOP GROW] lessThanImpurityGainThreshold, best gain: {}", bestGain.get());
             setTreeLabel();
             return;
         }
@@ -188,12 +188,17 @@ public abstract class Tree implements Trainable, Predictable{
             }
         }
 
+        if (left.size() == 0 || right.size() == 0) {
+            setTreeLabel();
+            return;
+        }
+
         split(left.toArray(), right.toArray());
 
         this.left.train();
         this.right.train();
 
-        log.info("[TREE NODE] {}", td);
+        log.debug("[TREE NODE] {}", td);
 
     }
 
@@ -210,6 +215,8 @@ public abstract class Tree implements Trainable, Predictable{
     }
 
     private boolean pure() {
+
+        if (existIds.length == 0) return true;
 
         double first = dataSet.getLabel(existIds[0]);
         IntPredicate pred = (i) -> dataSet.getLabel(i) == first;

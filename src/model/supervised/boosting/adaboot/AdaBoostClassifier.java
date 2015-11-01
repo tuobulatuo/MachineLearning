@@ -13,7 +13,4 @@ public interface AdaBoostClassifier {
 
     double boostPredict(double[] feature);
 
-    double getWeightedError();
-
-    double[] getModifiedWeights();
 }
