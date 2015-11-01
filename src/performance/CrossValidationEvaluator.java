@@ -37,12 +37,17 @@ public class CrossValidationEvaluator {
         rowDataSet = dataSet;
         this.norm = norm;
 
+        kFoldIndex = partition(dataSet, k);
+    }
+
+    public static int[][] partition(DataSet dataSet, int k) {
+
         TIntList instancesIndex = new TIntArrayList(RandomUtils.getIndexes(dataSet.getInstanceLength()));
         instancesIndex.shuffle(new Random());
-        kFoldIndex = new int[k][];
+        int[][] kFoldIndex = new int[k][];
         int pointer = 0;
         for (int i = 0; i < k; i++) {
-            int len = Math.min(rowDataSet.getInstanceLength() / k, instancesIndex.size() - pointer);
+            int len = Math.min(dataSet.getInstanceLength() / k, instancesIndex.size() - pointer);
             int[] a = new int[len];
             for (int j = 0; j < len; j++) {
                 a[j] = instancesIndex.get(pointer++);
@@ -50,10 +55,9 @@ public class CrossValidationEvaluator {
             kFoldIndex[i] = a;
         }
 
-//        double[] ls = IntStream.range(0, dataSet.getInstanceLength()).mapToDouble(i -> dataSet.getLabel(i)).toArray();
-//        System.out.println(Arrays.toString(ls));
-//        System.exit(0);
+        return kFoldIndex;
     }
+
 
     public void crossValidateEvaluate(Trainable model) {
 

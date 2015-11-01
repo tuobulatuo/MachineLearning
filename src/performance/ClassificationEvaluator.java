@@ -75,7 +75,7 @@ public class ClassificationEvaluator extends Evaluator{
         return correct / (double) instanceLength;
     }
 
-    private void getScore() {
+    public double getArea() {
 
         int instanceLength = testSet.getInstanceLength();
 
@@ -116,12 +116,8 @@ public class ClassificationEvaluator extends Evaluator{
 
         tpr = tprList.toArray();
         fpr = fprList.toArray();
-    }
 
-    public double getArea(){
-
-        getScore();
-
+        area = 0;
         for (int i = 1; i < tpr.length; i++) {
             area += (fpr[i] - fpr[i - 1]) * (tpr[i - 1] + tpr[i]);
         }
