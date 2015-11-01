@@ -10,6 +10,7 @@ import performance.CrossValidationEvaluator;
 import java.util.Arrays;
 
 
+
 /**
  * Created by hanxuan on 10/1/15 for machine_learning.
  */
@@ -159,14 +160,57 @@ public class NNMain {
         crossEvaluator.crossValidateEvaluate(nn);
     }
 
+    public static void SAMMETest() throws Exception{
+
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/letter-recognition.reformat3.data";
+        String sep = ",";
+        boolean hasHeader = false;
+        boolean needBias = true;
+        int m = 16;
+        int n = 20000;
+        int[] featureCategoryIndex = {};
+        boolean classification = true;
+
+        Builder builder =
+                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, classification);
+
+        builder.build();
+
+        DataSet dataset = builder.getDataSet();
+
+        int[] structure = {17, 26, 26};
+        boolean biased = true;
+        NeuralNetwork.BUCKET_COUNT = 10;
+        // best alpha = 0.02
+        NeuralNetwork.ALPHA = 0.02 / (double) NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.LAMBDA = 0.00001 / (double) NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.COST_DECENT_THRESHOLD = 0;
+        NeuralNetwork.MAX_ROUND = 1000;
+        NeuralNetwork.MAX_THREADS = 1;
+        NeuralNetwork.PRINT_GAP = 10;
+        NeuralNetwork.PRINT_HIDDEN = false;
+        NeuralNetwork.EPSILON = 0.002;
+        NeuralNetwork nn = new NeuralNetwork(structure, biased);
+
+        ClassificationEvaluator.ROC = false;
+
+        ClassificationEvaluator eva = new ClassificationEvaluator();
+        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 20, Norm.MEANSD);
+        crossEvaluator.crossValidateEvaluate(nn);
+
+
+    }
+
     public static void main(String[] args) throws Exception{
 
-        perceptronTest();
+//        perceptronTest();
 
 //        neuralNetworkTest();
 
 //        neuralNetworkDigitsTest();
 //
 //        neuralNetworkSpam();
+
+        SAMMETest();
     }
 }

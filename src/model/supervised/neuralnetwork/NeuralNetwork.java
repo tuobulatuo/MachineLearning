@@ -13,6 +13,10 @@ import org.neu.util.sort.SortIntDoubleUtils;
 import utils.NumericalComputation;
 
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
@@ -23,6 +27,8 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
     private static final Logger log = LogManager.getLogger(NeuralNetwork.class);
 
     public static double COST_DECENT_THRESHOLD = 0.00000001;
+
+    public static int MAX_THREADS = 4;
 
     public static int MAX_ROUND = 5000;
 
@@ -47,6 +53,10 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
     private boolean biased = true;
 
     private DataSet data = null;
+
+    private ExecutorService service = null;
+
+    private CountDownLatch countDownLatch = null;
 
     public NeuralNetwork(int[] structure, boolean bias) {
         this.structure = structure;
@@ -118,7 +128,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
         AtomicDouble cost = new AtomicDouble(0);
 
-        IntStream.range(0, data.getInstanceLength()).parallel().forEach(
+        IntStream.range(0, data.getInstanceLength()).forEach(
                 i -> {
                     double[] X = data.getInstance(i);
                     double[] labels = feedForward(X, theta);
@@ -153,14 +163,29 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
             gradient[i] = new double[theta[i].length][theta[i][0].length];
         }
 
-        IntStream.range(start, end).parallel().forEach(
-                i -> backPropagation(i, gradient)
+
+        service = Executors.newFixedThreadPool(MAX_THREADS);
+        countDownLatch = new CountDownLatch(end - start);
+        IntStream.range(start, end).forEach(i ->
+                service.submit(() ->
+                {
+                    backPropagation(i, gradient);
+                    countDownLatch.countDown();
+                })
         );
+        try {
+            TimeUnit.MILLISECONDS.sleep(10);
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        service.shutdown();
+
 
         IntStream.range(0, theta.length).forEach(
                 i -> {
                     double[][] currentLayerTheta = theta[i];
-                    IntStream.range(0, currentLayerTheta.length).parallel().forEach(
+                    IntStream.range(0, currentLayerTheta.length).forEach(
                             j -> {
                                 double[] w = currentLayerTheta[j];
                                 for (int k = 0; k < w.length; k++) {
@@ -309,8 +334,6 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         yVector[(int) y] = 1;
         return yVector;
     }
-
-    public double[][][] getTheta(){return theta;}
 
     public static void main(String[] args) {
         int[] struct = new int[]{6, 4, 2, 1};
