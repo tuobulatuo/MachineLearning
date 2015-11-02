@@ -2,6 +2,7 @@ package model.supervised.cart;
 
 import com.google.common.util.concurrent.AtomicDouble;
 import data.DataSet;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 import model.Predictable;
 import model.Trainable;
@@ -29,6 +30,8 @@ public abstract class Tree implements Trainable, Predictable{
     public static int MIN_INSTANCE_COUNT = 5;
 
     public static int MAX_THREADS = 4;
+
+    public static int THREAD_WORK_LOAD = 10000000;
 
     protected int td;
 
@@ -105,46 +108,88 @@ public abstract class Tree implements Trainable, Predictable{
         final AtomicDouble bestGain = new AtomicDouble(Integer.MIN_VALUE);
 
         service = Executors.newFixedThreadPool(MAX_THREADS);
-        countDownLatch = new CountDownLatch(featureLength);
+        int taskCount = (int) Math.ceil(featureLength * existIds.length / (double) THREAD_WORK_LOAD);
+        int packageSize = (int) Math.ceil(featureLength / (double)taskCount);
+        countDownLatch = new CountDownLatch(taskCount);
         log.debug("Task Count: {}", countDownLatch.getCount());
+        TIntArrayList taskPackage = new TIntArrayList();
+//        TIntArrayList check = new TIntArrayList();
+        IntStream.range(0, featureLength).forEach(i -> {
+            taskPackage.add(i);
+            if (taskPackage.size() == packageSize || i == featureLength - 1) {
+                TIntArrayList taskPackage2 = new TIntArrayList(taskPackage);
+//                check.addAll(taskPackage2);
+                service.submit(()->
+                {
+                    try {
 
-        for (int i = 0; i < featureLength; i++) {
-            final int FEATURE_ID = i;
-            service.submit(() -> {
-
-                try {
-
-                    int[] ids = existIds.clone();
-                    double[] features = new double[ids.length];
-                    double[] labels = new double[ids.length];
-                    sortFeatureLabel(ids, labels, features, FEATURE_ID);
-
-                    int pointer = 1;
-                    while (pointer < ids.length) {
-                        if (features[pointer] == features[pointer - 1]) {
-                            ++ pointer;
-                            continue;
+                        int currentBestFeatureId = -1;
+                        double currentBestGain = Integer.MIN_VALUE;
+                        double currentBestThreshold = Integer.MIN_VALUE;
+                        for(int taskId : taskPackage2.toArray()) {
+                            double[] report = doTask(taskId);
+                            if (report[0] > currentBestGain) {
+                                currentBestFeatureId = taskId;
+                                currentBestGain = report[0];
+                                currentBestThreshold = report[1];
+                            }
                         }
-
-                        double impurityGain = gainByCriteria(labels, pointer, ids);
-                        double threshold = (features[pointer - 1] + features[pointer]) / (double) 2;
-
-                        log.debug("{}/{}/{} -> impurityGain: {}", FEATURE_ID, threshold, pointer, impurityGain);
-
-                        if (impurityGain > bestGain.get()) {
-                            bestGain.getAndSet(impurityGain);
-                            bestThreshold.getAndSet(threshold);
-                            bestFeatureId.getAndSet(FEATURE_ID);
-                            log.debug("Better pair found: {}/{} -> impurityGain: {}", FEATURE_ID, threshold, impurityGain);
+                        if (currentBestGain > bestGain.get()) {
+                            bestGain.getAndSet(currentBestGain);
+                            bestFeatureId.getAndSet(currentBestFeatureId);
+                            bestThreshold.getAndSet(currentBestThreshold);
                         }
-                        ++ pointer;
+                    }catch (Throwable t) {
+                        log.error(t.getMessage(), t);
                     }
-                } catch (Throwable e) {
-                    log.error(e.getMessage(), e);
-                }
-                countDownLatch.countDown();
-            });
-        }
+                    countDownLatch.countDown();
+                });
+                taskPackage.clear();
+            }
+        });
+
+//        log.debug("check size {}, feature length: {}", check.size(), featureLength);
+
+//        countDownLatch = new CountDownLatch(featureLength);
+//        log.debug("Task Count: {}", countDownLatch.getCount());
+//
+//        for (int i = 0; i < featureLength; i++) {
+//            final int FEATURE_ID = i;
+//            service.submit(() -> {
+//
+//                try {
+//
+//                    int[] ids = existIds.clone();
+//                    double[] features = new double[ids.length];
+//                    double[] labels = new double[ids.length];
+//                    sortFeatureLabel(ids, labels, features, FEATURE_ID);
+//
+//                    int pointer = 1;
+//                    while (pointer < ids.length) {
+//                        if (features[pointer] == features[pointer - 1]) {
+//                            ++ pointer;
+//                            continue;
+//                        }
+//
+//                        double impurityGain = gainByCriteria(labels, pointer, ids);
+//                        double threshold = (features[pointer - 1] + features[pointer]) / (double) 2;
+//
+//                        log.debug("{}/{}/{} -> impurityGain: {}", FEATURE_ID, threshold, pointer, impurityGain);
+//
+//                        if (impurityGain > bestGain.get()) {
+//                            bestGain.getAndSet(impurityGain);
+//                            bestThreshold.getAndSet(threshold);
+//                            bestFeatureId.getAndSet(FEATURE_ID);
+//                            log.debug("Better pair found: {}/{} -> impurityGain: {}", FEATURE_ID, threshold, impurityGain);
+//                        }
+//                        ++ pointer;
+//                    }
+//                } catch (Throwable e) {
+//                    log.error(e.getMessage(), e);
+//                }
+//                countDownLatch.countDown();
+//            });
+//        }
 
         try {
             TimeUnit.MILLISECONDS.sleep(10);
@@ -221,6 +266,38 @@ public abstract class Tree implements Trainable, Predictable{
         double first = dataSet.getLabel(existIds[0]);
         IntPredicate pred = (i) -> dataSet.getLabel(i) == first;
         return Arrays.stream(existIds).allMatch(pred);
+    }
+
+    private double[] doTask(int featureId) {
+
+        int[] ids = existIds.clone();
+        double[] features = new double[ids.length];
+        double[] labels = new double[ids.length];
+        sortFeatureLabel(ids, labels, features, featureId);
+
+        int pointer = 1;
+        double bestGain = Integer.MIN_VALUE;
+        double bestThreshold = Integer.MIN_VALUE;
+        while (pointer < ids.length) {
+            if (features[pointer] == features[pointer - 1]) {
+                ++pointer;
+                continue;
+            }
+
+            double impurityGain = gainByCriteria(labels, pointer, ids);
+            double threshold = (features[pointer - 1] + features[pointer]) / (double) 2;
+
+            log.debug("{}/{}/{} -> impurityGain: {}", featureId, threshold, pointer, impurityGain);
+
+            if (impurityGain > bestGain) {
+                bestGain = impurityGain;
+                bestThreshold = threshold;
+                log.debug("Better pair found: {}/{} -> impurityGain: {}", featureId, threshold, impurityGain);
+            }
+            ++pointer;
+        }
+
+        return new double[]{bestGain, bestThreshold};
     }
 
     @Override
