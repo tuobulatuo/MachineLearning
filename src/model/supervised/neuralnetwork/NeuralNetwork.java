@@ -169,7 +169,12 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         IntStream.range(start, end).forEach(i ->
                 service.submit(() ->
                 {
-                    backPropagation(i, gradient);
+                    try{
+
+                        backPropagation(i, gradient);
+                    }catch (Throwable t){
+                        log.error(t.getMessage(), t);
+                    }
                     countDownLatch.countDown();
                 })
         );
