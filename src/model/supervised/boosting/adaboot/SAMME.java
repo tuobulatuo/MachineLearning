@@ -185,7 +185,7 @@ public class SAMME implements Trainable, Predictable{
         roundEvaluator = evaluator;
         testingData = testData;
 
-        log.info("SAMME config: ");
+        log.info("SAMME configTrainable: ");
         log.info("classifiers count: {}", classifiers.length);
         log.info("classifiers CLASS: {}", classifiers.getClass().toString());
     }
