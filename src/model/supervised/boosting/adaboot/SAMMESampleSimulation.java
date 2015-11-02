@@ -1,6 +1,5 @@
 package model.supervised.boosting.adaboot;
 
-import data.DataSet;
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +33,6 @@ public class SAMMESampleSimulation extends SAMME{
             }else {
                 EnumeratedIntegerDistribution integerDistribution = new EnumeratedIntegerDistribution(indexes, weights);
                 int[] trainingIndexes = integerDistribution.sample(indexes.length * SAMPLE_SIZE_COEF);
-//                DataSet roundTrainData = trainingData.subDataSetByRow(trainingIndexes);
                 classifier.boostInitialize(trainingData, trainingIndexes);
             }
 
