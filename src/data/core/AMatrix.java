@@ -24,8 +24,6 @@ public abstract class AMatrix {
 
     protected boolean[] booleanColumnIndicator = null;
 
-    protected IntPredicate constantColumn = i -> i == 0;
-
     protected IntPredicate nonBooleanFeature = i -> !booleanColumnIndicator[i];
 
     private float[] meanOrMin = null;

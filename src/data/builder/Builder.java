@@ -36,7 +36,7 @@ public abstract class Builder {
 
     protected DataSet dataSet = null;
 
-    public Builder(String path, String sep, boolean hasHeader, boolean needBias, int m, int n, int[] categoryIndex,
+    public Builder(String path, String sep, boolean hasHeader, boolean needBias, int featureCount, int instanceCount, int[] categoryIndex,
                                     boolean classification){
 
         this.path = path;
@@ -44,8 +44,8 @@ public abstract class Builder {
         this.hasHeader = hasHeader;
         this.needBias = needBias;
         this.categoryIndex = new TIntHashSet(categoryIndex);
-        this.featureCount = m;
-        this.instanceCount = n;
+        this.featureCount = featureCount;
+        this.instanceCount = instanceCount;
         this.isClassification = classification;
     }
 
