@@ -3,6 +3,7 @@ package model.supervised.boosting.adaboot;
 import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
+import data.builder.SparseMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
@@ -138,7 +139,7 @@ public class AdaBoostMain {
         }
     }
 
-    public static void SAMMESampleSimulatinTest() throws Exception{
+    public static void SAMMESampleSimulationTest() throws Exception{
 
         String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/letter-recognition.reformat3.data";
         String sep = ",";
@@ -185,6 +186,49 @@ public class AdaBoostMain {
         }
     }
 
+    public static void newsgroupTest() throws Exception{
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/8newsgroup/train.trec/feature_matrix.txt";
+        String sep = "\\s+";
+        boolean hasHeader = false;
+        boolean needBias = true;
+        int m = 1754;
+        int n = 11314;
+        int[] featureCategoryIndex = {};
+        boolean isClassification = true;
+
+        Builder builder =
+                new SparseMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, isClassification);
+
+        builder.build();
+
+        DataSet trainSet = builder.getDataSet();
+
+        String path2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/8newsgroup/test.trec/feature_matrix.txt";
+        builder =
+                new SparseMatrixDataSetBuilder(path2, sep, hasHeader, needBias, m, n, featureCategoryIndex, isClassification);
+
+        builder.build();
+
+        DataSet testSet = builder.getDataSet();
+
+        SAMMESampleSimulation.NEED_ROUND_REPORT = true;
+        SAMMESampleSimulation.SAMPLE_SIZE_COEF = 2;
+        AdaBoostClassificationTree.INFORMATION_GAIN_THRESHOLD = Integer.MIN_VALUE;
+        AdaBoostClassificationTree.MAX_DEPTH = 100;
+        AdaBoostClassificationTree.MAX_THREADS = 4;
+
+        SAMMESampleSimulation sammeSampleSimulation = new SAMMESampleSimulation();
+        sammeSampleSimulation.initialize(trainSet);
+        String className = "model.supervised.boosting.adaboot.AdaBoostClassificationTree";
+        sammeSampleSimulation.boostConfig(100, className, new ClassificationEvaluator(), testSet);
+        sammeSampleSimulation.train();
+
+        ClassificationEvaluator evaluator = new ClassificationEvaluator();
+        evaluator.initialize(testSet, sammeSampleSimulation);
+        evaluator.getPredictLabel();
+        System.out.print(evaluator.evaluate());
+    }
+
     public static void main(String[] args) throws Exception{
 
 //        DecisionStumpTest();
@@ -192,6 +236,8 @@ public class AdaBoostMain {
 
 //        SAMMETest();
 
-        SAMMESampleSimulatinTest();
+//        SAMMESampleSimulationTest();
+
+        newsgroupTest();
     }
 }
