@@ -26,8 +26,6 @@ public class FullMatrixDataSetBuilder extends Builder{
         super(path, sep, hasHeader, needBias, m, n, categoryIndex, classification);
     }
 
-
-
     @Override
     public void build() throws IOException {
 
@@ -35,7 +33,6 @@ public class FullMatrixDataSetBuilder extends Builder{
         final TSynchronizedIntObjectMap categoryCounter
                 = new TSynchronizedIntObjectMap(new TIntObjectHashMap<HashSet<String>>());
         final HashSet<String> classCounter = new HashSet<>();
-
 
         for (int i : categoryIndex.toArray()) {
             categoryCounter.put(i, new HashSet<String>());
@@ -137,5 +134,4 @@ public class FullMatrixDataSetBuilder extends Builder{
         dataSet = new DataSet(matrix, label);
 
     }
-
 }
