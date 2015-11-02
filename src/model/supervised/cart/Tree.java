@@ -160,7 +160,7 @@ public abstract class Tree implements Trainable, Predictable{
 
         if (lessThanImpurityGainThreshold(bestGain.get())) {
 
-            log.info("[STOP GROW] lessThanImpurityGainThreshold, best gain: {}", bestGain.get());
+            log.debug("[STOP GROW] lessThanImpurityGainThreshold, best gain: {}", bestGain.get());
             setTreeLabel();
             return;
         }
