@@ -33,10 +33,10 @@ public class AdaBoostClassificationTree extends ClassificationTree implements Ad
     }
 
     @Override
-    public void boostInitialize(DataSet data, double[] weights) {
+    public <T> void boostInitialize(DataSet data, T info) {
 
         this.dataSet = data;
-        this.existIds = RandomUtils.getIndexes(data.getInstanceLength());
+        this.existIds = (int[]) info;
 
         log.debug("BoostInitialize finished, Tree WEIGHTED randomness: {}", randomness);
     }

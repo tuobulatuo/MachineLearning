@@ -81,10 +81,10 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
     }
 
     @Override
-    public void boostInitialize(DataSet data, double[] weights) {
+    public <T> void boostInitialize(DataSet data, T info) {
 
         this.dataSet = data;
-        this.weights = weights;
+        this.weights = (double[]) info;
         this.existIds = RandomUtils.getIndexes(data.getInstanceLength());
 
         TDoubleDoubleHashMap counter = new TDoubleDoubleHashMap();

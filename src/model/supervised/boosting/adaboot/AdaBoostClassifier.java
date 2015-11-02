@@ -7,7 +7,7 @@ import data.DataSet;
  */
 public interface AdaBoostClassifier {
 
-    void boostInitialize(DataSet data, double[] weights);
+    <T> void boostInitialize(DataSet data, T info);
 
     void boost();
 

@@ -29,12 +29,16 @@ public class SAMMESampleSimulation extends SAMME{
 
             AdaBoostClassifier classifier = adaBoostClassifiers[i];
 
-            EnumeratedIntegerDistribution integerDistribution = new EnumeratedIntegerDistribution(indexes, weights);
-            int[] trainingIndexes = integerDistribution.sample(indexes.length * SAMPLE_SIZE_COEF);
-            DataSet roundTrainData = trainingData.subDataSetByRow(trainingIndexes);
-            classifier.boostInitialize(roundTrainData, weights);
-            classifier.boost();
+            if (i == 0) {
+                classifier.boostInitialize(trainingData, indexes);
+            }else {
+                EnumeratedIntegerDistribution integerDistribution = new EnumeratedIntegerDistribution(indexes, weights);
+                int[] trainingIndexes = integerDistribution.sample(indexes.length * SAMPLE_SIZE_COEF);
+//                DataSet roundTrainData = trainingData.subDataSetByRow(trainingIndexes);
+                classifier.boostInitialize(trainingData, trainingIndexes);
+            }
 
+            classifier.boost();
             double error = getWeightedError(classifier);
             roundError[i] = error;
 
