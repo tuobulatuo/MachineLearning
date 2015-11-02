@@ -22,3 +22,7 @@ machine learning code for Northeastern University fall 2015
 (3) Designed and implemented Deep Neural Network for any desired structure with NLL objective
 
 (4) Implemented Cross-Validation process for all models.
+
+(5) Implemented two type of feature matrix:
+    - FullMatrix<br/>
+    - SparseMatrix<br/>
