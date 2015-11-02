@@ -23,6 +23,6 @@ machine learning code for Northeastern University fall 2015
 
 (4) Implemented Cross-Validation process for all models.
 
-(5) Implemented two type of feature matrix:
+(5) Implemented two type of feature matrix:<br/>
     - FullMatrix<br/>
     - SparseMatrix<br/>
