@@ -26,7 +26,7 @@ public class RegressionTree extends Tree{
         double[] labels = Arrays.stream(existIds).mapToDouble(id -> dataSet.getLabel(id)).toArray();
         squareError = cost(labels);
 
-        log.info("Tree {} @depth {} constructed, squareError: {}, has {} points ...", td, depth, squareError, existIds.length);
+        log.debug("Tree {} @depth {} constructed, squareError: {}, has {} points ...", td, depth, squareError, existIds.length);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class RegressionTree extends Tree{
     protected void setTreeLabel() {
 
         meanResponse = Arrays.stream(existIds).mapToDouble(id -> dataSet.getLabel(id)).average().getAsDouble();
-        log.info("[LEAF NODE] id: {}, label: {}", td, meanResponse);
+        log.debug("[LEAF NODE] id: {}, label: {}", td, meanResponse);
     }
 
     @Override

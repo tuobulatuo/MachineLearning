@@ -212,7 +212,7 @@ public class AdaBoostMain {
         DataSet testSet = builder.getDataSet();
 
         SAMMESampleSimulation.NEED_ROUND_REPORT = true;
-        SAMMESampleSimulation.SAMPLE_SIZE_COEF = 2;
+        SAMMESampleSimulation.SAMPLE_SIZE_COEF = 1;
         AdaBoostClassificationTree.INFORMATION_GAIN_THRESHOLD = Integer.MIN_VALUE;
         AdaBoostClassificationTree.MAX_DEPTH = 100;
         AdaBoostClassificationTree.MAX_THREADS = 4;
@@ -231,13 +231,13 @@ public class AdaBoostMain {
 
     public static void main(String[] args) throws Exception{
 
-//        DecisionStumpTest();
+        DecisionStumpTest();
 //        RandomDecisionStumpTest();
 
 //        SAMMETest();
 
 //        SAMMESampleSimulationTest();
 
-        newsgroupTest();
+//        newsgroupTest();
     }
 }

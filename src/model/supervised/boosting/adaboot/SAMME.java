@@ -187,6 +187,6 @@ public class SAMME implements Trainable, Predictable{
 
         log.info("SAMME configTrainable: ");
         log.info("classifiers count: {}", classifiers.length);
-        log.info("classifiers CLASS: {}", classifiers.getClass().toString());
+        log.info("classifiers CLASS: {}", classifierClassName);
     }
 }

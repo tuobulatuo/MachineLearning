@@ -67,9 +67,9 @@ public class CARTMain {
         CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.NULL);
 
         RegressionTree regressionTree = new RegressionTree();
-        RegressionTree.MAX_DEPTH = Integer.MAX_VALUE;
+        RegressionTree.MAX_DEPTH = 10;
         RegressionTree.COST_DROP_THRESHOLD = 0;
-        RegressionTree.MIN_INSTANCE_COUNT = 1;
+        RegressionTree.MIN_INSTANCE_COUNT = 5;
         crossEvaluator.crossValidateEvaluate(regressionTree);
 
     }
