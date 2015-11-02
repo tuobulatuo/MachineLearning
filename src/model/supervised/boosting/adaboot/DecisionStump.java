@@ -20,7 +20,7 @@ public class DecisionStump extends WeightedClassificationTree{
     private static Logger log = LogManager.getLogger(DecisionStump.class);
 
     public DecisionStump(){
-        INFORMATION_GAIN_THRESHOLD = 0;
+        INFORMATION_GAIN_THRESHOLD = Integer.MIN_VALUE;
         MAX_DEPTH = 1;
     }
 
