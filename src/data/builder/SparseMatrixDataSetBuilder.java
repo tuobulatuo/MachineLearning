@@ -148,8 +148,24 @@ public class SparseMatrixDataSetBuilder extends Builder{
 
         log.info(dataset.getInstance(dataset.getInstanceLength() - 1)[436]); //436:0.3452489972114563
         log.info(dataset.getInstance(dataset.getInstanceLength() - 1)[565]); //565:0.24571247398853302
+
+        log.info("============");
+
         log.info(dataset.getEntry(dataset.getInstanceLength() - 1, 436));
         log.info(dataset.getEntry(dataset.getInstanceLength() - 1, 565));
+
+        log.info("============");
+
+        log.info(dataset.getFeatureCol(0)[1]);
+        log.info(dataset.getFeatureCol(1)[0]);
+        log.info(dataset.getFeatureCol(1)[1]);
+        log.info(dataset.getFeatureCol(1)[2]);
+
+        log.info(dataset.getFeatureCol(749)[0]);
+        log.info(dataset.getFeatureCol(749)[1]);
+        log.info(dataset.getFeatureCol(749)[2]);
+        log.info(dataset.getFeatureCol(749)[3]);
+        log.info(dataset.getFeatureCol(749)[4]);
 
     }
 }
