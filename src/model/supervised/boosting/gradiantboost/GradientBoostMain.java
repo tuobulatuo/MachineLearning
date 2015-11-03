@@ -61,7 +61,8 @@ public class GradientBoostMain {
             evaluator.initialize(testSet, boostRegression);
             evaluator.getPredictLabel();
             avgMse += evaluator.evaluate();
-//            break;
+            System.out.println(avgMse);
+            break;
         }
         avgMse /= (double) 10;
         System.out.println(avgMse);
@@ -107,7 +108,7 @@ public class GradientBoostMain {
     }
 
     public static void main(String[] args) throws Exception{
-//        regressionTest();
-        classificationTest();
+        regressionTest();
+        classificationTest(); // accu 0.79
     }
 }

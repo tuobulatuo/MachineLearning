@@ -59,6 +59,8 @@ public class BaggingMain {
             evaluator.initialize(testSet, baggingRegression);
             evaluator.getPredictLabel();
             avgMse += evaluator.evaluate();
+            System.out.println(avgMse);
+            break;
         }
         avgMse /= (double) 10;
         System.out.println(avgMse);

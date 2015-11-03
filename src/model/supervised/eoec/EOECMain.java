@@ -54,7 +54,7 @@ public class EOECMain {
     }
 
     public static void main(String[] args) throws Exception{
-        newsgroupTest();
+        newsgroupTest(); // accu 0.73
     }
 
 }

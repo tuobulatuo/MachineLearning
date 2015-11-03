@@ -34,8 +34,8 @@ public class ActiveMain {
 
         DataSet dataset = builder.getDataSet();
 
-        SAMME.NEED_ROUND_REPORT = false;
-        ActiveAdaBoost.PERCENT_START = 0.002;
+        SAMME.NEED_ROUND_REPORT = true;
+        ActiveAdaBoost.PERCENT_START = 0.05;
 
         int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 3);
         for (int i = 0; i < kFoldIndex.length; i++) {
