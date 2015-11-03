@@ -23,6 +23,8 @@ machine learning code for Northeastern University fall 2015
     - Boosting:<br/>
         1) AdaBoost by classification tree for classification <br/>
         2) GradientBoost by regression tree for regression and classification<br/>
+    <br/>
+    - EOEC <br/>
 
 (2) Implemented Gradient Decent framework for all models
 
