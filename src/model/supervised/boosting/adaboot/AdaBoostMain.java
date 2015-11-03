@@ -192,7 +192,7 @@ public class AdaBoostMain {
         String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/8newsgroup/train.trec/feature_matrix.txt";
         String sep = "\\s+";
         boolean hasHeader = false;
-        boolean needBias = true;
+        boolean needBias = false;
         int m = 1754;
         int n = 11314;
         int[] featureCategoryIndex = {};
