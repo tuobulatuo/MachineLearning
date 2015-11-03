@@ -3,7 +3,7 @@ package model.supervised.eoec;
 import data.DataSet;
 import data.builder.Builder;
 import data.builder.SparseMatrixDataSetBuilder;
-import model.supervised.boosting.adaboot.DecisionStump;
+import model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump;
 import performance.ClassificationEvaluator;
 
 /**
@@ -37,7 +37,7 @@ public class EOECMain {
 
         DataSet testSet = builder.getDataSet();
 
-        String className = "model.supervised.boosting.adaboot.DecisionStump";
+        String className = "model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump";
         EOECAdaBoost.ADABOOST_CLASSIFIER_CLASS_NAME = className;
         EOECAdaBoost.MAX_THREADS = 1;
         EOECAdaBoost.MAX_ITERATION = 200;
