@@ -3,6 +3,7 @@ package model.supervised.boosting.adaboot;
 import data.DataSet;
 import model.Predictable;
 import model.Trainable;
+import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neu.util.array.ArraySumUtil;

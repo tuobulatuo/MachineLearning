@@ -1,4 +1,4 @@
-package model.supervised.boosting.adaboot;
+package model.supervised.boosting.adaboot.adaboostclassifier;
 
 import data.DataSet;
 import org.apache.logging.log4j.LogManager;

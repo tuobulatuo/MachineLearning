@@ -45,7 +45,7 @@ public class ActiveMain {
             DataSet trainSet = dataset.subDataSetByRow(trainIndexes);
             DataSet testSet = dataset.subDataSetByRow(testIndexes.toArray());
 
-            String className = "model.supervised.boosting.adaboot.DecisionStump";
+            String className = "model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump";
             ActiveAdaBoost activeAdaBoost = new ActiveAdaBoost(10, className, new ClassificationEvaluator(), testSet);
             activeAdaBoost.initialize(trainSet);
             activeAdaBoost.train();

@@ -5,6 +5,8 @@ import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
 import data.builder.SparseMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
+import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassificationTree;
+import model.supervised.boosting.adaboot.adaboostclassifier.WeightedClassificationTree;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
 
@@ -46,7 +48,7 @@ public class AdaBoostMain {
 
             SAMME samme = new SAMME();
             samme.initialize(trainSet);
-            String className = "model.supervised.boosting.adaboot.DecisionStump";
+            String className = "model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump";
             samme.boostConfig(20, className, new ClassificationEvaluator(), testSet);
             samme.train();
 
@@ -85,7 +87,7 @@ public class AdaBoostMain {
 
             SAMME samme = new SAMME();
             samme.initialize(trainSet);
-            String className = "model.supervised.boosting.adaboot.RandomDecisionStump";
+            String className = "model.supervised.boosting.adaboot.adaboostclassifier.RandomDecisionStump";
             samme.boostConfig(20, className, new ClassificationEvaluator(), testSet);
             samme.train();
 
@@ -126,7 +128,7 @@ public class AdaBoostMain {
 
             SAMME samme = new SAMME();
             samme.initialize(trainSet);
-            String className = "model.supervised.boosting.adaboot.WeightedClassificationTree";
+            String className = "model.supervised.boosting.adaboot.adaboostclassifier.WeightedClassificationTree";
             samme.boostConfig(20, className, new ClassificationEvaluator(), testSet);
             samme.train();
 
@@ -173,7 +175,7 @@ public class AdaBoostMain {
 
             SAMMESampleSimulation sammeSampleSimulation = new SAMMESampleSimulation();
             sammeSampleSimulation.initialize(trainSet);
-            String className = "model.supervised.boosting.adaboot.AdaBoostClassificationTree";
+            String className = "model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassificationTree";
             sammeSampleSimulation.boostConfig(20, className, new ClassificationEvaluator(), testSet);
             sammeSampleSimulation.train();
 
@@ -219,7 +221,7 @@ public class AdaBoostMain {
 
         SAMMESampleSimulation sammeSampleSimulation = new SAMMESampleSimulation();
         sammeSampleSimulation.initialize(trainSet);
-        String className = "model.supervised.boosting.adaboot.AdaBoostClassificationTree";
+        String className = "model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassificationTree";
         sammeSampleSimulation.boostConfig(100, className, new ClassificationEvaluator(), testSet);
         sammeSampleSimulation.train();
 
@@ -231,13 +233,13 @@ public class AdaBoostMain {
 
     public static void main(String[] args) throws Exception{
 
-        DecisionStumpTest();
+//        DecisionStumpTest();
 //        RandomDecisionStumpTest();
 
 //        SAMMETest();
 
 //        SAMMESampleSimulationTest();
 
-//        newsgroupTest();
+        newsgroupTest();
     }
 }

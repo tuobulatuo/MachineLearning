@@ -1,16 +1,8 @@
-package model.supervised.boosting.adaboot;
+package model.supervised.boosting.adaboot.adaboostclassifier;
 
 import data.DataSet;
-import gnu.trove.map.hash.TDoubleDoubleHashMap;
-import model.supervised.cart.ClassificationTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.array.ArraySumUtil;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortDoubleDoubleUtils;
-
-import java.util.Arrays;
-import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 10/30/15 for machine_learning.

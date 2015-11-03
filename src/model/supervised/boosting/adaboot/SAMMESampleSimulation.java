@@ -1,5 +1,6 @@
 package model.supervised.boosting.adaboot;
 
+import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassifier;
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by hanxuan on 11/1/15 for machine_learning.
  */
-public class SAMMESampleSimulation extends SAMME{
+public class SAMMESampleSimulation extends SAMME {
 
     public static int SAMPLE_SIZE_COEF = 1;
 
