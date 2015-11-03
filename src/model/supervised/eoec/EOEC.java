@@ -137,7 +137,7 @@ public abstract class EOEC implements Predictable, Trainable{
         for (int i = 0; i < vector.length; i++) {
             vector[i] = map.get((int)data.getLabel(i));
         }
-        HashMap<Integer, Integer> classIndexMap = new HashMap<>();
+        HashMap<Object, Integer> classIndexMap = new HashMap<>();
         classIndexMap.put(0, 0);
         classIndexMap.put(1, 1);
         return new Label(vector, classIndexMap);
