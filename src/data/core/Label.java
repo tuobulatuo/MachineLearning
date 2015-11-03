@@ -1,5 +1,7 @@
 package data.core;
 
+import org.neu.util.rand.RandomUtils;
+
 import java.util.HashMap;
 import java.util.stream.IntStream;
 
@@ -63,6 +65,10 @@ public class Label {
         float[] suVector = new float[subIndexes.length];
         IntStream.range(0, subIndexes.length).forEach(i -> suVector[i] = vector[subIndexes[i]]);
         return new Label(suVector, this.classIndexMap);
+    }
+
+    public Label clone() {
+        return subLabelByRow(RandomUtils.getIndexes(vector.length));
     }
 
     public static void main(String[] args) {
