@@ -12,22 +12,28 @@ public class Label {
 
     private float[] vector = null;
 
-    private HashMap<Integer, Integer> classIndexMap = null;
+    private HashMap<Object, Integer> classIndexMap = null;
 
-    private HashMap<Integer, Integer> indexClassMap = null;
+    private HashMap<Integer, Object> indexClassMap = null;
 
-//    private boolean isCategory = false;
+    private HashMap<Object, Integer> categoryIndexMap = null;
 
-    public Label(float[] data, HashMap<Integer, Integer> categories) {
+    public Label(float[] data, HashMap<Object, Integer> categories) {
 
         this.vector = data;
         this.classIndexMap = categories;
         if (classIndexMap != null) {
             indexClassMap = new HashMap<>();
-            for (int k : classIndexMap.keySet()) {
+            for (Object k : classIndexMap.keySet()) {
                 indexClassMap.put(classIndexMap.get(k), k);
             }
         }
+    }
+
+    public Label(float[] data, HashMap<Object, Integer> categories, HashMap<Object, Integer> categoryIndexMap) {
+
+        this(data, categories);
+        this.categoryIndexMap = categoryIndexMap;
     }
 
     public double getLabelQuotient(int category) {
@@ -37,11 +43,6 @@ public class Label {
         for (float e : vector) if (e == l) ++ counter;
         return counter / (double) vector.length;
     }
-
-//    public boolean isCategoryLabel() {
-//
-//        return isCategory;
-//    }
 
     public double getRow(int rowNum) {
 
@@ -53,11 +54,11 @@ public class Label {
         return vector;
     }
 
-    public HashMap<Integer, Integer> getClassIndexMap() {
+    public HashMap<Object, Integer> getClassIndexMap() {
         return classIndexMap;
     }
 
-    public HashMap<Integer, Integer> getIndexClassMap() {
+    public HashMap<Integer, Object> getIndexClassMap() {
         return indexClassMap;
     }
 

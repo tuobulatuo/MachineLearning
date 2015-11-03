@@ -21,7 +21,7 @@ public class SparseMatrixDataSetBuilder extends Builder{
 
     private static Logger log = LogManager.getLogger(SparseMatrixDataSetBuilder.class);
 
-    private HashMap<Integer, Integer> classIndexMap;
+    private HashMap<Object, Integer> classIndexMap;
 
     public SparseMatrixDataSetBuilder(String path, String sep, boolean hasHeader, boolean needBias, int featureCount,
                                       int instanceCount, int[] categoryIndex, boolean classification) {

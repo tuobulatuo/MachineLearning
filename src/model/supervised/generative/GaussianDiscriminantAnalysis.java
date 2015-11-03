@@ -36,7 +36,7 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
 
     private DataSet data = null;
 
-    private HashMap<Integer, Integer> indexClassMap = null;
+    private HashMap<Integer, Object> indexClassMap = null;
 
     @Override
     public double predict(double[] feature) {

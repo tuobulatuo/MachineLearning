@@ -6,6 +6,7 @@ import data.core.Label;
 import gnu.trove.set.hash.TIntHashSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.neu.util.rand.RandomUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -57,18 +58,18 @@ public abstract class Builder {
 
     public static void main(String[] args) throws IOException {
 
-        String path0 = "src/ztest/feature.txt";
+        String path0 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/vote/vote.test.data";
         String path1 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/house.test.txt";
         String path2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/homework/hw1/spambase/spambase.data";
-        String sep = ",";
+        String sep = "\\s+";
         boolean hasHeader = false;
-        boolean needBias = true;
-        int m = 57;
+        boolean needBias = false;
+        int m = 16;
         int n = 100;
-        int[] featureCategoryIndex = {};
+        int[] featureCategoryIndex = RandomUtils.getIndexes(m);
 
         Builder builder =
-                new FullMatrixDataSetBuilder(path2, sep, hasHeader, needBias, m, n, featureCategoryIndex, true);
+                new FullMatrixDataSetBuilder(path0, sep, hasHeader, needBias, m, n, featureCategoryIndex, true);
 
         builder.build();
 
@@ -82,8 +83,8 @@ public abstract class Builder {
         log.info("getBooleanColumnIndicator: {}", Arrays.toString(ma.getBooleanColumnIndicator()));
 
 
-//        IntStream.range(0, ma.getInstanceLength()).forEach(i -> log.info("row{}: {}", i, ma.getRow(i)));
-        IntStream.range(0, ma.getFeatureLength()).forEach(i -> log.info("{} Mean:{}", i, ma.colMean(i)));
+        IntStream.range(0, ma.getInstanceLength()).forEach(i -> log.info("row{}: {}", i, ma.getRow(i)));
+//        IntStream.range(0, ma.getFeatureLength()).forEach(i -> log.info("{} Mean:{}", i, ma.colMean(i)));
 
         Label l = dataset.getLabels();
         log.info("getClassIndexMap: {}", l.getClassIndexMap());

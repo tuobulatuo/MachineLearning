@@ -45,14 +45,14 @@ public class FullMatrixDataSetBuilder extends Builder{
             featureNames = reader.readLine().split(sep);
         }
 
-        reader.lines().parallel().forEach(
+        reader.lines().forEach(
                 line -> {
                     line = line.toUpperCase().trim();
                     n.getAndIncrement();
                     if (categoryIndex.size() > 0) {
                         String[] es = line.split(sep);
                         for (int i : categoryIndex.toArray()) {
-                            ((Set)categoryCounter.get(i)).add(es[i].trim());
+                            ((Set) categoryCounter.get(i)).add(es[i].trim());
                         }
                     }
                     if (isClassification) {
@@ -76,18 +76,18 @@ public class FullMatrixDataSetBuilder extends Builder{
         Arrays.fill(categoryIndicator, categoryFeatureStart, categoryIndicator.length, true);
 
         int pos = categoryFeatureStart;
-        HashMap<String, Integer> categoryIndexMap = new HashMap<>();
+        HashMap<Object, Integer> categoryIndexMap = new HashMap<>();
         for (int key : categoryCounter.keys()) {
             Set<String> set = (Set<String>) categoryCounter.get(key);
             for (String s : set){
-                categoryIndexMap.put(""+ s + key, pos++);
+                categoryIndexMap.put(""+ key + s, pos++);
             }
         }
 
-        HashMap<Integer, Integer> classIndexMap = new HashMap<>();
+        HashMap<Object, Integer> classIndexMap = new HashMap<>();
         int counter = 0;
-        for (String c: classCounter) {
-            classIndexMap.put(Integer.parseInt(c), counter++);
+        for (Object c: classCounter) {
+            classIndexMap.put(c, counter++);
         }
 
         if (instanceCount != n.get()) {
@@ -113,13 +113,13 @@ public class FullMatrixDataSetBuilder extends Builder{
                     String[] es = line.split(sep);
                     for (int i = 0; i < es.length - 1; i++) {
                         if (categoryIndex.contains(i)) {
-                            data[n.get()][categoryIndexMap.get("" + es[i] + i)] = 1;
+                            data[n.get()][categoryIndexMap.get("" + i + es[i].trim())] = 1;
                         } else {
                             data[n.get()][currentFeaturePointer++] = Float.parseFloat(es[i].trim());
                         }
                     }
 
-                    labelVec[n.get()] = isClassification ? classIndexMap.get(Integer.parseInt(es[es.length - 1].trim())) :
+                    labelVec[n.get()] = isClassification ? classIndexMap.get(es[es.length - 1].trim()) :
                             Float.parseFloat(es[es.length - 1].trim());
 
                     n.getAndIncrement();
@@ -128,8 +128,12 @@ public class FullMatrixDataSetBuilder extends Builder{
         reader.close();
 
         FullMatrix matrix = new FullMatrix(data, categoryIndicator, featureNames);
-
-        Label label = new Label(labelVec, classIndexMap);
+        Label label;
+        if (isClassification) {
+            label = new Label(labelVec, classIndexMap, categoryIndexMap);
+        }else {
+            label = new Label(labelVec, classIndexMap);
+        }
 
         dataSet = new DataSet(matrix, label);
 

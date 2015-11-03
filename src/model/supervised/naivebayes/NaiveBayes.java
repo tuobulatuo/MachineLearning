@@ -21,7 +21,7 @@ public abstract class NaiveBayes implements Predictable, Trainable{
 
     protected int featureLength = Integer.MIN_VALUE;
 
-    protected HashMap<Integer, Integer> indexClassMap = null;
+    protected HashMap<Integer, Object> indexClassMap = null;
 
     protected int classCount = Integer.MIN_VALUE;
 

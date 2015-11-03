@@ -31,7 +31,7 @@ public class MixtureGaussianDiscriminantAnalysis implements Trainable, Predictab
 
     private DataSet data = null;
 
-    private HashMap<Integer, Integer> indexClassMap = null;
+    private HashMap<Integer, Object> indexClassMap = null;
 
     private MultivariateNormalDistribution[][] models = null;
 
