@@ -14,8 +14,8 @@ machine learning code for Northeastern University fall 2015
         1) Bernoulli + Multinoulli <br/>
         2) Gaussian<br/>
     - Boosting:<br/>
-        1) AdaBoost by classification tree <br/>
-        2) GradientBoost by regression tree<br/>
+        1) AdaBoost by classification tree for classification <br/>
+        2) GradientBoost by regression tree for regression and classification<br/>
 
 (2) Implemented Gradient Decent framework for all models
 
