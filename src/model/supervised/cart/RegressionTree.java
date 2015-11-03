@@ -15,7 +15,7 @@ public class RegressionTree extends Tree{
 
     public static double COST_DROP_THRESHOLD = 1;
 
-    private double squareError = Integer.MAX_VALUE;
+    protected double squareError = Integer.MAX_VALUE;
 
     public RegressionTree() {}
 
@@ -53,14 +53,14 @@ public class RegressionTree extends Tree{
         right = new RegressionTree(depth + 1, dataSet, rightGroup);
     }
 
-    private double CostDrop(double[] labels, int position) {
+    protected double CostDrop(double[] labels, int position) {
 
         double[] left = Arrays.copyOfRange(labels, 0, position);
         double[] right = Arrays.copyOfRange(labels, position, labels.length);
         return squareError - cost(left) - cost(right);
     }
 
-    private double cost (double[] a) {
+    protected double cost (double[] a) {
         double mean = Arrays.stream(a).average().getAsDouble();
         return Arrays.stream(a).map(x -> Math.pow(x - mean, 2)).sum();
     }

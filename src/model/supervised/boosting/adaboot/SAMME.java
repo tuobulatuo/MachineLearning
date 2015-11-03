@@ -3,6 +3,7 @@ package model.supervised.boosting.adaboot;
 import data.DataSet;
 import model.Predictable;
 import model.Trainable;
+import model.supervised.boosting.Boost;
 import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +11,7 @@ import org.neu.util.array.ArraySumUtil;
 import org.neu.util.rand.RandomUtils;
 import org.neu.util.sort.SortIntDoubleUtils;
 import performance.ClassificationEvaluator;
+import performance.Evaluator;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by hanxuan on 10/30/15 for machine_learning.
  */
-public class SAMME implements Trainable, Predictable{
+public class SAMME implements Trainable, Predictable, Boost{
 
     public static boolean NEED_ROUND_REPORT = false;
 
@@ -106,7 +108,8 @@ public class SAMME implements Trainable, Predictable{
         }
     }
 
-    protected void printRoundReport() {
+    @Override
+    public void printRoundReport() {
 
         log.info("======================= Round Report =======================");
         log.info("alpha: {}", alpha);
@@ -167,8 +170,8 @@ public class SAMME implements Trainable, Predictable{
         Arrays.fill(weights, 1 / (double) instanceLength);
     }
 
-
-    public void boostConfig(int iteration, String classifierClassName, ClassificationEvaluator evaluator, DataSet testData)
+    @Override
+    public void boostConfig(int iteration, String classifierClassName, Evaluator evaluator, DataSet testData)
     throws Exception{
 
         AdaBoostClassifier[] classifiers = new AdaBoostClassifier[iteration];
@@ -183,7 +186,7 @@ public class SAMME implements Trainable, Predictable{
 
         alpha = new double[classifiers.length];
         adaBoostClassifiers = classifiers;
-        roundEvaluator = evaluator;
+        roundEvaluator = (ClassificationEvaluator) evaluator;
         testingData = testData;
 
         log.info("SAMME configTrainable: ");
