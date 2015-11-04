@@ -1,8 +1,8 @@
 package model.supervised.bagging;
 
 import data.DataSet;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortIntDoubleUtils;
+import utils.random.RandomUtils;
+import utils.sort.SortIntDoubleUtils;
 
 /**
  * Created by hanxuan on 11/3/15 for machine_learning.

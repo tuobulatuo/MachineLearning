@@ -7,11 +7,10 @@ import data.builder.SparseMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
 import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassificationTree;
 import model.supervised.boosting.adaboot.adaboostclassifier.WeightedClassificationTree;
-import org.neu.util.rand.RandomUtils;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
+import utils.random.RandomUtils;
 
-import java.util.Arrays;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 

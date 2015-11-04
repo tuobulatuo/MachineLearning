@@ -7,10 +7,9 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.io.FileUtils;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortIntDoubleUtils;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.*;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
@@ -186,8 +185,42 @@ public class Test {
 //
 //        log.info(stack.peek());
 
-        System.out.println(Math.log(10) / Math.log(2));
-
+//        System.out.println(Math.log(10) / Math.log(2));
+//        String file = "";
+//        String file = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/letter-recognition.reformat.data";
+//        BufferedReader reader = new BufferedReader(new FileReader(file), 1024 * 1024 * 64);
+//        String line;
+//        HashSet<String> set = new HashSet<>();
+//        while ((line = reader.readLine()) != null){
+//            String[] es = line.trim().split(",");
+//            set.add(es[es.length - 1]);
+//        }
+//        reader.close();
+//
+//        String[] classes = set.toArray(new String[0]);
+//        Arrays.sort(classes);
+//
+//        HashMap<String, Integer> map = new HashMap<>();
+//        for (int i = 0; i < classes.length; i++) {
+//            map.put(classes[i], i);
+//        }
+//
+//        reader = new BufferedReader(new FileReader(file), 1024 * 1024 * 64);
+//        String newFile = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/letter-recognition.reformat3.data";
+//        BufferedFileWriter writer = new BufferedFileWriter(newFile);
+//        String line2;
+//        while ((line2 = reader.readLine()) != null){
+//            String[] es = line2.trim().split(",");
+//            StringBuilder builder = new StringBuilder();
+//            for (int i = 0; i < es.length - 1; i++) {
+//                builder.append(es[i]);
+//                builder.append(",");
+//            }
+//            int classCount = map.get(es[es.length - 1]);
+//            writer.writeLine(builder.toString() + classCount);
+//        }
+//        reader.close();
+//        writer.close();
 
     }
 }

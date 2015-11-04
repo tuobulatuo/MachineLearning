@@ -8,7 +8,8 @@ import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.sort.SortIntDoubleUtils;
+import utils.sort.SortIntDoubleUtils;
+//import org.neu.util.sort.SortIntDoubleUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.*;
@@ -31,7 +32,7 @@ public abstract class Tree implements Trainable, Predictable{
 
     public static int MAX_THREADS = 4;
 
-    public static int THREAD_WORK_LOAD = 10000000;
+    public static int THREAD_WORK_LOAD = 1;
 
     protected int td;
 
@@ -108,17 +109,17 @@ public abstract class Tree implements Trainable, Predictable{
         final AtomicDouble bestGain = new AtomicDouble(Integer.MIN_VALUE);
 
         service = Executors.newFixedThreadPool(MAX_THREADS);
-        int taskCount = (int) Math.ceil(featureLength * existIds.length / (double) THREAD_WORK_LOAD);
-        int packageSize = (int) Math.ceil(featureLength / (double)taskCount);
-        countDownLatch = new CountDownLatch(taskCount);
+
+        log.debug("featureLength {}, existIds {}", featureLength, existIds.length);
+
+        int realTaskCount = (int) Math.ceil(featureLength / (double) THREAD_WORK_LOAD);
+        countDownLatch = new CountDownLatch(realTaskCount);
         log.debug("Task Count: {}", countDownLatch.getCount());
         TIntArrayList taskPackage = new TIntArrayList();
-//        TIntArrayList check = new TIntArrayList();
         IntStream.range(0, featureLength).forEach(i -> {
             taskPackage.add(i);
-            if (taskPackage.size() == packageSize || i == featureLength - 1) {
+            if (taskPackage.size() == THREAD_WORK_LOAD || i == featureLength - 1) {
                 TIntArrayList taskPackage2 = new TIntArrayList(taskPackage);
-//                check.addAll(taskPackage2);
                 service.submit(()->
                 {
                     try {
@@ -139,6 +140,7 @@ public abstract class Tree implements Trainable, Predictable{
                             bestFeatureId.getAndSet(currentBestFeatureId);
                             bestThreshold.getAndSet(currentBestThreshold);
                         }
+                        log.debug("one package processed/{}", realTaskCount);
                     }catch (Throwable t) {
                         log.error(t.getMessage(), t);
                     }
@@ -147,49 +149,6 @@ public abstract class Tree implements Trainable, Predictable{
                 taskPackage.clear();
             }
         });
-
-//        log.debug("check size {}, feature length: {}", check.size(), featureLength);
-
-//        countDownLatch = new CountDownLatch(featureLength);
-//        log.debug("Task Count: {}", countDownLatch.getCount());
-//
-//        for (int i = 0; i < featureLength; i++) {
-//            final int FEATURE_ID = i;
-//            service.submit(() -> {
-//
-//                try {
-//
-//                    int[] ids = existIds.clone();
-//                    double[] features = new double[ids.length];
-//                    double[] labels = new double[ids.length];
-//                    sortFeatureLabel(ids, labels, features, FEATURE_ID);
-//
-//                    int pointer = 1;
-//                    while (pointer < ids.length) {
-//                        if (features[pointer] == features[pointer - 1]) {
-//                            ++ pointer;
-//                            continue;
-//                        }
-//
-//                        double impurityGain = gainByCriteria(labels, pointer, ids);
-//                        double threshold = (features[pointer - 1] + features[pointer]) / (double) 2;
-//
-//                        log.debug("{}/{}/{} -> impurityGain: {}", FEATURE_ID, threshold, pointer, impurityGain);
-//
-//                        if (impurityGain > bestGain.get()) {
-//                            bestGain.getAndSet(impurityGain);
-//                            bestThreshold.getAndSet(threshold);
-//                            bestFeatureId.getAndSet(FEATURE_ID);
-//                            log.debug("Better pair found: {}/{} -> impurityGain: {}", FEATURE_ID, threshold, impurityGain);
-//                        }
-//                        ++ pointer;
-//                    }
-//                } catch (Throwable e) {
-//                    log.error(e.getMessage(), e);
-//                }
-//                countDownLatch.countDown();
-//            });
-//        }
 
         try {
             TimeUnit.MILLISECONDS.sleep(10);
@@ -276,6 +235,7 @@ public abstract class Tree implements Trainable, Predictable{
         sortFeatureLabel(ids, labels, features, featureId);
 
         int pointer = 1;
+        int loopCounter = 1;
         double bestGain = Integer.MIN_VALUE;
         double bestThreshold = Integer.MIN_VALUE;
         while (pointer < ids.length) {
@@ -294,7 +254,12 @@ public abstract class Tree implements Trainable, Predictable{
                 bestThreshold = threshold;
                 log.debug("Better pair found: {}/{} -> impurityGain: {}", featureId, threshold, impurityGain);
             }
+
             ++pointer;
+
+            if (loopCounter++ % 99999 == 0){
+                log.warn("Warning: In task {} loopCounter {}", featureId, loopCounter);
+            }
         }
 
         return new double[]{bestGain, bestThreshold};

@@ -2,8 +2,10 @@
   <dictionary name="hanxuan">
     <words>
       <w>accu</w>
+      <w>adaboost</w>
       <w>aremove</w>
       <w>coef</w>
+      <w>eoec</w>
       <w>equa</w>
       <w>meansd</w>
       <w>minmax</w>
@@ -11,9 +13,13 @@
       <w>multinoulli</w>
       <w>perceptron</w>
       <w>pred</w>
+      <w>predictables</w>
       <w>probs</w>
+      <w>quantile</w>
+      <w>samme</w>
       <w>sigm</w>
       <w>sigmam</w>
+      <w>trainables</w>
     </words>
   </dictionary>
 </component>

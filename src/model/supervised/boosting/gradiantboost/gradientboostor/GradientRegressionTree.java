@@ -4,7 +4,7 @@ import data.DataSet;
 import model.supervised.cart.RegressionTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.rand.RandomUtils;
+import utils.random.RandomUtils;
 
 import java.util.Arrays;
 

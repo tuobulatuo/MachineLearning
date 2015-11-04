@@ -5,7 +5,8 @@ import gnu.trove.map.hash.TDoubleIntHashMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.sort.SortDoubleDoubleUtils;
+import utils.sort.SortDoubleDoubleUtils;
+//import org.neu.util.sort.SortDoubleDoubleUtils;
 
 import java.util.Arrays;
 

@@ -7,11 +7,12 @@ import model.supervised.boosting.Boost;
 import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.array.ArraySumUtil;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortIntDoubleUtils;
+
 import performance.ClassificationEvaluator;
 import performance.Evaluator;
+import utils.array.ArraySumUtil;
+import utils.random.RandomUtils;
+import utils.sort.SortIntDoubleUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;

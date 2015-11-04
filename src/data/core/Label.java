@@ -1,6 +1,6 @@
 package data.core;
 
-import org.neu.util.rand.RandomUtils;
+import utils.random.RandomUtils;
 
 import java.util.HashMap;
 import java.util.stream.IntStream;

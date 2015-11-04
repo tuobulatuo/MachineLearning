@@ -5,8 +5,8 @@ import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortIntDoubleUtils;
+import utils.random.RandomUtils;
+import utils.sort.SortIntDoubleUtils;
 
 import java.util.HashMap;
 

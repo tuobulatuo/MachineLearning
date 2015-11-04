@@ -6,7 +6,7 @@ import data.core.SparseMatrix;
 import gnu.trove.map.hash.TIntIntHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.sort.SortFloatIntUtils;
+import utils.sort.SortFloatIntUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

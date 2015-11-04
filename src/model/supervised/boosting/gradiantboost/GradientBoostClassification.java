@@ -7,10 +7,10 @@ import model.Trainable;
 import model.supervised.boosting.Boost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortIntDoubleUtils;
 import performance.ClassificationEvaluator;
 import performance.Evaluator;
+import utils.random.RandomUtils;
+import utils.sort.SortIntDoubleUtils;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -80,7 +80,7 @@ public class GradientBoostClassification implements Predictable, Trainable, Boos
         }
         service.shutdown();
 
-        log.info("GradientBoostClassification training finished ...");
+        log.info("2  training finished ...");
 
         if(NEED_REPORT) {
             statisticReport();

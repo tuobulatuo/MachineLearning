@@ -9,8 +9,8 @@ import model.Trainable;
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortIntIntUtils;
+import utils.random.RandomUtils;
+import utils.sort.SortIntIntUtils;
 
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;

@@ -7,9 +7,9 @@ import gnu.trove.map.hash.TDoubleDoubleHashMap;
 import model.supervised.cart.ClassificationTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.array.ArraySumUtil;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortDoubleDoubleUtils;
+import utils.array.ArraySumUtil;
+import utils.random.RandomUtils;
+import utils.sort.SortDoubleDoubleUtils;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;

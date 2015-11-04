@@ -6,8 +6,8 @@ import model.Trainable;
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.rand.RandomUtils;
 import performance.Evaluator;
+import utils.random.RandomUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;

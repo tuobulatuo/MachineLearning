@@ -3,8 +3,8 @@ package algorithms.parameterestimate;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.array.ArraySumUtil;
-import org.neu.util.rand.RandomUtils;
+import utils.array.ArraySumUtil;
+import utils.random.RandomUtils;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;

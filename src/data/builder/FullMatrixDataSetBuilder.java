@@ -123,6 +123,10 @@ public class FullMatrixDataSetBuilder extends Builder{
                             Float.parseFloat(es[es.length - 1].trim());
 
                     n.getAndIncrement();
+
+                    if (n.get() % 200000 == 0) {
+                        log.info("{} lines processed ... ", n.get());
+                    }
                 }
         );
         reader.close();
@@ -136,6 +140,8 @@ public class FullMatrixDataSetBuilder extends Builder{
         }
 
         dataSet = new DataSet(matrix, label);
+
+        log.info("FullMatrixDataSetBuilder work finished ... ");
 
     }
 }

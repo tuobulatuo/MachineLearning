@@ -9,7 +9,7 @@ import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.rand.RandomUtils;
+import utils.random.RandomUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;

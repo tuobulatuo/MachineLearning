@@ -4,12 +4,11 @@ import data.core.Label;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.array.ArrayUtil;
-import org.neu.util.rand.RandomUtils;
-import org.neu.util.sort.SortIntDoubleUtils;
+import utils.array.ArrayUtil;
+import utils.sort.SortIntDoubleUtils;
+
 
 import java.util.Arrays;
-import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
 /**

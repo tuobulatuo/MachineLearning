@@ -8,8 +8,8 @@ import model.Trainable;
 import model.supervised.boosting.adaboot.SAMME;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.neu.util.sort.SortIntDoubleUtils;
 import performance.ClassificationEvaluator;
+import utils.sort.SortIntDoubleUtils;
 
 import java.util.Random;
 
@@ -38,7 +38,7 @@ public class ActiveAdaBoost implements Predictable, Trainable, ActiveLearning {
 
     private int round = 0;
 
-    private TDoubleArrayList precentReport;
+    private TDoubleArrayList percentReport;
 
     private TDoubleArrayList accuracyReport;
 
@@ -63,7 +63,7 @@ public class ActiveAdaBoost implements Predictable, Trainable, ActiveLearning {
         log.info("ActiveAdaBoost training finished ...");
         log.info("==================== Report ====================");
         log.info("accuracy: {}", accuracyReport.toArray());
-        log.info("percent: {}", precentReport.toArray());
+        log.info("percent: {}", percentReport.toArray());
         log.info("==================== ====== ====================");
     }
 
@@ -84,7 +84,7 @@ public class ActiveAdaBoost implements Predictable, Trainable, ActiveLearning {
         }
 
         accuracyReport = new TDoubleArrayList();
-        precentReport = new TDoubleArrayList();
+        percentReport = new TDoubleArrayList();
     }
 
     @Override
@@ -124,7 +124,7 @@ public class ActiveAdaBoost implements Predictable, Trainable, ActiveLearning {
         evaluator.getPredictLabel();
         double accuracy = evaluator.evaluate();
         double percent = labelledIds.size() / (double) fullData.getInstanceLength();
-        precentReport.add(percent);
+        percentReport.add(percent);
         accuracyReport.add(accuracy);
 
         log.info("round: {}", round++);
