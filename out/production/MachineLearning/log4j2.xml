@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info">
+    <Appenders>
+        <RollingFile name="file" fileName="logs/ml.log"
+                     filePattern="logs/ml.log%d{yyyy-MM-dd}.log">
+            <PatternLayout>
+                <pattern>%d{DEFAULT} [%t] %l [%-5level] - %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+        </RollingFile>
+
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{DEFAULT} [%t] %l %highlight{[%-5level] - %m%n}{INFO=green}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="file"/>
+        </Root>
+    </Loggers>
+</Configuration>
