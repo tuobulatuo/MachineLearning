@@ -26,7 +26,7 @@ public class ArrayUtil {
 //			array[array.length - i - 1] = temp;
 //		}
 //	}
-
+    
 	public static void reverse(double[] array) {
 		for (int i = 0; i < array.length / 2; i++) {
 			double temp = array[i];

@@ -44,8 +44,6 @@ public class RandomUtils {
         return array;
     }
 	
-
-	
 	public static int[] getIndexes(int size) {
 		int[] indexes = new int[size];
 		for (int i = 0; i < indexes.length; i++) {
