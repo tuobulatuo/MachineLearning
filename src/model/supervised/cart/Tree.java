@@ -172,6 +172,12 @@ public abstract class Tree implements Trainable, Predictable{
         featureId = bestFeatureId.get();
         featureThreshold = bestThreshold.get();
 
+        if(featureId == Integer.MIN_VALUE) {
+            log.warn("featureId == Integer.MIN_VALUE ~ now stop growing ...");
+            setTreeLabel();
+            return;
+        }
+
         grow();
     }
 
