@@ -144,6 +144,7 @@ public class NNMain {
         int[] structure = {58, 15, 2};
         boolean biased = true;
         NeuralNetwork.BUCKET_COUNT = 5;
+        NeuralNetwork.THREAD_WORK_LOAD = 200;
         NeuralNetwork.ALPHA = 0.0001 / (double) NeuralNetwork.BUCKET_COUNT;
         NeuralNetwork.LAMBDA = 0.00001 / (double) NeuralNetwork.BUCKET_COUNT;
         NeuralNetwork.COST_DECENT_THRESHOLD = 0;
@@ -160,7 +161,7 @@ public class NNMain {
         crossEvaluator.crossValidateEvaluate(nn);
     }
 
-    public static void SAMMETest() throws Exception{
+    public static void letterTest() throws Exception{
 
         String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/letter-recognition.reformat3.data";
         String sep = ",";
@@ -178,16 +179,18 @@ public class NNMain {
 
         DataSet dataset = builder.getDataSet();
 
-        int[] structure = {17, 26, 26};
+        int[] structure = {17, 52, 26};
         boolean biased = true;
         NeuralNetwork.BUCKET_COUNT = 10;
-        // best alpha = 0.02
-        NeuralNetwork.ALPHA = 0.02 / (double) NeuralNetwork.BUCKET_COUNT;
+        // best alpha = 0.02 + {17, 50, 26} => 0.912 test 0.945 train
+        // best alpha = 0.01 + {17, 52, 26} => 0.922 test 0.939 train
+        NeuralNetwork.ALPHA = 0.015 / (double) NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.THREAD_WORK_LOAD = 200;
         NeuralNetwork.LAMBDA = 0.00001 / (double) NeuralNetwork.BUCKET_COUNT;
         NeuralNetwork.COST_DECENT_THRESHOLD = 0;
-        NeuralNetwork.MAX_ROUND = 1000;
-        NeuralNetwork.MAX_THREADS = 1;
-        NeuralNetwork.PRINT_GAP = 10;
+        NeuralNetwork.MAX_ROUND = 8000;
+        NeuralNetwork.MAX_THREADS = 4;
+        NeuralNetwork.PRINT_GAP = 100;
         NeuralNetwork.PRINT_HIDDEN = false;
         NeuralNetwork.EPSILON = 0.002;
         NeuralNetwork nn = new NeuralNetwork(structure, biased);
@@ -211,6 +214,6 @@ public class NNMain {
 //
 //        neuralNetworkSpam();
 
-        SAMMETest();
+        letterTest();
     }
 }
