@@ -84,7 +84,7 @@ public class SAMME implements Trainable, Predictable, Boost{
 
             double error = getWeightedError(classifier);
 
-            alpha[i] = Math.log((1 - error) / error) / 2 + Math.log(classCount - 1);
+            alpha[i] = (Math.log((1 - error) / error) + Math.log(classCount - 1)) / (double) 2;
 
             modifyWeights(classifier, alpha[i]);
             ArraySumUtil.normalize(weights);
@@ -133,6 +133,9 @@ public class SAMME implements Trainable, Predictable, Boost{
         roundEvaluator.initialize(trainingData, this);
         roundEvaluator.getPredictLabel();
         roundTrainingError[round] = 1 - roundEvaluator.evaluate();
+
+        log.info("round({}) report: roundError({}) testError({}), trainError({})", round, error,
+                roundTestingError[round], roundTrainingError[round]);
     }
 
     protected void modifyWeights(AdaBoostClassifier classifier, double alpha){

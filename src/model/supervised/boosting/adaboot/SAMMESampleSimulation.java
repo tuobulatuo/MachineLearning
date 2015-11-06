@@ -41,7 +41,7 @@ public class SAMMESampleSimulation extends SAMME {
             double error = getWeightedError(classifier);
             roundError[i] = error;
 
-            alpha[i] = Math.log((1 - error) / error) / 2 + Math.log(classCount - 1);
+            alpha[i] = (Math.log((1 - error) / error) + Math.log(classCount - 1)) / (double) 2;
 
             modifyWeights(classifier, alpha[i]);
             ArraySumUtil.normalize(weights);
