@@ -4,6 +4,7 @@ import algorithms.gradient.Decent;
 import algorithms.gradient.GradientDecent;
 import com.google.common.util.concurrent.AtomicDouble;
 import data.DataSet;
+import gnu.trove.set.hash.TIntHashSet;
 import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +30,8 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
     public static double COST_DECENT_THRESHOLD = 0.00000001;
 
     public static int MAX_THREADS = 4;
+
+    public static int THREAD_WORK_LOAD = 500;
 
     public static int MAX_ROUND = 5000;
 
@@ -90,7 +93,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
             theta[i - 1] = w;
         }
 
-        log.info("Initial theta: {}", Arrays.deepToString(theta));
+        log.debug("Initial theta: {}", Arrays.deepToString(theta));
 
         log.info("Neural Network initialized, with {} layers, theta dimension: {}, bias = {}",
                 layerCount, structure, biased);
@@ -128,18 +131,51 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
         AtomicDouble cost = new AtomicDouble(0);
 
-        IntStream.range(0, data.getInstanceLength()).forEach(
-                i -> {
-                    double[] X = data.getInstance(i);
-                    double[] labels = feedForward(X, theta);
-                    double[] ys = yVector(i);
-                    double accu = 0;
-                    for (int j = 0; j < ys.length; j++) {
-                        accu += -(ys[j] * Math.log(labels[j]) + (1 - ys[j]) * Math.log(1 - labels[j]));
+        service = Executors.newFixedThreadPool(MAX_THREADS);
+        int packageCount = (int) Math.ceil(data.getInstanceLength() / (double) THREAD_WORK_LOAD);
+        countDownLatch = new CountDownLatch(packageCount);
+
+        TIntHashSet tasks = new TIntHashSet();
+        IntStream.range(0, data.getInstanceLength()).forEach(i -> {
+
+                    tasks.add(i);
+
+                    if (tasks.size() == THREAD_WORK_LOAD || i == data.getInstanceLength() - 1) {
+                        TIntHashSet tasks2 = new TIntHashSet(tasks);
+                        service.submit(() ->
+                        {
+                            try {
+
+                                for (int taskId : tasks2.toArray()) {
+
+                                    double[] X = data.getInstance(taskId);
+                                    double[] labels = feedForward(X, theta);
+                                    double[] ys = yVector(taskId);
+                                    double accu = 0;
+                                    for (int j = 0; j < ys.length; j++) {
+                                        accu += -(ys[j] * Math.log(labels[j]) + (1 - ys[j]) * Math.log(1 - labels[j]));
+                                    }
+                                    cost.getAndAdd(accu);
+                                }
+                            } catch (Throwable t) {
+                                log.error(t.getMessage(), t);
+                            }
+                            countDownLatch.countDown();
+
+                        });
+
+                        tasks.clear();
                     }
-                    cost.getAndAdd(accu);
                 }
         );
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(10);
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        service.shutdown();
 
         AtomicDouble punish = new AtomicDouble(0);
         IntStream.range(0, theta.length).forEach(i -> {
@@ -163,20 +199,32 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
             gradient[i] = new double[theta[i].length][theta[i][0].length];
         }
 
-
         service = Executors.newFixedThreadPool(MAX_THREADS);
-        countDownLatch = new CountDownLatch(end - start);
-        IntStream.range(start, end).forEach(i ->
-                service.submit(() ->
-                {
-                    try{
+        int packageCount = (int) Math.ceil((end - start) / (double) THREAD_WORK_LOAD);
+        countDownLatch = new CountDownLatch(packageCount);
 
-                        backPropagation(i, gradient);
-                    }catch (Throwable t){
-                        log.error(t.getMessage(), t);
+        TIntHashSet tasks = new TIntHashSet();
+        IntStream.range(start, end).forEach(i ->{
+
+                    tasks.add(i);
+
+                    if (tasks.size() == THREAD_WORK_LOAD || i == end - 1) {
+                        TIntHashSet tasks2 = new TIntHashSet(tasks);
+                        service.submit(() ->
+                        {
+                            try{
+
+                                Arrays.stream(tasks2.toArray()).forEach(taskId -> backPropagation(taskId, gradient));
+
+                            }catch (Throwable t){
+                                log.error(t.getMessage(), t);
+                            }
+                            countDownLatch.countDown();
+                        });
+
+                        tasks.clear();
                     }
-                    countDownLatch.countDown();
-                })
+                }
         );
         try {
             TimeUnit.MILLISECONDS.sleep(10);
