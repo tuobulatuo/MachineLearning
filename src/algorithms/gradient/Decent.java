@@ -35,19 +35,20 @@ public interface Decent {
                 int end = Math.min((1 + i) * BUCKET_LENGTH, instanceLength);
 
                 parameterGradient(start, end, theta);
-                double cost = cost(theta);
-
-                double deltaCost = Math.abs(cost - miniCost);
-
-                if (cost < miniCost){
-                    miniCost = cost;
-                }
 
                 if (ii % printGap == 0) {
 
+                    double cost = cost(theta);
+
+                    double deltaCost = Math.abs(cost - miniCost);
+
+                    if (cost < miniCost){
+                        miniCost = cost;
+                    }
+
                     log.info("round {}, cost {}", ii, cost);
                     log.debug("theta: {}", theta);
-                    if (deltaCost < costDecentThreshold || ii > maxRound) {
+                    if (deltaCost < costDecentThreshold || ii >= maxRound) {
                         return miniCost;
                     }
                 }
