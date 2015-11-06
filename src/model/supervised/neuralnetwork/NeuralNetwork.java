@@ -31,7 +31,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
     public static int MAX_THREADS = 4;
 
-    public static int THREAD_WORK_LOAD = 500;
+    public static int THREAD_WORK_LOAD = 500; // every thread should work at least 1 second
 
     public static int MAX_ROUND = 5000;
 
