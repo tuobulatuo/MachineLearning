@@ -45,9 +45,9 @@ public class Process {
 
     public static void cut(double trainRatio) throws Exception{
 
-        String input = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.full.txt";
-        String outputTrain = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/50/data.full.train.txt";
-        String outputTest = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/50/data.full.test.txt";
+        String input = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.full.no.x.y.txt";
+        String outputTrain = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/1/data.full.no.x.y.train.txt";
+        String outputTest = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/1/data.full.no.x.y.test.txt";
         BufferedReader reader = new BufferedReader(new FileReader(input), 1024 * 1024 * 32);
         BufferedWriter writerTrain = new BufferedWriter(new FileWriter(outputTrain), 1024 * 1024 * 32);
         BufferedWriter writerTest = new BufferedWriter(new FileWriter(outputTest), 1024 * 1024 * 32);
@@ -119,7 +119,7 @@ public class Process {
     public static void write(double[][] table, String[] addresses) throws Exception{
 
         String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.txt";
-        String output = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.full.txt";
+        String output = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.full.no.x.y.txt";
         BufferedReader reader = new BufferedReader(new FileReader(path), 1024 * 1024 * 32);
         BufferedWriter writer = new BufferedWriter(new FileWriter(output), 1024 * 1024 * 32);
         String line;
@@ -134,6 +134,7 @@ public class Process {
 
             StringBuilder builder = new StringBuilder(month + "\t" + day + "\t" +hour + "\t");
             for (int i = 1; i < es.length; i++) {
+                if (i == 4 || i == 5) continue;
                 if (i == 3) {
                     String address = es[i].trim();
                     int addressIndex = Arrays.binarySearch(addresses, address);
@@ -165,6 +166,6 @@ public class Process {
 //        clean();
 //        featureExpand();
 
-        cut(Double.parseDouble("0.5"));
+        cut(Double.parseDouble("0.01"));
     }
 }
