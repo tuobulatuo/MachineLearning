@@ -70,6 +70,7 @@ public class GradientBoostClassification implements Predictable, Trainable, Boos
             }catch (Throwable t) {
                 log.error(t.getMessage(), t);
             }
+            log.info("task: {}/{} finished...", i, classCount);
             countDownLatch.countDown();
         }));
         try {
@@ -80,7 +81,7 @@ public class GradientBoostClassification implements Predictable, Trainable, Boos
         }
         service.shutdown();
 
-        log.info("2  training finished ...");
+        log.info("GradientBoostClassification training finished ...");
 
         if(NEED_REPORT) {
             statisticReport();
@@ -103,6 +104,7 @@ public class GradientBoostClassification implements Predictable, Trainable, Boos
             regressions[i].boostConfig(iteration, boosterClassName, evaluator, testData);
         }
         this.testData = testData;
+        log.info("GradientBoostClassification config finished, classCount {}, regressor iteration {}", classCount, iteration);
     }
 
     @Override
