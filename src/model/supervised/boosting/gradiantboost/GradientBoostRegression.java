@@ -58,18 +58,22 @@ public class GradientBoostRegression implements Predictable, Trainable, Boost{
 
         for (int i = 0; i < boosters.length; i++) {
 
+            long t1 = System.currentTimeMillis();
+
             boosters[i].boostInitialize(roundData, "");
             boosters[i].boost();
             roundIndicator[i] = true;
+
+            long t2 = System.currentTimeMillis();
 
             double[] gradient = new double[roundData.getInstanceLength()];
             for (int j = 0; j < gradient.length; j++) {
                 gradient[j] = trainData.getLabel(j) - predict(trainData.getInstance(j));
             }
 
-            double delta = percentile.evaluate(Arrays.stream(gradient).map(x -> Math.abs(x)).toArray(), OUTLIER_QUANTILE);
+            long t3 = System.currentTimeMillis();
 
-            log.info("round {}, delta {}", i, delta);
+            double delta = percentile.evaluate(Arrays.stream(gradient).map(x -> Math.abs(x)).toArray(), OUTLIER_QUANTILE);
 
             float[] labels = new float[gradient.length];
             for (int j = 0; j < labels.length; j++) {
@@ -80,11 +84,18 @@ public class GradientBoostRegression implements Predictable, Trainable, Boost{
                 }
             }
 
+            long t4 = System.currentTimeMillis();
+
             roundData = new DataSet(trainData.getFeatureMatrix(), new Label(labels, null));
 
             if (NEED_REPORT) {
                 statisticReport(i, delta);
             }
+
+            long t5 = System.currentTimeMillis();
+
+            log.info("round {}, delta {}", i, delta);
+            log.info("boost {} |update gradient {} |label {} |report {}| total {}", t2 - t1, t3-t2, t4-t3, t5-t4, t5-t1);
         }
 
         log.info("GradientBoostRegression training finished ...");
