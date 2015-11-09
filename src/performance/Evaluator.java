@@ -14,6 +14,8 @@ import java.util.stream.IntStream;
  */
 public class Evaluator {
 
+    private static Logger log = LogManager.getLogger(Evaluator.class);
+
     protected DataSet testSet = null;
 
     protected Label predictLabel = null;
@@ -23,13 +25,15 @@ public class Evaluator {
     public Evaluator() {}
 
     public void getPredictLabel() {
-
+        long t1 = System.currentTimeMillis();
         int instanceLength = testSet.getInstanceLength();
         float[] predict = new float[instanceLength];
-        IntStream.range(0, instanceLength).forEach(
+        IntStream.range(0, instanceLength).parallel().forEach(
                 i -> predict[i] = (float) model.predict(testSet.getInstance(i))
         );
         predictLabel = new Label(predict, null);
+        long t2 = System.currentTimeMillis();
+        log.info("predictLabels get, elapsed {} ms", t2 - t1);
     }
 
     public double evaluate() {
