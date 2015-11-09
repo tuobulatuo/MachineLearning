@@ -34,11 +34,17 @@ public interface Decent {
                 int start = i * BUCKET_LENGTH;
                 int end = Math.min((1 + i) * BUCKET_LENGTH, instanceLength);
 
+                long t1 = System.currentTimeMillis();
+
                 parameterGradient(start, end, theta);
 
                 if (ii % printGap == 0) {
 
+                    long t2 = System.currentTimeMillis();
+
                     double cost = cost(theta);
+
+                    long t3 = System.currentTimeMillis();
 
                     double deltaCost = Math.abs(cost - miniCost);
 
@@ -46,7 +52,7 @@ public interface Decent {
                         miniCost = cost;
                     }
 
-                    log.info("round {}, cost {}", ii, cost);
+                    log.info("round {}, cost {}, time on cost {}, time on decent {}", ii, cost, t3 - t2, t2 - t1);
                     log.debug("theta: {}", theta);
                     if (deltaCost < costDecentThreshold || ii >= maxRound) {
                         return miniCost;
