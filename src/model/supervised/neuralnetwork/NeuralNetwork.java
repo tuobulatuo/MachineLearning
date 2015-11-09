@@ -115,6 +115,10 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         return index[index.length - 1] == 1 ? labels[index.length - 1] / (double) 1000000 : 1 - labels[index.length - 1] / (double) 1000000;
     }
 
+    public double[] probs(double[] feature) {
+        return feedForward(feature, theta);
+    }
+
     @Override
     public void train() {
 
