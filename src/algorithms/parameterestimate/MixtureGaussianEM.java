@@ -103,11 +103,11 @@ public class MixtureGaussianEM implements EM {
             log.info("***** MixtureGaussianEM convergence met *****");
             log.info("({}) / ({})", round, MAX_ROUND);
             log.info("{} - {} < {}", currentLikelihood, previousLikelihood, THRESHOLD);
-            log.info("Final Params: ");
-            log.info("mu {}:", mu);
-            log.info("sigma {}", sigma);
-            log.info("pi {}", pi);
-            log.info("**************** Now stop EM ****************");
+            log.debug("Final Params: ");
+            log.debug("mu {}:", mu);
+            log.debug("sigma {}", sigma);
+            log.debug("pi {}", pi);
+            log.debug("**************** Now stop EM ****************");
             return true;
         }
 
