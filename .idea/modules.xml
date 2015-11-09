@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MachineLearning.iml" filepath="$PROJECT_DIR$/MachineLearning.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../tools/Tools.iml" filepath="$PROJECT_DIR$/../tools/Tools.iml" />
     </modules>
   </component>
 </project>
