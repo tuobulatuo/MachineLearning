@@ -1,6 +1,5 @@
 package project;
 
-import algorithms.parameterestimate.MixtureGaussianEM;
 import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
@@ -18,7 +17,6 @@ import model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressio
 import model.supervised.cart.ClassificationTree;
 import model.supervised.cart.Tree;
 import model.supervised.eoec.EOECAdaBoost;
-import model.supervised.generative.MixtureGaussianDiscriminantAnalysis;
 import model.supervised.neuralnetwork.NeuralNetwork;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,16 +25,15 @@ import performance.CrossValidationEvaluator;
 import performance.Evaluator;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 11/3/15 for machine_learning.
  */
-public class Analysis {
+public class AnalysisWithCoordinate {
 
-    private static Logger log = LogManager.getLogger(Analysis.class);
+    private static Logger log = LogManager.getLogger(AnalysisWithCoordinate.class);
 
     public static void classificationTreeTest(String path) throws IOException {
 
@@ -228,11 +225,9 @@ public class Analysis {
         String sep = "\t";
         boolean hasHeader = false;
         boolean needBias = true;
-//        int m = 44;
-        int m = 51;
-        int n = 877000;
-        int[] featureCategoryIndex = {0, 1, 2, 3, 4, 5, 6, 7};
-//        int[] featureCategoryIndex = {0, 1, 2, 3, 4};
+        int m = 46;
+        int n = 11314;
+        int[] featureCategoryIndex = {0, 1, 2, 3, 4};
         boolean isClassification = true;
 
         Builder builder =
@@ -241,40 +236,20 @@ public class Analysis {
         builder.build();
 
         DataSet dataset = builder.getDataSet();
-
-//        Map classIndexMap = dataset.getLabels().getClassIndexMap();
-//        for (Object k : classIndexMap.keySet()){
-//            log.info("{} {}", k, classIndexMap.get(k));
-//        }
-//
-//        Map indexClassMap = dataset.getLabels().getIndexClassMap();
-//        for (Object k : indexClassMap.keySet()){
-//            log.info("{} {}", k, indexClassMap.get(k));
-//        }
-//        System.exit(0);
-
         dataset.meanVarianceNorm();
 
-        // 2% + {124, 10, 39} ~ 1289 + ALPHA = 0.005 + MAX_ROUND = 4000  => 0.32 train 0.306 test
-        // 5% + {124, 15, 39} ~ 2445  + ALPHA = 0.002 + MAX_ROUND = 4000  => 0.32 train 0.31 test
-        // 5% + {124, 20, 39} ~ 2539  + ALPHA = 0.002 + MAX_ROUND = 4000  => 0.32 train 0.311 test
-        // 6.6% + {124, 20, 39} ~ 2539  + ALPHA = 0.003 + MAX_ROUND = 4000  => 0.32 train 0.311 test
-        // 6.6% + {124, 30, 39} ~ 4890  + ALPHA = 0.003 + MAX_ROUND = 4000  => 0.32 train 0.311 test
-        // 20% + {124, 20, 39} ~ 4890  + ALPHA = 0.01 + MAX_ROUND = 10000  => 0.314 train 0.313 test
+        // {124, 78, 39} + ALPHA = 0.05 + MAX_ROUND = 8000  => 0.36 train 0.28 test
 
-//        int[] structure = {124, 20, 39};
-        int[] structure = {137, 22, 39};
+        int[] structure = {126, 20, 39};
         boolean biased = true;
         NeuralNetwork.MAX_THREADS = 7;
         NeuralNetwork.THREAD_WORK_LOAD = 500;
-        NeuralNetwork.BUCKET_COUNT = 220;
-        NeuralNetwork.ALPHA = 0.03 / (double) NeuralNetwork.BUCKET_COUNT;
-//        NeuralNetwork.ALPHA_SHRINKAGE_RATE = 0.1;
-//        NeuralNetwork.ALPHA_SHRINKAGE_ITERATION = 5000;
-//        NeuralNetwork.LAMBDA = 0.00001 / NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.BUCKET_COUNT = 400;
+        NeuralNetwork.ALPHA = 0.5 / NeuralNetwork.BUCKET_COUNT;
+//        NeuralNetwork.LAMBDA = 0.001 / NeuralNetwork.BUCKET_COUNT;
         NeuralNetwork.COST_DECENT_THRESHOLD = 0;
-        NeuralNetwork.MAX_ROUND = 13000;
-        NeuralNetwork.PRINT_GAP = 1000;
+        NeuralNetwork.MAX_ROUND = 10000;
+        NeuralNetwork.PRINT_GAP = 2000;
         NeuralNetwork.PRINT_HIDDEN = false;
         NeuralNetwork.EPSILON = 0.0001;
 
@@ -284,6 +259,7 @@ public class Analysis {
             IntPredicate pred = (x) -> !trainIndexes.contains(x);
             int[] testIndexes = IntStream.range(0, dataset.getInstanceLength()).filter(pred).toArray();
             DataSet trainSet = dataset.subDataSetByRow(trainIndexes.toArray());
+
 
             NeuralNetwork nn = new NeuralNetwork(structure, biased);
             nn.initialize(trainSet);
@@ -299,23 +275,6 @@ public class Analysis {
             evaluator.getPredictLabel();
             log.info("test accu: {}", evaluator.evaluate());
 
-//            DataSet testSet = dataset.subDataSetByRow(testIndexes);
-            double accu = 0;
-            for (int j = 0; j < testSet.getInstanceLength(); j++) {
-                double y = testSet.getLabel(j);
-                double[] yVector = new double[structure[structure.length - 1]];
-                yVector[(int) y] = 1;
-
-                double[] feature = testSet.getInstance(j);
-                double[] probs = nn.probs(feature);
-
-                for (int k = 0; k < yVector.length; k++) {
-                    accu += - yVector[k] * Math.log(probs[k]);
-                }
-            }
-
-            log.info("test avg loss {}", accu / (double) testSet.getInstanceLength());
-
             break;
         }
     }
@@ -325,9 +284,9 @@ public class Analysis {
         String sep = "\t";
         boolean hasHeader = false;
         boolean needBias = false;
-        int m = 51;
-        int n = 870000;
-        int[] featureCategoryIndex = {0, 1, 2, 3, 4, 5, 6, 7};
+        int m = 46;
+        int n = 11314;
+        int[] featureCategoryIndex = {0, 1, 2, 3, 4};
         boolean isClassification = true;
 
         Builder builder =
@@ -337,14 +296,14 @@ public class Analysis {
 
         DataSet dataset = builder.getDataSet();
 
-        ClassificationTree.MAX_DEPTH = 9;
+        ClassificationTree.MAX_DEPTH = 8;
         ClassificationTree.MAX_THREADS = 1;
         ClassificationTree.INFORMATION_GAIN_THRESHOLD = Integer.MIN_VALUE;
         ClassificationTree.THREAD_WORK_LOAD = Integer.MAX_VALUE;
         BaggingClassification.MAX_THREADS = 5;
         BaggingClassification.SAMPLE_SIZE_COEF = 1;
 
-        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 100);
+        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 2);
         for (int i = 0; i < kFoldIndex.length; i++) {
             TIntHashSet trainIndexes = new TIntHashSet(kFoldIndex[i]);
             IntPredicate pred = (x) -> !trainIndexes.contains(x);
@@ -355,7 +314,7 @@ public class Analysis {
             baggingClassification.initialize(trainSet);
             String className = "model.supervised.cart.ClassificationTree";
             Evaluator evaluator = new ClassificationEvaluator();
-            baggingClassification.baggingConfig(50, className, evaluator, trainSet);
+            baggingClassification.baggingConfig(80, className, evaluator, trainSet);
             baggingClassification.train();
 
             evaluator.initialize(trainSet, baggingClassification);
@@ -370,7 +329,7 @@ public class Analysis {
             break;
         }
 
-        // best: depth = 7, 42 round => 0.3357 on train 0.2967 on test
+        // best depth = 8, round = 42 => 0.3653 on train, 0.2946 on test
 
     }
 
@@ -399,7 +358,7 @@ public class Analysis {
         DecisionStump.MAX_THREADS = 1;
         DecisionStump.THREAD_WORK_LOAD = Integer.MAX_VALUE;
 
-        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 100);
+        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 2);
         for (int i = 0; i < kFoldIndex.length; i++) {
             TIntHashSet trainIndexes = new TIntHashSet(kFoldIndex[i]);
             IntPredicate pred = (x) -> !trainIndexes.contains(x);
@@ -423,59 +382,12 @@ public class Analysis {
             break;
         }
 
-    }
 
-    public static void mixtureGDATest(String path) throws Exception{
 
-        String sep = "\t";
-        boolean hasHeader = false;
-        boolean needBias = false;
-        int m = 44;
-        int n = 11314;
-        int[] featureCategoryIndex = {0, 1, 2, 3, 4};
-        boolean isClassification = true;
-
-        Builder builder =
-                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, isClassification);
-
-        builder.build();
-
-        DataSet dataset = builder.getDataSet();
-
-        MixtureGaussianEM.MAX_ROUND = 50;
-        MixtureGaussianEM.PRINT_GAP = 50;
-        MixtureGaussianEM.THRESHOLD = 0.1;
-        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 3;
-        MixtureGaussianDiscriminantAnalysis.MAX_THREADS = 4;
-
-        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 2);
-        for (int i = 0; i < kFoldIndex.length; i++) {
-            TIntHashSet trainIndexes = new TIntHashSet(kFoldIndex[i]);
-            IntPredicate pred = (x) -> !trainIndexes.contains(x);
-            int[] testIndexes = IntStream.range(0, dataset.getInstanceLength()).filter(pred).toArray();
-            DataSet trainSet = dataset.subDataSetByRow(trainIndexes.toArray());
-
-            MixtureGaussianDiscriminantAnalysis mixGDA = new MixtureGaussianDiscriminantAnalysis();
-            mixGDA.initialize(trainSet);
-            mixGDA.train();
-
-            ClassificationEvaluator evaluator = new ClassificationEvaluator();
-            evaluator.initialize(trainSet, mixGDA);
-            evaluator.getPredictLabel();
-            log.info("train accu: {}", evaluator.evaluate());
-
-            DataSet testSet = dataset.subDataSetByRow(testIndexes);
-            evaluator.initialize(testSet, mixGDA);
-            evaluator.getPredictLabel();
-            log.info("test accu: {}", evaluator.evaluate());
-
-            break;
-        }
     }
 
     public static void main(String[] args) throws Exception{
-        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.expand.txt";
-//        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.full.no.x.y.txt";
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.full.txt";
 //        String path = args[0];
 //        int boost = Integer.parseInt(args[1]);
 //
@@ -490,9 +402,7 @@ public class Analysis {
 //        gradientBoostTest(path, 5);
 
 //        bagging(path);
-
+//
         neuralNetworkTest(path);
-
-//        mixtureGDATest(path);
     }
 }
