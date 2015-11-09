@@ -103,7 +103,7 @@ public abstract class BootstrapAveraging implements Trainable, Predictable, Bagg
         trainables[taskId].train();
         predictables[taskId] = trainables[taskId].offer();
 
-        log.info("BootstrapAveraging task {}/{} finished...", taskId, trainables.length);
+        log.info("BootstrapAveraging task {}/{} finished...", taskId+1, trainables.length);
 
     }
 }
