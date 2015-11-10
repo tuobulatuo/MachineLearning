@@ -29,6 +29,8 @@ public class FullMatrixDataSetBuilder extends Builder{
     @Override
     public void build() throws IOException {
 
+        log.info("start building FullMatrixDataSet ...");
+
         final AtomicInteger n = new AtomicInteger(0);
         final TSynchronizedIntObjectMap categoryCounter
                 = new TSynchronizedIntObjectMap(new TIntObjectHashMap<HashSet<String>>());
