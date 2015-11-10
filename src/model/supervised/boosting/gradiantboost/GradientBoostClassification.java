@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
 import performance.Evaluator;
+import utils.array.ArraySumUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
@@ -49,14 +50,18 @@ public class GradientBoostClassification implements Predictable, Trainable, Boos
 
     @Override
     public double predict(double[] feature) {
+        double[] probs = probs(feature);
+        int[] indexes = RandomUtils.getIndexes(classCount);
+        SortIntDoubleUtils.sort(indexes, probs);
+        return indexes[classCount - 1];
+    }
 
+    public double[] probs (double[] feature) {
         double[] probs = new double[classCount];
         for (int i = 0; i < classCount; i++) {
             probs[i] = regressions[i].predict(feature);
         }
-        int[] indexes = RandomUtils.getIndexes(classCount);
-        SortIntDoubleUtils.sort(indexes, probs);
-        return indexes[classCount - 1];
+        return ArraySumUtil.normalize(probs);
     }
 
     @Override
