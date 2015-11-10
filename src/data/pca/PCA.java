@@ -14,8 +14,10 @@ import org.apache.logging.log4j.Logger;
 import performance.CrossValidationEvaluator;
 import utils.random.RandomUtils;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.Arrays;
-import java.util.function.IntPredicate;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
@@ -67,7 +69,7 @@ public class PCA {
         long t1 = System.currentTimeMillis();
 
         double[][] projectArray = new double[firstMComponent][];
-        IntStream.range(0, projectArray.length).forEach(i -> projectArray[i] = componentM(i, original));
+        IntStream.range(0, projectArray.length).parallel().forEach(i -> projectArray[i] = componentM(i, original));
 
         float[][] newData = new float[original.getInstanceLength()][firstMComponent];
         for (int i = 0; i < original.getInstanceLength(); i++) {
@@ -90,7 +92,7 @@ public class PCA {
 
     public double[] componentM(int m, DataSet d) {
         double[] eigenVectorM = eigenDecomposition.getV().getColumn(m);
-        double[] componentM = new double[data.getInstanceLength()];
+        double[] componentM = new double[d.getInstanceLength()];
         IntStream.range(0, componentM.length).forEach(i -> componentM[i] = innerProduct(eigenVectorM, d.getInstance(i)));
         return componentM;
     }
@@ -98,10 +100,9 @@ public class PCA {
     public double totalVar(DataSet d) {
 
         double totalVariance = 0;
-        double[][] dataArray = matrix.getData();
-        for (int i = 0; i < dataArray.length; i++) {
-            for (int j = 0; j < dataArray[0].length; j++) {
-                totalVariance += Math.pow(dataArray[i][j], 2);
+        for (int i = 0; i < d.getInstanceLength(); i++) {
+            for (int j = 0; j < d.getFeatureLength(); j++) {
+                totalVariance += Math.pow(d.getEntry(i, j), 2);
             }
         }
 
@@ -129,50 +130,56 @@ public class PCA {
         builder.build();
 
         DataSet dataset = builder.getDataSet();
+        dataset.meanVarianceNorm();
 
         int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 100);
-        for (int i = 0; i < kFoldIndex.length; i++) {
-            TIntHashSet trainIndexes = new TIntHashSet(kFoldIndex[i]);
+        TIntHashSet trainIndexes = new TIntHashSet(kFoldIndex[0]);
+        DataSet trainSet = dataset.subDataSetByRow(trainIndexes.toArray());
+        trainSet.meanVarianceNorm();
 
-            DataSet trainSet = dataset.subDataSetByRow(trainIndexes.toArray());
-            trainSet.meanVarianceNorm();
+        PCA pca = new PCA(trainSet);
+        pca.rotate();
 
-            PCA pca = new PCA(trainSet);
-            pca.rotate();
-
-            double totalVar = pca.totalVar(trainSet);
-            double[] pve = new double[trainSet.getFeatureLength()];
-            IntStream.range(0, pve.length).parallel().forEach(j -> pve[j] = pca.varianceExplainedM(j, trainSet) / totalVar);
-            double[] cpve = new double[pve.length];
-            cpve[0] = pve[0];
-            for (int j = 1; j < cpve.length; j++) {
-                cpve[j] = cpve[j - 1] + pve[j];
-            }
-
-            int[] index = RandomUtils.getIndexes(pve.length);
-
-            log.info("round {}", i);
-            log.info("{}", index);
-            log.info("{}", pve);
-            log.info("{}", cpve);
-            log.info("==============");
-
-
-            IntPredicate pred = (x) -> !trainIndexes.contains(x);
-            int[] testIndexes = IntStream.range(0, dataset.getInstanceLength()).filter(pred).toArray();
-            DataSet testSet = dataset.subDataSetByRow(testIndexes);
-            testSet.meanVarianceNorm();
-
-            double totalVar2 = pca.totalVar(testSet);
-            IntStream.range(0, pve.length).parallel().forEach(j -> pve[j] = pca.varianceExplainedM(j, testSet) / totalVar2);
-            cpve[0] = pve[0];
-            for (int j = 1; j < cpve.length; j++) {
-                cpve[j] = cpve[j - 1] + pve[j];
-            }
-
-            log.info("{}", pve);
-            log.info("{}", cpve);
-            log.info("\n");
+        double totalVar = pca.totalVar(trainSet);
+        double[] pve = new double[trainSet.getFeatureLength()];
+        IntStream.range(0, pve.length).forEach(j -> pve[j] = pca.varianceExplainedM(j, trainSet) / totalVar);
+        double[] cpve = new double[pve.length];
+        cpve[0] = pve[0];
+        for (int j = 1; j < cpve.length; j++) {
+            cpve[j] = cpve[j - 1] + pve[j];
         }
+
+        int[] index = RandomUtils.getIndexes(pve.length);
+
+        log.info("{}", index);
+        log.info("{}", pve);
+        log.info("{}", cpve);
+        log.info("==============");
+
+
+        double totalVar2 = pca.totalVar(dataset);
+        IntStream.range(0, pve.length).parallel().forEach(j -> pve[j] = pca.varianceExplainedM(j, dataset) / totalVar2);
+        cpve[0] = pve[0];
+        for (int j = 1; j < cpve.length; j++) {
+            cpve[j] = cpve[j - 1] + pve[j];
+        }
+
+        log.info("{}", pve);
+        log.info("{}", cpve);
+        log.info("\n");
+
+        DataSet principleTopNSet = pca.project(dataset, 50);
+        String pcaOut = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.all.pca.txt";
+        BufferedWriter writer = new BufferedWriter(new FileWriter(pcaOut), 1024 * 1024 * 32);
+        Map indexClassMap = dataset.getLabels().getIndexClassMap();
+        for (int i = 0; i < principleTopNSet.getInstanceLength(); i++) {
+            double[] x = principleTopNSet.getInstance(i);
+            int label = (int) principleTopNSet.getLabel(i);
+            StringBuilder sb = new StringBuilder();
+            Arrays.stream(x).forEach(e -> sb.append(e + "\t"));
+            sb.append(indexClassMap.get(label));
+            writer.write(sb.toString() + "\n");
+        }
+        writer.close();
     }
 }
