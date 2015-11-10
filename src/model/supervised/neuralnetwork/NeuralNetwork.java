@@ -95,8 +95,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
         log.debug("Initial theta: {}", Arrays.deepToString(theta));
 
-        log.info("Neural Network initialized, with {} layers, theta dimension: {}, bias = {}",
-                layerCount, structure, biased);
+        log.info("Neural Network initialized, structure: {}, bias = {}", structure, biased);
     }
 
     @Override
