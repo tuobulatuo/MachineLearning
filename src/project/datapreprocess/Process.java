@@ -150,10 +150,10 @@ public class Process {
 
     public static void write(String pathIn, String pathOut, double[][] table, String[] addresses, double[] intensity, double[] logOddsAddress) throws Exception{
 
-
-        double defaultIntensity = median(intensity);
-        double defaultLogOddsAddress = median(logOddsAddress);
-        double[] defaultLogOddsAddressClass = getTableMedian(table);
+        double defaultQuantile = 0.000001;
+        double defaultIntensity = quantile(intensity, defaultQuantile);
+        double defaultLogOddsAddress = quantile(logOddsAddress, defaultQuantile);
+        double[] defaultLogOddsAddressClass = getTableQuantile(table, defaultQuantile);
 
         StringBuilder defaultBuilder = new StringBuilder();
         defaultBuilder.append(defaultLogOddsAddress + "\t" + defaultIntensity + "\t");
@@ -212,20 +212,20 @@ public class Process {
         log.info("missing address {}", missAddress);
     }
 
-    public static double[] getTableMedian(double[][] table) {
+    public static double[] getTableQuantile(double[][] table, double q) {
 
         double[] ans = new double[table[0].length];
         IntStream.range(0, ans.length).forEach(i -> {
             double[] a = IntStream.range(0, table.length).mapToDouble(j -> table[j][i]).toArray();
-            ans[i] = median(a);
+            ans[i] = quantile(a, q);
         });
 
         return ans;
     }
 
-    public static double median(double[] a) {
+    public static double quantile(double[] a, double q) {
         Percentile percentile = new Percentile();
-        return percentile.evaluate(a, 50);
+        return percentile.evaluate(a, q);
     }
 
     public static String time(String date) {
