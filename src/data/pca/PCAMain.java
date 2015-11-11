@@ -77,7 +77,7 @@ public class PCAMain {
         log.info("{}", cpve);
         log.info("\n");
 
-        DataSet principleTopNSet = pca.project(dataset, 27);
+        DataSet principleTopNSet = pca.project(dataset, 50);
         String pcaOut = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.all.pca.txt";
         BufferedWriter writer = new BufferedWriter(new FileWriter(pcaOut), 1024 * 1024 * 32);
         Map indexClassMap = dataset.getLabels().getIndexClassMap();

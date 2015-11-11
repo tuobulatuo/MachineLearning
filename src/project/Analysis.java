@@ -487,12 +487,12 @@ public class Analysis {
 
 //        eoec(path);
 
-//        gradientBoostTest(path, 5);
+        gradientBoostTest(path, 5);
 
 //        bagging(path);
 
         neuralNetworkTest(path);
 
-//        mixtureGDATest(path);
+        mixtureGDATest(path);
     }
 }
