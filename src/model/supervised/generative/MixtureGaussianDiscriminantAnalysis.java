@@ -52,14 +52,19 @@ public class MixtureGaussianDiscriminantAnalysis implements Trainable, Predictab
     @Override
     public double predict(double[] feature) {
 
-        double[] probabilities = new double[classCount];
-        for (int i = 0; i < models.length; i++) {
-            probabilities[i] = mixtureDensity(feature, i) * priors[i];
-        }
+        double[] probabilities = probs(feature);
         int[] index = RandomUtils.getIndexes(classCount);
         SortIntDoubleUtils.sort(index, probabilities);
         log.debug(probabilities[probabilities.length - 1]);
         return index[index.length - 1];
+    }
+
+    public double[] probs(double[] feature) {
+        double[] probabilities = new double[classCount];
+        for (int i = 0; i < models.length; i++) {
+            probabilities[i] = mixtureDensity(feature, i) * priors[i];
+        }
+        return probabilities;
     }
 
     @Override
