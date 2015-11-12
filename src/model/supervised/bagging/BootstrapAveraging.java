@@ -21,7 +21,7 @@ import java.util.stream.IntStream;
  */
 public abstract class BootstrapAveraging implements Trainable, Predictable, Bagging {
 
-    public static int SAMPLE_SIZE_COEF = 1;
+    public static double SAMPLE_SIZE_COEF = 1;
 
     public static int MAX_THREADS = 4;
 
@@ -97,7 +97,7 @@ public abstract class BootstrapAveraging implements Trainable, Predictable, Bagg
     private void doTask(int taskId) {
 
         EnumeratedIntegerDistribution integerDistribution = new EnumeratedIntegerDistribution(indexes, probs);
-        int[] trainingIndexes = integerDistribution.sample(indexes.length * SAMPLE_SIZE_COEF);
+        int[] trainingIndexes = integerDistribution.sample((int) (indexes.length * SAMPLE_SIZE_COEF));
         DataSet taskData = trainData.subDataSetByRow(trainingIndexes);
         trainables[taskId].initialize(taskData);
         trainables[taskId].train();
