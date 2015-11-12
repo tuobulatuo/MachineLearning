@@ -1,4 +1,4 @@
-package data.pca;
+package feature.pca;
 
 import data.DataSet;
 import data.builder.Builder;
