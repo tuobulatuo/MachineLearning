@@ -137,15 +137,6 @@ public abstract class AMatrix {
         return booleanColumnIndicator;
     }
 
-    public float[] getMeanOrMin() {
-        return meanOrMin;
-    }
-
-    public float[] getSdOrMax() {
-        return sdOrMax;
-    }
-
-
     public static void main(String[] args) {
 
         Predicate<String> predicate1 = (s) -> s.length() > 0;

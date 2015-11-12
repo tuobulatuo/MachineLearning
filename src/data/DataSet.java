@@ -28,10 +28,6 @@ public class DataSet {
         return new DataSet(subMatrix, subLabels);
     }
 
-    public void shiftCompressNorm(float[] min, float[] max) {
-        featureMatrix.shiftCompressNormalize(min, max);
-    }
-
     public void shiftCompressNorm() {
         featureMatrix.shiftCompressNormalize();
     }
@@ -96,13 +92,4 @@ public class DataSet {
 
         return labels;
     }
-
-    public float[] getMeanOrMin() {
-        return featureMatrix.getMeanOrMin();
-    }
-
-    public float[] getSdOrMax() {
-        return featureMatrix.getSdOrMax();
-    }
-
 }
