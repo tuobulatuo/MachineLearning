@@ -30,6 +30,7 @@ public class FullMatrixDataSetBuilder extends Builder{
     public void build() throws IOException {
 
         log.info("start building FullMatrixDataSet ...");
+        log.info("file path {}", path);
 
         final AtomicInteger n = new AtomicInteger(0);
         final TSynchronizedIntObjectMap categoryCounter
