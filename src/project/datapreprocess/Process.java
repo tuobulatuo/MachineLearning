@@ -62,6 +62,38 @@ public class Process {
         log.info("delete");
     }
 
+    public static void outlierCorrect(String path, String output) throws Exception{
+
+        BufferedReader reader = new BufferedReader(new FileReader(path), 1024 * 1024 * 32);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(output), 1024 * 1024 * 32);
+        String line;
+        int outlier = 0;
+        while ((line = reader.readLine()) != null) {
+
+            line = line.trim().replace("\"", "");
+
+            String[] es = line.split("\t");
+            //-122.422888090412 37.769287340459094 -> avg
+            if (es[5].trim().startsWith("90")) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < es.length; i++) {
+                    if (i == 4) sb.append("-122.422888090412\t");
+                    else if (i == 5) sb.append("37.769287340459094\t");
+                    else sb.append(es[i].trim() + "\t");
+                }
+
+                writer.write(sb.toString().trim() + "\n");
+                outlier ++;
+
+            } else {
+                writer.write(line + '\n');
+            }
+        }
+        writer.close();
+
+        log.info("{} outlier correct", outlier);
+    }
+
     public static void cut(double trainRatio) throws Exception{
 
         String input = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.full.txt";
@@ -98,29 +130,39 @@ public class Process {
         Arrays.sort(addressArray);
 
         double[][] table = new double[addressArray.length][classesArray.length];
+        IntStream.range(0, table.length).forEach(i -> Arrays.fill(table[i], 1)); // add one laplace smoothing
         count(table, classesArray, addressArray);
 
         double[] intensity = new double[addressArray.length];
         intensity(table, addressArray, intensity);
 
-        double[] logOddsAddress = new double[addressArray.length];
-        logOddsAddress(table, logOddsAddress);
+        double[] defaultLogOdds = new double[classesArray.length];
+        defaultProbs(table, defaultLogOdds);
 
-        logOdds(table);
+        logOdds(table, defaultLogOdds);
 
-        String trainIn = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.delete.txt";
+        String trainIn = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.correct.txt";
         String trainOut = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.expand.txt";
-//        write(trainIn, trainOut, table, addressArray, intensity, logOddsAddress);
 
-
-        String testIn = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.txt";
+        String testIn = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.correct.txt";
         String testOut = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.expand.txt";
-        write(testIn, testOut, table, addressArray, intensity, logOddsAddress);
+
+        TObjectDoubleHashMap<String> map = new TObjectDoubleHashMap<>();
+        logOddsAddressAll(trainIn, map);
+        logOddsAddressAll(testIn, map);
+
+        double sum = Arrays.stream(map.values()).sum();
+        for (String k: map.keySet()) map.put(k, map.get(k) / sum);
+        for (String k: map.keySet()) map.put(k, Math.log(map.get(k) / (1 - map.get(k))));
+
+        write(trainIn, trainOut, table, addressArray, intensity, map);
+
+        write(testIn, testOut, table, addressArray, intensity, map);
     }
 
     public static void uniq(HashSet<String> classes, HashSet<String> addresses) throws Exception{
 
-        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.delete.txt";
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.correct.txt";
         BufferedReader reader = new BufferedReader(new FileReader(path), 1024 * 1024 * 32);
         String line;
         while ((line = reader.readLine()) != null) {
@@ -134,7 +176,7 @@ public class Process {
 
     public static void count(double[][] table, String[] classes, String[] addresses) throws Exception{
 
-        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.delete.txt";
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.correct.txt";
         BufferedReader reader = new BufferedReader(new FileReader(path), 1024 * 1024 * 32);
         String line;
         while ((line = reader.readLine()) != null) {
@@ -148,15 +190,14 @@ public class Process {
         log.info("count table...");
     }
 
-    public static void write(String pathIn, String pathOut, double[][] table, String[] addresses, double[] intensity, double[] logOddsAddress) throws Exception{
+    public static void write(String pathIn, String pathOut, double[][] table, String[] addresses, double[] intensity, TObjectDoubleHashMap<String> map) throws Exception{
 
-        double defaultQuantile = 0.000001;
+        double defaultQuantile = 0.1;
         double defaultIntensity = quantile(intensity, defaultQuantile);
-        double defaultLogOddsAddress = quantile(logOddsAddress, defaultQuantile);
         double[] defaultLogOddsAddressClass = getTableQuantile(table, defaultQuantile);
 
         StringBuilder defaultBuilder = new StringBuilder();
-        defaultBuilder.append(defaultLogOddsAddress + "\t" + defaultIntensity + "\t");
+        defaultBuilder.append(defaultIntensity + "\t");
         Arrays.stream(defaultLogOddsAddressClass).forEach(x -> defaultBuilder.append(x + "\t"));
         String defaultExpandString = defaultBuilder.toString();
 
@@ -185,11 +226,13 @@ public class Process {
                         builder.append("non-intersect" + "\t");
                     }
 
+                    double logOdd = map.get(address);
+                    builder.append(logOdd + "\t");
+
                     int addressIndex = Arrays.binarySearch(addresses, address);
                     if (addressIndex >= 0){
                         double intensityAddress = intensity[addressIndex];
-                        double logOdd = logOddsAddress[addressIndex];
-                        builder.append(logOdd + "\t" + intensityAddress + "\t");
+                        builder.append(intensityAddress + "\t");
                         double[] logOdds = table[addressIndex];
                         Arrays.stream(logOdds).forEach(x -> builder.append(x + "\t"));
                     }else {
@@ -217,9 +260,9 @@ public class Process {
         double[] ans = new double[table[0].length];
         IntStream.range(0, ans.length).forEach(i -> {
             double[] a = IntStream.range(0, table.length).mapToDouble(j -> table[j][i]).toArray();
-            ans[i] = quantile(a, q);
+            ans[i] = Arrays.stream(a).sum();
         });
-
+        ArraySumUtil.normalize(ans);
         return ans;
     }
 
@@ -231,12 +274,13 @@ public class Process {
     public static String time(String date) {
 
         StringBuilder sb = new StringBuilder();
+        String year = date.split(" ")[0].split("-")[0].trim();
         String month = date.split(" ")[0].split("-")[1].trim();
         String day = date.split(" ")[0].split("-")[2].trim();
         String hour = date.split(" ")[1].split(":")[0].trim();
         String dayPeriod = dayPeriod(Integer.parseInt(hour));
         String monthPeriod = monthPeriod(Integer.parseInt(month));
-        sb.append(month + "\t" + day + "\t" + hour + "\t" + dayPeriod + "\t" + monthPeriod);
+        sb.append(year + "\t"+ month + "\t" + day + "\t" + hour + "\t" + dayPeriod + "\t" + monthPeriod);
 
         return sb.toString();
     }
@@ -263,23 +307,45 @@ public class Process {
         }
     }
 
-    public static void logOdds(double[][] table) {
-        IntStream.range(0, table.length).forEach(i -> table[i] = ArraySumUtil.normalize(table[i]));
+    public static void logOddsLaplace(double[][] table) {
+        IntStream.range(0, table.length).forEach(i -> {
+            double[] probs = ArraySumUtil.normalize(table[i]);
+            IntStream.range(0, probs.length).forEach(j -> probs[j] = Math.log(probs[j]) - Math.log(1 - probs[j]));
+        });
+
+        log.info("logOdds");
+    }
+
+    public static void logOdds(double[][] table, double[] defaultProbs) {
+
+        int defaultCount = 0;
+        for (int i = 0; i < table.length; i++) {
+            if (Arrays.stream(table[i]).sum() <= 2) {
+                for (int j = 0; j < table[i].length; j++) table[i][j] = defaultProbs[j];
+                defaultCount++;
+            }else {
+                ArraySumUtil.normalize(table[i]);
+                for (int j = 0; j < table[i].length; j++) table[i][j] += defaultProbs[j];
+                ArraySumUtil.normalize(table[i]);
+            }
+        }
+
         IntStream.range(0, table.length).forEach(i -> {
             double[] probs = table[i];
-            IntStream.range(0, probs.length).forEach(j ->
-            {
-                if (probs[j] == 0) {
-                    probs[j] = -10;
-                } else if (probs[j] == 1) {
-                    probs[j] = 10;
-                } else {
-                    probs[j] = Math.log(probs[j]) - Math.log(1 - probs[j]);
-                }
-
-            });
+            IntStream.range(0, probs.length).forEach(j -> probs[j] = Math.log(probs[j]) - Math.log(1 - probs[j]));
         });
-        log.info("logOdds");
+
+        log.info("logOdds defaultCount {}", defaultCount);
+    }
+
+    public static void defaultProbs(double[][] table, double[] defaultProbs) {
+
+        IntStream.range(0, table.length).forEach(i ->
+                IntStream.range(0, table[i].length).forEach(j -> defaultProbs[j] += table[i][j])
+        );
+        ArraySumUtil.normalize(defaultProbs);
+
+        log.info("default probs {}", defaultProbs);
     }
 
     public static void logOddsAddress(double[][] table, double[] logOddsAddress) {
@@ -296,6 +362,16 @@ public class Process {
 
         log.info("logOdds address");
     }
+
+    public static void logOddsAddressAll(String path, TObjectDoubleHashMap<String> map) throws Exception{
+        BufferedReader reader = new BufferedReader(new FileReader(path), 1024 * 1024 * 32);
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] es = line.trim().split("\t");
+            map.adjustOrPutValue(es[3].trim(), 1, 1);
+        }
+    }
+
 
     public static void intensity(double[][] table, String[] addressArray, double[] intensityArray) {
 
@@ -364,5 +440,14 @@ public class Process {
 //        cut(Double.parseDouble("0.02"));
 
 //        System.out.println(Arrays.toString("OAK ST / LAGUNA ST".split("/")));
+
+//        String in1 = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.txt";
+//        String out1 = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.correct.txt";
+//        outlierCorrect(in1, out1);
+//
+//        String in2 = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.txt";
+//        String out2 = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.correct.txt";
+//        outlierCorrect(in2, out2);
+
     }
 }

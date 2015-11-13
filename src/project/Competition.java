@@ -39,7 +39,7 @@ public class Competition {
         boolean hasHeader = false;
         boolean needBias = true;
         int m = 51;
-        int n = 877982;
+        int n = 878049;
         int[] featureCategoryIndex = {0,1,2,3,4,5,6,7};
         boolean isClassification = true;
 
@@ -51,20 +51,20 @@ public class Competition {
         DataSet dataset = builder.getDataSet();
         dataset.meanVarianceNorm();
 
-        int[] structure = {137, 256, 39};
+        int[] structure = {137, 20, 39};
         boolean biased = true;
         NeuralNetwork.MAX_THREADS = 7;
         NeuralNetwork.THREAD_WORK_LOAD = 500;
         NeuralNetwork.BUCKET_COUNT = 220;
         NeuralNetwork.ALPHA = 0.0275 / (double) NeuralNetwork.BUCKET_COUNT;
-        NeuralNetwork.LAMBDA = 0.001 / (double) NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.LAMBDA = 0.0001 / (double) NeuralNetwork.BUCKET_COUNT;
         NeuralNetwork.COST_DECENT_THRESHOLD = 0;
-        NeuralNetwork.MAX_ROUND = 300;
-        NeuralNetwork.PRINT_GAP = 100;
+        NeuralNetwork.MAX_ROUND = 3800;
+        NeuralNetwork.PRINT_GAP = 3800;
         NeuralNetwork.PRINT_HIDDEN = false;
         NeuralNetwork.EPSILON = 0.0001;
 
-        int trainSize = 877982;
+        int trainSize = 878049;
         int testSize = 884262;
         int partition = 2;
 
@@ -420,7 +420,7 @@ public class Competition {
 
 //        GradientBoostTest(path2);
 
-//        mixtureGDATest(path2);
+//        mixtureGDATest(path);
     }
 
 //    public static void mixtureGDATest(String path) throws Exception{
@@ -430,7 +430,7 @@ public class Competition {
 //        boolean needBias = false;
 //        int m = 50;
 //        int n = 877982;
-//        int[] featureCategoryIndex = {};
+//        int[] featureCategoryIndex = {0,1,2,3,4,5,6,7};
 //        boolean isClassification = true;
 //
 //        Builder builder =
@@ -446,7 +446,7 @@ public class Competition {
 //        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 2;
 //        MixtureGaussianDiscriminantAnalysis.MAX_THREADS = 4;
 //
-//        int trainSize = 877982;
+//        int trainSize = 878049;
 //        int testSize = 884262;
 //        int partition = 2;
 //
@@ -460,25 +460,25 @@ public class Competition {
 //        mixGDA.train();
 //
 //        ClassificationEvaluator evaluator = new ClassificationEvaluator();
-//        evaluator.initialize(miniTrainSet, mixGDA);
-//        evaluator.getPredictLabel();
-//        log.info("miniTrainSet accu: {}", evaluator.evaluate());
-//
+////        evaluator.initialize(miniTrainSet, mixGDA);
+////        evaluator.getPredictLabel();
+////        log.info("miniTrainSet accu: {}", evaluator.evaluate());
+////
 //        double accu = 0;
-//        for (int j = 0; j < miniTrainSet.getInstanceLength(); j++) {
-//            double y = miniTrainSet.getLabel(j);
-//            double[] yVector = new double[trainSet.getLabels().getClassIndexMap().size()];
-//            yVector[(int) y] = 1;
-//
-//            double[] feature = miniTrainSet.getInstance(j);
-//            double[] probs = mixGDA.probs(feature);
-//
-//            for (int k = 0; k < yVector.length; k++) {
-//                accu += - yVector[k] * Math.log(probs[k]);
-//            }
-//        }
-//
-//        log.info("miniTrainSet avg loss {}", accu / (double) miniTrainSet.getInstanceLength());
+////        for (int j = 0; j < miniTrainSet.getInstanceLength(); j++) {
+////            double y = miniTrainSet.getLabel(j);
+////            double[] yVector = new double[trainSet.getLabels().getClassIndexMap().size()];
+////            yVector[(int) y] = 1;
+////
+////            double[] feature = miniTrainSet.getInstance(j);
+////            double[] probs = mixGDA.probs(feature);
+////
+////            for (int k = 0; k < yVector.length; k++) {
+////                accu += - yVector[k] * Math.log(probs[k]);
+////            }
+////        }
+////
+////        log.info("miniTrainSet avg loss {}", accu / (double) miniTrainSet.getInstanceLength());
 //
 //
 //        TIntHashSet validateIndex = new TIntHashSet(trainSize);
@@ -505,40 +505,40 @@ public class Competition {
 //        log.info("validate avg loss {}", accu / (double) validateSet.getInstanceLength());
 //
 //
-//        DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, trainSize + testSize).toArray());
-//        String probsPredictsPath = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.probs.predicts.txt";
-//        BufferedWriter writer = new BufferedWriter(new FileWriter(probsPredictsPath), 1024 * 1024 * 32);
-//
-//        String head = "Id,ARSON,ASSAULT,BAD CHECKS,BRIBERY,BURGLARY,DISORDERLY CONDUCT,DRIVING UNDER THE INFLUENCE,DRUG/NARCOTIC,DRUNKENNESS,EMBEZZLEMENT,EXTORTION,FAMILY OFFENSES,FORGERY/COUNTERFEITING,FRAUD,GAMBLING,KIDNAPPING,LARCENY/THEFT,LIQUOR LAWS,LOITERING,MISSING PERSON,NON-CRIMINAL,OTHER OFFENSES,PORNOGRAPHY/OBSCENE MAT,PROSTITUTION,RECOVERED VEHICLE,ROBBERY,RUNAWAY,SECONDARY CODES,SEX OFFENSES FORCIBLE,SEX OFFENSES NON FORCIBLE,STOLEN PROPERTY,SUICIDE,SUSPICIOUS OCC,TREA,TRESPASS,VANDALISM,VEHICLE THEFT,WARRANTS,WEAPON LAWS";
-//        writer.write(head+"\n");
-//
-//        Map<String, Integer> idxMap = new HashMap<>();
-//        String[] es = head.split(",");
-//        for (int i = 1; i < es.length; i++) {
-//            idxMap.put(es[i], i - 1);
-//        }
-//
-//        Map<Integer, Object> indexClassMap = dataset.getLabels().getIndexClassMap();
-//
-//        int id = 0;
-//        for (int i = 0; i < testSet.getInstanceLength(); i++) {
-//
-//            StringBuilder sb = new StringBuilder(id + ",");
-//
-//            double[] probs = mixGDA.probs(testSet.getInstance(i));
-//            double[] arrangedProbs = new double[probs.length];
-//            for (int j = 0; j < probs.length; j++) {
-//                String className = (String) indexClassMap.get(j);
-//                int arrangeIndex = idxMap.get(className);
-//                arrangedProbs[arrangeIndex] = probs[j];
-//            }
-//
-//            Arrays.stream(arrangedProbs).forEach(x -> sb.append(x + ","));
-//            sb.deleteCharAt(sb.length() - 1);
-//            writer.write(sb.toString() + "\n");
-//            id ++;
-//        }
-//        writer.close();
+////        DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, trainSize + testSize).toArray());
+////        String probsPredictsPath = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.probs.predicts.txt";
+////        BufferedWriter writer = new BufferedWriter(new FileWriter(probsPredictsPath), 1024 * 1024 * 32);
+////
+////        String head = "Id,ARSON,ASSAULT,BAD CHECKS,BRIBERY,BURGLARY,DISORDERLY CONDUCT,DRIVING UNDER THE INFLUENCE,DRUG/NARCOTIC,DRUNKENNESS,EMBEZZLEMENT,EXTORTION,FAMILY OFFENSES,FORGERY/COUNTERFEITING,FRAUD,GAMBLING,KIDNAPPING,LARCENY/THEFT,LIQUOR LAWS,LOITERING,MISSING PERSON,NON-CRIMINAL,OTHER OFFENSES,PORNOGRAPHY/OBSCENE MAT,PROSTITUTION,RECOVERED VEHICLE,ROBBERY,RUNAWAY,SECONDARY CODES,SEX OFFENSES FORCIBLE,SEX OFFENSES NON FORCIBLE,STOLEN PROPERTY,SUICIDE,SUSPICIOUS OCC,TREA,TRESPASS,VANDALISM,VEHICLE THEFT,WARRANTS,WEAPON LAWS";
+////        writer.write(head+"\n");
+////
+////        Map<String, Integer> idxMap = new HashMap<>();
+////        String[] es = head.split(",");
+////        for (int i = 1; i < es.length; i++) {
+////            idxMap.put(es[i], i - 1);
+////        }
+////
+////        Map<Integer, Object> indexClassMap = dataset.getLabels().getIndexClassMap();
+////
+////        int id = 0;
+////        for (int i = 0; i < testSet.getInstanceLength(); i++) {
+////
+////            StringBuilder sb = new StringBuilder(id + ",");
+////
+////            double[] probs = mixGDA.probs(testSet.getInstance(i));
+////            double[] arrangedProbs = new double[probs.length];
+////            for (int j = 0; j < probs.length; j++) {
+////                String className = (String) indexClassMap.get(j);
+////                int arrangeIndex = idxMap.get(className);
+////                arrangedProbs[arrangeIndex] = probs[j];
+////            }
+////
+////            Arrays.stream(arrangedProbs).forEach(x -> sb.append(x + ","));
+////            sb.deleteCharAt(sb.length() - 1);
+////            writer.write(sb.toString() + "\n");
+////            id ++;
+////        }
+////        writer.close();
 //    }
 
 

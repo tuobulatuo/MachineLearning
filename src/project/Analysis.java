@@ -325,9 +325,9 @@ public class Analysis {
         String sep = "\t";
         boolean hasHeader = false;
         boolean needBias = false;
-        int m = 51;
+        int m = 52;
         int n = 870000;
-        int[] featureCategoryIndex = {0, 1, 2, 3, 4, 5, 6, 7};
+        int[] featureCategoryIndex = {0, 1, 2, 3, 4, 5, 6, 7, 8};
         boolean isClassification = true;
 
         Builder builder =
@@ -337,14 +337,14 @@ public class Analysis {
 
         DataSet dataset = builder.getDataSet();
 
-        ClassificationTree.MAX_DEPTH = 9;
+        ClassificationTree.MAX_DEPTH = 7;
         ClassificationTree.MAX_THREADS = 1;
         ClassificationTree.INFORMATION_GAIN_THRESHOLD = Integer.MIN_VALUE;
         ClassificationTree.THREAD_WORK_LOAD = Integer.MAX_VALUE;
         BaggingClassification.MAX_THREADS = 5;
-        BaggingClassification.SAMPLE_SIZE_COEF = 1;
+        BaggingClassification.SAMPLE_SIZE_COEF = 0.02;
 
-        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 100);
+        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 2);
         for (int i = 0; i < kFoldIndex.length; i++) {
             TIntHashSet trainIndexes = new TIntHashSet(kFoldIndex[i]);
             IntPredicate pred = (x) -> !trainIndexes.contains(x);
@@ -444,7 +444,7 @@ public class Analysis {
 
         MixtureGaussianEM.MAX_ROUND = 50;
         MixtureGaussianEM.PRINT_GAP = 50;
-        MixtureGaussianEM.THRESHOLD = 0.1;
+        MixtureGaussianEM.THRESHOLD = 0.0001;
         MixtureGaussianDiscriminantAnalysis.COMPONENTS = 3;
         MixtureGaussianDiscriminantAnalysis.MAX_THREADS = 4;
 
@@ -487,12 +487,12 @@ public class Analysis {
 
 //        eoec(path);
 
-        gradientBoostTest(path, 5);
+//        gradientBoostTest(path, 5);
 
-//        bagging(path);
+        bagging(path);
 
-        neuralNetworkTest(path);
+//        neuralNetworkTest(path);
 
-        mixtureGDATest(path);
+//        mixtureGDATest(path);
     }
 }
