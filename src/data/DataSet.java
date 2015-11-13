@@ -3,14 +3,23 @@ package data;
 import data.core.Label;
 import data.core.AMatrix;
 import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.set.hash.TIntHashSet;
+import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 9/17/15.
  */
 
 public class DataSet {
+
+    private static Logger log = LogManager.getLogger(DataSet.class);
 
     private AMatrix featureMatrix = null;
 
@@ -26,6 +35,24 @@ public class DataSet {
         AMatrix subMatrix = featureMatrix.subMatrixByRow(rowIndexes);
         Label subLabels = labels.subLabelByRow(rowIndexes);
         return new DataSet(subMatrix, subLabels);
+    }
+
+    public DataSet balancedDataSet(int sampleSizeMax, int sampleSizeMin) {
+
+        TIntArrayList ids = new TIntArrayList(getInstanceLength());
+        for (int i = 0; i < labels.getClassIndexMap().size(); i++) {
+            int classIndex = i;
+            int[] indexes = IntStream.range(0, getInstanceLength()).filter(j -> (int) getLabel(j) == classIndex).toArray();
+            double[] probs = new double[indexes.length];
+            Arrays.fill(probs, 1 / (double) indexes.length);
+            EnumeratedIntegerDistribution integerDistribution = new EnumeratedIntegerDistribution(indexes, probs);
+            int sampleSize = Math.max(Math.min(indexes.length, sampleSizeMax), sampleSizeMin);
+            ids.addAll(integerDistribution.sample(sampleSize));
+            log.info("balance sampling class {} | instances {} | sampling {}", i, indexes.length, sampleSize);
+        }
+        log.info("balance sampling total {}", ids.size());
+
+        return subDataSetByRow(ids.toArray());
     }
 
     public void shiftCompressNorm() {
