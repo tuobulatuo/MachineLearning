@@ -38,7 +38,7 @@ public interface Decent {
 
                 parameterGradient(start, end, theta);
 
-                if (ii % printGap == 0) {
+                if (ii != 0 && ii % printGap == 0) {
 
                     long t2 = System.currentTimeMillis();
 
