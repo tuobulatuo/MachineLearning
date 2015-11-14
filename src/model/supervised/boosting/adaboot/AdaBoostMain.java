@@ -7,6 +7,7 @@ import data.builder.SparseMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
 import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassificationTree;
 import model.supervised.boosting.adaboot.adaboostclassifier.WeightedClassificationTree;
+import model.supervised.cart.Tree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
@@ -69,6 +70,50 @@ public class AdaBoostMain {
 
             break;
         }
+    }
+
+    public static void DecisionStumpOnPollutedSetTest() throws Exception{
+
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_polluted/allSet";
+        String sep = "\t";
+        boolean hasHeader = false;
+        boolean needBias = false;
+        int m = 1057;
+        int n = 4601;
+        int[] featureCategoryIndex = {};
+        boolean classification = true;
+
+        Builder builder =
+                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, classification);
+
+        builder.build();
+
+        DataSet dataset = builder.getDataSet();
+
+        Tree.THREAD_WORK_LOAD = 300;
+
+        SAMME.NEED_ROUND_REPORT = true;
+        int trainSize = 4140;
+        int allSize = 4601;
+
+        DataSet trainSet = dataset.subDataSetByRow(RandomUtils.getIndexes(trainSize));
+        DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, allSize).toArray());
+
+        SAMME samme = new SAMME();
+        samme.initialize(trainSet);
+        String className = "model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump";
+        samme.boostConfig(10, className, new ClassificationEvaluator(), testSet);
+        samme.train();
+
+        samme.topFeatureCalc();
+        int[] topNFeature = samme.topNFeatures(15);
+        log.info("topN features {}", topNFeature);
+
+        ClassificationEvaluator evaluator = new ClassificationEvaluator();
+        evaluator.initialize(testSet, samme);
+        evaluator.getPredictLabel();
+        evaluator.getArea();
+        evaluator.printROC();
     }
 
 
@@ -360,7 +405,9 @@ public class AdaBoostMain {
 
     public static void main(String[] args) throws Exception{
 
-        DecisionStumpTest();
+//        DecisionStumpTest();
+
+        DecisionStumpOnPollutedSetTest();
 
 //        RandomDecisionStumpTest();
 
