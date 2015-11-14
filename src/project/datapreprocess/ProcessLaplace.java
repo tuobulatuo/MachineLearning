@@ -70,18 +70,26 @@ public class ProcessLaplace {
         count(in, table, classesArray, addressArray, 878049);
 
         double[] logOddsAddress = new double[addressArray.length];
-        logOddsAddress(table, logOddsAddress);
+        logOddsAddress(in, addressArray, logOddsAddress);
 
         logOddsLaplace(table);
 
         write(in, out, table, addressArray, logOddsAddress);
     }
 
-    public static void logOddsAddress(double[][] table, double[] logOddsAddress) {
-        IntStream.range(0, table.length).forEach(i -> logOddsAddress[i] = Arrays.stream(table[i]).sum());
+    public static void logOddsAddress(String path, String[] addressArray, double[] logOddsAddress) throws Exception{
+
+        BufferedReader reader = new BufferedReader(new FileReader(path), 1024 * 1024 * 32);
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] es = line.trim().split("\t");
+            int addressIndex = Arrays.binarySearch(addressArray, es[3].trim());
+            logOddsAddress[addressIndex] ++;
+        }
         ArraySumUtil.normalize(logOddsAddress);
         IntStream.range(0, logOddsAddress.length).forEach(i ->
                 logOddsAddress[i] = NumericalComputation.logOdds(logOddsAddress[i]));
+
         log.info("logOdds Address");
     }
 
@@ -197,7 +205,6 @@ public class ProcessLaplace {
         log.info("logOdds");
 
         log.info("rare {}", rareEvent.get());
-//        System.exit(0);
     }
 
     public static String address(String address, String[] addresses, double[][] table, double[] logOddsAddress) {
