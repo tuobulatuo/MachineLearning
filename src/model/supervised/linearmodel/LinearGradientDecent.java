@@ -72,17 +72,16 @@ public class LinearGradientDecent implements Predictable, Trainable, Decent, Gra
         double[] theta = (double[]) params;
 
         double[] g = new double[theta.length];
-        IntStream.range(0, g.length).forEach(
-                i -> IntStream.range(start, end).parallel().forEach(
-                        j -> {
-                            double[] X = data.getInstance(j);
-                            g[i] += (hypothesis(X, theta) - data.getLabel(j)) * X[i] / (end - start);
-                        }
-                )
-        );
+        IntStream.range(start, end).forEach(i ->
+        {
+            double[] X = data.getInstance(i);
+            double h = hypothesis(X, theta) - data.getLabel(i);
+            IntStream.range(0, g.length).forEach(j -> g[j] += h * X[j] / (double) (end - start));
+        });
+
         log.debug("theta: {}",theta);
         log.debug("g : {}", g);
-        IntStream.range(1, g.length).forEach(i -> g[i] += LAMBDA * theta[i] / (end - start));
+        IntStream.range(1, g.length).forEach(i -> g[i] += LAMBDA * theta[i]);
         IntStream.range(0, theta.length).forEach(i -> theta[i] -= ALPHA * g[i]);
 
     }

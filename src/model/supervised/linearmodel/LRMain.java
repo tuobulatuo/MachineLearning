@@ -6,11 +6,14 @@ import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
 import data.core.Norm;
+import model.supervised.naivebayes.Gaussian;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
 import performance.Evaluator;
+import utils.random.RandomUtils;
 
 import java.io.IOException;
+import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 9/20/15 for machine_learning.
@@ -157,14 +160,62 @@ public class LRMain {
 
     }
 
+    public static void lgPollutedSetTest() throws Exception{
 
-    public static void main(String[] args) throws IOException {
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_polluted/allSet";
+        String sep = "\t";
+        boolean hasHeader = false;
+        boolean needBias = true;
+        int m = 1057;
+        int n = 4601;
+        int[] featureCategoryIndex = {};
+        boolean classification = true;
+
+        Builder builder =
+                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, classification);
+
+        builder.build();
+
+        DataSet dataset = builder.getDataSet();
+        dataset.meanVarianceNorm();
+
+        int trainSize = 4140;
+        int allSize = 4601;
+
+        DataSet trainSet = dataset.subDataSetByRow(RandomUtils.getIndexes(trainSize));
+        DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, allSize).toArray());
+
+        LogisticGradientDecent.BUCKET_COUNT = 10;
+        LogisticGradientDecent.LAMBDA = 0.001;
+        LogisticGradientDecent.ALPHA = 0.01;
+        LogisticGradientDecent.MAX_ROUND = 2000;
+
+        LogisticGradientDecent logisticGradientDecent = new LogisticGradientDecent();
+        logisticGradientDecent.initialize(trainSet);
+        logisticGradientDecent.train();
+
+        ClassificationEvaluator.CONFUSION_MATRIX = true;
+        ClassificationEvaluator.ROC = false;
+        ClassificationEvaluator evaluator = new ClassificationEvaluator();
+        evaluator.initialize(trainSet, logisticGradientDecent);
+        evaluator.getPredictLabel();
+        evaluator.evaluate();
+
+        evaluator.initialize(testSet, logisticGradientDecent);
+        evaluator.getPredictLabel();
+        evaluator.evaluate();
+    }
+
+
+    public static void main(String[] args) throws Exception {
 
 //        normEquaHouseTest();
-//        lmHouseTest();
+        lmHouseTest();
 
 //        normEquaSpamTest();
 //        lmSpamTest();
-        lgSpamTest();
+//        lgSpamTest();
+
+        lgPollutedSetTest();
     }
 }
