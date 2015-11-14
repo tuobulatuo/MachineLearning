@@ -24,11 +24,13 @@ machine learning code for Northeastern University fall 2015
         1) AdaBoost by classification tree for classification <br/>
         2) GradientBoost by regression tree for regression and classification<br/>
     <br/>
-    - EOEC <br/>
-    - Bagging <br/>
+    - EOEC on top of AdaBoost<br/>
+    <br/>
+    - Bagging on top of Tree <br/>
+    <br/>
     - PCA
 
-(2) Implemented Gradient Decent framework for all models
+(2) Implemented Gradient Decent framework to multi-thread update especially for neural network
 
 (3) Designed and implemented Deep Neural Network for any desired structure with NLL objective
 
