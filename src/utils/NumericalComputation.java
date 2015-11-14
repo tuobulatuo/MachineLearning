@@ -20,7 +20,7 @@ public class NumericalComputation {
     }
 
     public static double logOdds(double prob) {
-        if (prob == 0.0 || prob == 1.0) log.warn("logOdds for {}", prob);
-        return Math.log(prob)  - Math.log(1 - prob);
+        if (prob <= 0.0 || prob >= 1.0) log.warn("logOdds for {}", prob);
+        return Math.log(prob)  - Math.log(1.0D - prob);
     }
 }
