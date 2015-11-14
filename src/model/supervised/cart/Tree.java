@@ -48,9 +48,9 @@ public abstract class Tree implements Trainable, Predictable{
 
     protected DataSet dataSet = null;
 
-    private int featureId = Integer.MIN_VALUE;
+    protected int featureId = Integer.MIN_VALUE;
 
-    private double featureThreshold = Integer.MAX_VALUE;
+    protected double featureThreshold = Integer.MAX_VALUE;
 
     private ExecutorService service = null;
 

@@ -1,6 +1,7 @@
 package model.supervised.boosting.adaboot;
 
 import data.DataSet;
+import gnu.trove.list.array.TIntArrayList;
 import model.Predictable;
 import model.Trainable;
 import model.supervised.boosting.Boost;
@@ -11,11 +12,13 @@ import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
 import performance.Evaluator;
 import utils.array.ArraySumUtil;
+import utils.array.ArrayUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 10/30/15 for machine_learning.
@@ -47,6 +50,8 @@ public class SAMME implements Trainable, Predictable, Boost{
     protected double[] roundError = null;
 
     protected double[] roundTestingAUC = null;
+
+    protected int[] topFeatures = null;
 
     public SAMME(){}
 
@@ -168,6 +173,7 @@ public class SAMME implements Trainable, Predictable, Boost{
 
         trainingData = d;
         classCount = trainingData.getLabels().getIndexClassMap().size();
+        topFeatures = RandomUtils.getIndexes(trainingData.getFeatureLength());
 
         int instanceLength = trainingData.getInstanceLength();
         weights = new double[instanceLength];
@@ -196,5 +202,32 @@ public class SAMME implements Trainable, Predictable, Boost{
         log.info("SAMME configTrainable: ");
         log.info("classifiers count: {}", classifiers.length);
         log.info("classifiers CLASS: {}", classifierClassName);
+    }
+
+    public void topFeatureCalc() {
+
+        double[] featureScore = new double[trainingData.getFeatureLength()];
+        for (int i = 0; i < trainingData.getInstanceLength(); i++) {
+            double[] X = trainingData.getInstance(i);
+            for (int j = 0; j < adaBoostClassifiers.length; j++) {
+                int bestFeatureId = adaBoostClassifiers[j].bestFeatureId();
+                if (adaBoostClassifiers[j].boostPredict(X) ==  trainingData.getLabel(j)) {
+                    featureScore[bestFeatureId] += alpha[j];
+                }else {
+                    featureScore[bestFeatureId] -= alpha[j];
+                }
+            }
+        }
+
+        ArraySumUtil.normalize(featureScore);
+        SortIntDoubleUtils.sort(topFeatures, featureScore);
+        ArrayUtil.reverse(topFeatures);
+    }
+
+    public int[] topNFeatures(int n){
+
+        TIntArrayList topN = new TIntArrayList(n);
+        IntStream.range(0, Math.min(n, topFeatures.length)).forEach(i -> topN.add(topFeatures[i]));
+        return topN.toArray();
     }
 }

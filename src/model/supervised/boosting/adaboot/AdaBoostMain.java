@@ -7,6 +7,8 @@ import data.builder.SparseMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
 import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassificationTree;
 import model.supervised.boosting.adaboot.adaboostclassifier.WeightedClassificationTree;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
 import utils.random.RandomUtils;
@@ -18,6 +20,8 @@ import java.util.stream.IntStream;
  * Created by hanxuan on 10/31/15 for machine_learning.
  */
 public class AdaBoostMain {
+
+    private static Logger log = LogManager.getLogger(AdaBoostMain.class);
 
     public static void DecisionStumpTest() throws Exception{
 
@@ -50,8 +54,12 @@ public class AdaBoostMain {
             SAMME samme = new SAMME();
             samme.initialize(trainSet);
             String className = "model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump";
-            samme.boostConfig(50, className, new ClassificationEvaluator(), testSet);
+            samme.boostConfig(300, className, new ClassificationEvaluator(), testSet);
             samme.train();
+
+            samme.topFeatureCalc();
+            int[] topNFeature = samme.topNFeatures(15);
+            log.info("topN features {}", topNFeature);
 
             ClassificationEvaluator evaluator = new ClassificationEvaluator();
             evaluator.initialize(testSet, samme);
@@ -352,13 +360,13 @@ public class AdaBoostMain {
 
     public static void main(String[] args) throws Exception{
 
-//        DecisionStumpTest();
+        DecisionStumpTest();
 
 //        RandomDecisionStumpTest();
 
 //        SAMMETest();
 
-        SAMMESampleSimulationTest();
+//        SAMMESampleSimulationTest();
 
 //        newsgroupTest();
 

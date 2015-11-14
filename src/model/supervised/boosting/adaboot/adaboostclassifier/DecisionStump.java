@@ -46,4 +46,9 @@ public class DecisionStump extends WeightedClassificationTree{
         }
         return error;
     }
+
+    @Override
+    public int bestFeatureId() {
+        return featureId;
+    }
 }

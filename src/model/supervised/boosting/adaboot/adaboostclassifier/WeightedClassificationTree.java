@@ -103,4 +103,9 @@ public class WeightedClassificationTree extends ClassificationTree implements Ad
     public double boostPredict(double[] feature) {
         return predict(feature);
     }
+
+    @Override
+    public int bestFeatureId() {
+        return featureId;
+    }
 }
