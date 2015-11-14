@@ -5,14 +5,21 @@ import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
 import data.core.Norm;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
+import utils.random.RandomUtils;
+
+import java.util.stream.IntStream;
 
 
 /**
  * Created by hanxuan on 10/15/15 for machine_learning.
  */
 public class NBMain {
+
+    private static Logger log = LogManager.getLogger(NBMain.class);
 
     public static void multinoulliNBTest(int bins, double[] quotients) throws Exception{
 
@@ -109,6 +116,86 @@ public class NBMain {
 
     }
 
+    public static void gaussianNBPollutedSetTest() throws Exception{
+
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_polluted/allSet";
+        String sep = "\t";
+        boolean hasHeader = false;
+        boolean needBias = false;
+        int m = 1057;
+        int n = 4601;
+        int[] featureCategoryIndex = {};
+        boolean classification = true;
+
+        Builder builder =
+                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, classification);
+
+        builder.build();
+
+        DataSet dataset = builder.getDataSet();
+
+        int trainSize = 4140;
+        int allSize = 4601;
+
+        DataSet trainSet = dataset.subDataSetByRow(RandomUtils.getIndexes(trainSize));
+        DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, allSize).toArray());
+        Gaussian g = new Gaussian();
+        g.initialize(trainSet);
+        g.train();
+
+
+        ClassificationEvaluator.CONFUSION_MATRIX = true;
+        ClassificationEvaluator.ROC = true;
+        ClassificationEvaluator evaluator = new ClassificationEvaluator();
+        evaluator.initialize(trainSet, g);
+        evaluator.getPredictLabel();
+        evaluator.evaluate();
+
+        evaluator.initialize(testSet, g);
+        evaluator.getPredictLabel();
+        evaluator.evaluate();
+    }
+
+    public static void gaussianNBPCAPollutedSetTest() throws Exception{
+
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_polluted/allSet.pca.100";
+        String sep = "\t";
+        boolean hasHeader = false;
+        boolean needBias = false;
+        int m = 100;
+        int n = 4601;
+        int[] featureCategoryIndex = {};
+        boolean classification = true;
+
+        Builder builder =
+                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, classification);
+
+        builder.build();
+
+        DataSet dataset = builder.getDataSet();
+
+        int trainSize = 4140;
+        int allSize = 4601;
+
+        DataSet trainSet = dataset.subDataSetByRow(RandomUtils.getIndexes(trainSize));
+        DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, allSize).toArray());
+        Gaussian g = new Gaussian();
+        g.initialize(trainSet);
+        g.train();
+
+
+        ClassificationEvaluator.CONFUSION_MATRIX = true;
+        ClassificationEvaluator.ROC = true;
+        ClassificationEvaluator evaluator = new ClassificationEvaluator();
+        evaluator.initialize(trainSet, g);
+        evaluator.getPredictLabel();
+        evaluator.evaluate();
+
+        evaluator.initialize(testSet, g);
+        evaluator.getPredictLabel();
+        evaluator.evaluate();
+    }
+
     public static void main(String[] args) throws Exception{
 
 //        multinoulliNBTest(2, new double[]{50});
@@ -120,5 +207,9 @@ public class NBMain {
 //        gaussianNBTest();
 
 //        mixGaussianNBTest();
+
+        gaussianNBPollutedSetTest();
+
+        gaussianNBPCAPollutedSetTest();
     }
 }
