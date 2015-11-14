@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
@@ -66,7 +67,7 @@ public class ProcessLaplace {
 
         double[][] table = new double[addressArray.length][classesArray.length];
         IntStream.range(0, table.length).forEach(i -> Arrays.fill(table[i], 1)); // add one laplace smoothing
-        count(in, table, classesArray, addressArray);
+        count(in, table, classesArray, addressArray, 878049);
 
         double[] logOddsAddress = new double[addressArray.length];
         logOddsAddress(table, logOddsAddress);
@@ -97,17 +98,19 @@ public class ProcessLaplace {
         log.info("addresses count: {}", addresses.size());
     }
 
-    public static void count(String path, double[][] table, String[] classes, String[] addresses) throws Exception{
+    public static void count(String path, double[][] table, String[] classes, String[] addresses, int lineMax) throws Exception{
 
         BufferedReader reader = new BufferedReader(new FileReader(path), 1024 * 1024 * 32);
         String line;
-        while ((line = reader.readLine()) != null) {
+        int lineCounter = 0;
+        while ((line = reader.readLine()) != null && lineCounter < lineMax) {
             String[] es = line.trim().split("\t");
             String classString = es[es.length - 1].trim();
             String address = es[3].trim();
             int classIndex = Arrays.binarySearch(classes, classString);
             int addressIndex = Arrays.binarySearch(addresses, address);
             table[addressIndex][classIndex] ++;
+            lineCounter ++;
         }
         log.info("count table...");
     }
@@ -183,12 +186,18 @@ public class ProcessLaplace {
 
     public static void logOddsLaplace(double[][] table) {
 
+        AtomicInteger rareEvent = new AtomicInteger(0);
+
         IntStream.range(0, table.length).forEach(i -> {
+            if (Arrays.stream(table[i]).sum() <= 39 + 2) rareEvent.getAndIncrement();
             double[] probs = ArraySumUtil.normalize(table[i]);
             IntStream.range(0, probs.length).forEach(j -> probs[j] = Math.log(probs[j]) - Math.log(1 - probs[j]));
         });
 
         log.info("logOdds");
+
+        log.info("rare {}", rareEvent.get());
+//        System.exit(0);
     }
 
     public static String address(String address, String[] addresses, double[][] table, double[] logOddsAddress) {
