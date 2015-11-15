@@ -80,8 +80,7 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
         double[] theta = (double[]) params;
 
         double[] g = new double[theta.length];
-        IntStream.range(start, end).forEach(i ->
-        {
+        IntStream.range(start, end).forEach(i -> {
             double[] X = data.getInstance(i);
             double h = hypothesis(X, theta) - data.getLabel(i);
             IntStream.range(0, g.length).forEach(j -> g[j] += h * X[j] / (double) (end - start));
@@ -99,13 +98,11 @@ public class LogisticGradientDecent implements Predictable, Trainable, Decent, G
         double[] theta = (double[]) params;
         int instanceLength = data.getInstanceLength();
         AtomicDouble cost = new AtomicDouble(0);
-        IntStream.range(0, instanceLength).forEach(
-                i -> {
-                    double y = data.getLabel(i);
-                    double hx = hypothesis(data.getInstance(i), theta);
-                    cost.getAndAdd(y * Math.log(hx) + (1 - y) * Math.log(1 - hx));
-                }
-        );
+        IntStream.range(0, instanceLength).forEach(i -> {
+            double y = data.getLabel(i);
+            double hx = hypothesis(data.getInstance(i), theta);
+            cost.getAndAdd(y * Math.log(hx) + (1 - y) * Math.log(1 - hx));
+        });
 
         cost.getAndSet(- cost.doubleValue());
 
