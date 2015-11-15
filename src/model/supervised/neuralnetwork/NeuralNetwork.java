@@ -180,17 +180,13 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         }
         service.shutdown();
 
-        AtomicDouble punish = new AtomicDouble(0);
-        IntStream.range(0, theta.length).forEach(i -> {
-            double[][] currentTheta = theta[i];
-            for (int j = 0; j < currentTheta.length; j++) {
-                for (int k = 1; k < currentTheta[0].length; k++) {
-                    punish.getAndAdd(Math.pow(currentTheta[j][k], 2));
-                }
-            }
-        });
+        double punish = 0;
+        for (int i = 0; i < theta.length; i++)
+            for (int j = 0; j < theta[i].length; j++)
+                for (int k = 1; k < theta[i][j].length; k++)
+                    punish += Math.pow(theta[i][j][k], 2);
 
-        return cost.get() + punish.get() * LAMBDA;
+        return cost.get() + punish * LAMBDA;
     }
 
     @Override
@@ -237,21 +233,11 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         }
         service.shutdown();
 
-
-        IntStream.range(0, theta.length).forEach(
-                i -> {
-                    double[][] currentLayerTheta = theta[i];
-                    IntStream.range(0, currentLayerTheta.length).forEach(
-                            j -> {
-                                double[] w = currentLayerTheta[j];
-                                for (int k = 0; k < w.length; k++) {
-                                    w[k] -= ALPHA * gradient[i][j][k];
-                                }
-                            }
-                    );
-                }
-        );
-
+        for (int i = 0; i < theta.length; i++)
+            for (int j = 0; j < theta[i].length; j++)
+                for (int k = 0; k < theta[i][j].length; k++)
+                    theta[i][j][k] -= ALPHA * gradient[i][j][k] / (double) (end - start)
+                            + (k > 0 ? LAMBDA * theta[i][j][k] : 0);
     }
 
     private void backPropagation(int i, double[][][] gradient) {
@@ -284,9 +270,8 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         }
 
         double[][] DELTA = new double[layerCount][];
-        DELTA[layerCount - 1] = IntStream.range(0, yVector.length).mapToDouble(
-                idx -> A[layerCount - 1][idx] - yVector[idx])
-                .toArray();
+        DELTA[layerCount - 1] = IntStream.range(0, yVector.length).mapToDouble(idx ->
+                A[layerCount - 1][idx] - yVector[idx]).toArray();
         for (int j = layerCount - 2; j >= 1; --j) {
 
             double[][] currentLayerTheta = theta[j];
@@ -315,18 +300,11 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
             }
         }
 
-        for (int j = 0; j < gradient.length; j++) {
-            double[][] currentG = gradient[j];
-            for (int k = 0; k < currentG.length; k++) {
-                double[] g = currentG[k];
-                synchronized (g) {
-                    for (int l = 0; l < g.length; l++) {
-                        g[l] += DELTA[j + 1][k] * A[j][l];
-                        g[l] += l > 0 ? LAMBDA * theta[j][k][l] : 0;
-                    }
-                }
-            }
-
+        synchronized (gradient) {
+            for (int j = 0; j < gradient.length; j++)
+                for (int k = 0; k < gradient[j].length; k++)
+                    for (int l = 0; l < gradient[j][k].length; l++)
+                        gradient[j][k][l] += DELTA[j + 1][k] * A[j][l];
         }
     }
 
