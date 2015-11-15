@@ -5,7 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
 
 /**
  * Created by hanxuan on 11/15/15 for machine_learning.
@@ -14,9 +13,9 @@ public class MNISTReader {
 
     private static Logger log = LogManager.getLogger(MNISTReader.class);
 
-    DataInputStream labelsStream = null;
+    private DataInputStream labelsStream = null;
 
-    DataInputStream imagesStream = null;
+    private DataInputStream imagesStream = null;
 
     private static final int LABEL_MAGIC = 2049;
 
