@@ -24,7 +24,7 @@ machine learning code for Northeastern University fall 2015
         1) AdaBoost by classification tree for classification <br/>
         2) GradientBoost by regression tree for regression and classification<br/>
     <br/>
-    - EOEC on top of AdaBoost<br/>
+    - ECOC on top of AdaBoost<br/>
     <br/>
     - Bagging on top of Tree <br/>
     <br/>

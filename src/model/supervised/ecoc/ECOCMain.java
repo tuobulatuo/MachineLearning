@@ -1,4 +1,4 @@
-package model.supervised.eoec;
+package model.supervised.ecoc;
 
 import data.DataSet;
 import data.builder.Builder;
@@ -9,7 +9,7 @@ import performance.ClassificationEvaluator;
 /**
  * Created by hanxuan on 11/2/15 for machine_learning.
  */
-public class EOECMain {
+public class ECOCMain {
 
     public static void newsgroupTest() throws Exception{
 
@@ -38,12 +38,12 @@ public class EOECMain {
         DataSet testSet = builder.getDataSet();
 
         String className = "model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump";
-        EOECAdaBoost.ADABOOST_CLASSIFIER_CLASS_NAME = className;
-        EOECAdaBoost.MAX_THREADS = 1;
-        EOECAdaBoost.MAX_ITERATION = 200;
+        ECOCAdaBoost.ADABOOST_CLASSIFIER_CLASS_NAME = className;
+        ECOCAdaBoost.MAX_THREADS = 1;
+        ECOCAdaBoost.MAX_ITERATION = 200;
         DecisionStump.MAX_THREADS = 1;
 
-        EOECAdaBoost eoecAdaBoost = new EOECAdaBoost();
+        ECOCAdaBoost eoecAdaBoost = new ECOCAdaBoost();
         eoecAdaBoost.initialize(trainSet);
         eoecAdaBoost.train();
 

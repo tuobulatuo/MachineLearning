@@ -1,4 +1,4 @@
-package model.supervised.eoec;
+package model.supervised.ecoc;
 
 import model.supervised.boosting.adaboot.SAMME;
 import org.apache.logging.log4j.LogManager;
@@ -7,9 +7,9 @@ import org.apache.logging.log4j.Logger;
 /**
  * Created by hanxuan on 11/2/15 for machine_learning.
  */
-public class EOECAdaBoost extends EOEC{
+public class ECOCAdaBoost extends ECOC {
 
-    private static Logger log = LogManager.getLogger(EOECAdaBoost.class);
+    private static Logger log = LogManager.getLogger(ECOCAdaBoost.class);
 
     public static int MAX_ITERATION = 200;
 

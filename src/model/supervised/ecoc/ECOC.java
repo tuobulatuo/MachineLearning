@@ -1,4 +1,4 @@
-package model.supervised.eoec;
+package model.supervised.ecoc;
 
 import data.DataSet;
 import data.core.Label;
@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 /**
  * Created by hanxuan on 11/2/15 for machine_learning.
  */
-public abstract class EOEC implements Predictable, Trainable{
+public abstract class ECOC implements Predictable, Trainable{
 
     public static int DEFAULT_CODE_WORD_LENGTH = 20;
 
@@ -30,7 +30,7 @@ public abstract class EOEC implements Predictable, Trainable{
 
     public static int MAX_THREADS = 4;
 
-    private static Logger log = LogManager.getLogger(EOEC.class);
+    private static Logger log = LogManager.getLogger(ECOC.class);
 
     private Predictable[] predictables = null;
 
@@ -50,7 +50,7 @@ public abstract class EOEC implements Predictable, Trainable{
 
     private CountDownLatch countDownLatch = null;
 
-    public EOEC() {}
+    public ECOC() {}
 
 
 
@@ -89,7 +89,7 @@ public abstract class EOEC implements Predictable, Trainable{
                     model.initialize(dataI);
                     model.train();
                     predictables[i] = model.offer();
-                    log.info("EOEC model {} training finished...", i);
+                    log.info("ECOC model {} training finished...", i);
                 }catch (Throwable t) {
                     log.error(t.getMessage(), t);
                 }
@@ -105,7 +105,7 @@ public abstract class EOEC implements Predictable, Trainable{
         }
         service.shutdown();
 
-        log.info("EOEC training finished ... ");
+        log.info("ECOC training finished ... ");
     }
 
     @Override
@@ -125,7 +125,7 @@ public abstract class EOEC implements Predictable, Trainable{
 
         makeTable();
 
-        log.info("EOEC initialized, class count: {}, code word length: {}", classCount, codeWordLength);
+        log.info("ECOC initialized, class count: {}, code word length: {}", classCount, codeWordLength);
     }
 
     private Label makeLabels(int index) {
@@ -160,7 +160,7 @@ public abstract class EOEC implements Predictable, Trainable{
             }
         }
 
-        log.info("EOEC Table created ...");
+        log.info("ECOC Table created ...");
         log.info("================== TABLE ==================");
         for (int i = 0; i < table.length; i++) {
             log.info("{}", i, table[i]);
