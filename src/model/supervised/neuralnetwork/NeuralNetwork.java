@@ -10,6 +10,7 @@ import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.NumericalComputation;
+import utils.array.ArraySumUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
@@ -114,8 +115,9 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         return index[index.length - 1] == 1 ? labels[index.length - 1] / (double) 1000000 : 1 - labels[index.length - 1] / (double) 1000000;
     }
 
+    @Override
     public double[] probs(double[] feature) {
-        return feedForward(feature, theta);
+        return ArraySumUtil.normalize(feedForward(feature, theta));
     }
 
     @Override
