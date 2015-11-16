@@ -5,6 +5,7 @@ import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.array.ArraySumUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
@@ -41,13 +42,19 @@ public abstract class NaiveBayes implements Predictable, Trainable{
     @Override
     public double predict(double[] feature) {
 
+        double[] probabilities = probs(feature);
+        int[] indexes = RandomUtils.getIndexes(classCount);
+        SortIntDoubleUtils.sort(indexes, probabilities);
+        return indexes[indexes.length - 1];
+    }
+
+    @Override
+    public double[] probs(double[] feature) {
         double[] probabilities = predictClassProbability(feature);
         for (int i = 0; i < classCount; i++) {
             probabilities[i] += Math.log(priors[i]);
         }
-        int[] indexes = RandomUtils.getIndexes(classCount);
-        SortIntDoubleUtils.sort(indexes, probabilities);
-        return indexes[indexes.length - 1];
+        return ArraySumUtil.normalize(probabilities);
     }
 
     @Override
