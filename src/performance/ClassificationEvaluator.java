@@ -2,13 +2,21 @@ package performance;
 
 import data.core.Label;
 import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.set.hash.TIntHashSet;
+import model.Predictable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.array.ArrayUtil;
+import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
 
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
@@ -17,6 +25,12 @@ import java.util.stream.IntStream;
 public class ClassificationEvaluator extends Evaluator{
 
     private static final Logger log = LogManager.getLogger(ClassificationEvaluator.class);
+
+    public static int MAX_THREADS = 4;
+
+    public static int THREAD_WORK_LOAD = 4000;
+
+    protected double[][] probs = null;
 
     public static int SAMPLES = 500;
 
@@ -42,7 +56,86 @@ public class ClassificationEvaluator extends Evaluator{
 
     public double area;
 
+    private ExecutorService service = null;
+
+    private CountDownLatch countDownLatch = null;
+
     public ClassificationEvaluator() {}
+
+    public void probs() {
+
+        long t1 = System.currentTimeMillis();
+
+        Logger log = LogManager.getLogger(Predictable.class);
+
+        probs = new double[testSet.getInstanceLength()][];
+
+        service = Executors.newFixedThreadPool(MAX_THREADS);
+        int packageCount = (int) Math.ceil(testSet.getInstanceLength() / (double) THREAD_WORK_LOAD);
+        countDownLatch = new CountDownLatch(packageCount);
+
+        AtomicInteger counter = new AtomicInteger(0);
+
+        TIntHashSet tasks = new TIntHashSet();
+        IntStream.range(0, testSet.getInstanceLength()).forEach(i -> {
+
+                    tasks.add(i);
+
+                    if (tasks.size() == THREAD_WORK_LOAD || i == testSet.getInstanceLength() - 1) {
+                        TIntHashSet tasks2 = new TIntHashSet(tasks);
+                        service.submit(() ->
+                        {
+                            long tic = System.currentTimeMillis();
+
+                            try {
+                                for (int taskId : tasks2.toArray()) {
+                                    probs[taskId] =  model.probs(testSet.getInstance(taskId));
+                                }
+                            } catch (Throwable t) {
+                                log.error(t.getMessage(), t);
+                            }
+                            countDownLatch.countDown();
+
+                            long toc = System.currentTimeMillis();
+                            counter.getAndIncrement();
+                            log.info("package {}|{} in {} ms", counter.get(), packageCount, toc - tic);
+                        });
+
+                        tasks.clear();
+                    }
+                }
+        );
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(10);
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage(), e);
+        }
+        service.shutdown();
+
+        long t2 = System.currentTimeMillis();
+        log.info("probs matrix get, elapsed {} ms", t2 - t1);
+    }
+
+    public void getPredictLabel() {
+
+        probs();
+
+        long t1 = System.currentTimeMillis();
+
+        float[] predict = new float[testSet.getInstanceLength()];
+        for (int i = 0; i < predict.length; i++) {
+            int[] indexes = RandomUtils.getIndexes(testSet.getLabels().getClassIndexMap().size());
+            SortIntDoubleUtils.sort(indexes, probs[i].clone()); // clone a new array very important
+            predict[i] = indexes[indexes.length - 1];
+        }
+
+        predictLabel = new Label(predict, null);
+
+        long t2 = System.currentTimeMillis();
+        log.info("predictLabels get, elapsed {} ms", t2 - t1);
+    }
 
     public double evaluate() {
 
@@ -72,6 +165,22 @@ public class ClassificationEvaluator extends Evaluator{
         }
 
         return correct / (double) instanceLength;
+    }
+
+    public double logLoss() {
+
+        double loss = 0;
+
+        int counter = 0;
+        for (int i = 0; i < testSet.getInstanceLength(); i++) {
+
+            double y = testSet.getLabel(i);
+            loss -= Math.log(probs[i][(int) y]);
+
+            if (counter++ % 100000 == 0) log.info("logLoss process {} ids ..", counter);
+        }
+
+        return loss / (double) testSet.getInstanceLength();
     }
 
     public double getArea() {
@@ -145,5 +254,9 @@ public class ClassificationEvaluator extends Evaluator{
         log.info("accuracy: {}", (truePos + trueNeg) / (double) (truePos + trueNeg + falsePos + falseNeg));
         log.info("error: {}", (falsePos + falseNeg) / (double) (truePos + trueNeg + falsePos + falseNeg));
         log.info("================= ================ =================");
+    }
+
+    public double[][] getProbs() {
+        return probs;
     }
 }
