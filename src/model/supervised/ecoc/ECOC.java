@@ -9,6 +9,7 @@ import model.Trainable;
 import org.apache.commons.math3.distribution.EnumeratedIntegerDistribution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.array.ArraySumUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntIntUtils;
 
@@ -37,8 +38,6 @@ public abstract class ECOC implements Predictable, Trainable{
     protected Trainable[] trainables = null;
 
     private DataSet data = null;
-
-//    private Label[] labels = null;
 
     private int[][] table = null;
 
@@ -73,6 +72,20 @@ public abstract class ECOC implements Predictable, Trainable{
         int[] indexes = RandomUtils.getIndexes(classCount);
         SortIntIntUtils.sort(indexes, classError);
         return indexes[0];
+    }
+
+    public double[] probs(double[] feature) {
+        double[] classError = new double[classCount];
+        for (int i = 0; i < classCount; i++) {
+            int[] predicts = IntStream.range(0, codeWordLength).map(j -> (int) predictables[j].predict(feature)).toArray();
+            classError[i] = codeErrorRate(table[i], predicts);
+        }
+        ArraySumUtil.normalize(classError);
+
+        // change error rate to correctness rate
+        IntStream.range(0, classError.length).forEach(i -> classError[i] = 1 - classError[i]);
+
+        return classError;
     }
 
     @Override
