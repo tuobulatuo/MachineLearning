@@ -7,6 +7,7 @@ import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.array.ArraySumUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
@@ -52,12 +53,18 @@ public class GaussianDiscriminantAnalysis implements Predictable, Trainable{
 
     @Override
     public double score(double[] feature) {
+        double[] probabilities = probs(feature);
+        double score = Math.log(probabilities[1]) - Math.log(probabilities[0]);
+        return score;
+    }
+
+    @Override
+    public double[] probs(double[] feature) {
         double[] probabilities = new double[classCount];
         for (int i = 0; i < models.length; i++) {
             probabilities[i] = models[i].density(feature) * priors[i];
         }
-        double score = Math.log(probabilities[1]) - Math.log(probabilities[0]);
-        return score;
+        return ArraySumUtil.normalize(probabilities);
     }
 
     @Override
