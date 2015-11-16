@@ -8,10 +8,9 @@ import model.Trainable;
 import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.array.ArraySumUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
-//import org.neu.util.rand.RandomUtils;
-//import org.neu.util.sort.SortIntDoubleUtils;
 
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
@@ -59,12 +58,13 @@ public class MixtureGaussianDiscriminantAnalysis implements Trainable, Predictab
         return index[index.length - 1];
     }
 
+    @Override
     public double[] probs(double[] feature) {
         double[] probabilities = new double[classCount];
         for (int i = 0; i < models.length; i++) {
             probabilities[i] = mixtureDensity(feature, i) * priors[i];
         }
-        return probabilities;
+        return ArraySumUtil.normalize(probabilities);
     }
 
     @Override
