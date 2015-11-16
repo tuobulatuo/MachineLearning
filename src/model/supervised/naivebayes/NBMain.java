@@ -156,6 +156,46 @@ public class NBMain {
         evaluator.evaluate();
     }
 
+    public static void gaussianNBMissingSetTest() throws Exception{
+
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_missing/missing.all.txt";
+        String sep = "\t";
+        boolean hasHeader = false;
+        boolean needBias = false;
+        int m = 57;
+        int n = 4601;
+        int[] featureCategoryIndex = {};
+        boolean classification = true;
+
+        Builder builder =
+                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, classification);
+
+        builder.build();
+
+        DataSet dataset = builder.getDataSet();
+
+        int trainSize = 3681;
+        int allSize = 4601;
+
+        DataSet trainSet = dataset.subDataSetByRow(RandomUtils.getIndexes(trainSize));
+        DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, allSize).toArray());
+        Multinoulli multinoulli = new Multinoulli();
+        multinoulli.initialize(trainSet);
+        multinoulli.train();
+
+
+        ClassificationEvaluator.CONFUSION_MATRIX = true;
+        ClassificationEvaluator.ROC = true;
+        ClassificationEvaluator evaluator = new ClassificationEvaluator();
+        evaluator.initialize(trainSet, multinoulli);
+        evaluator.getPredictLabel();
+        evaluator.evaluate();
+
+        evaluator.initialize(testSet, multinoulli);
+        evaluator.getPredictLabel();
+        evaluator.evaluate();
+    }
+
     public static void gaussianNBPCAPollutedSetTest() throws Exception{
 
         String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_polluted/allSet.pca.100";
@@ -208,8 +248,10 @@ public class NBMain {
 
 //        mixGaussianNBTest();
 
-        gaussianNBPollutedSetTest();
+//        gaussianNBPollutedSetTest();
 
-        gaussianNBPCAPollutedSetTest();
+//        gaussianNBPCAPollutedSetTest();
+
+        gaussianNBMissingSetTest();
     }
 }
