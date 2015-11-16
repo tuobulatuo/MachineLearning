@@ -15,8 +15,7 @@ public class HAARExtractor {
 
     public HAARExtractor(int[][] image) {
         createTable(image);
-        log.info("table: ");
-        log.info(" {}", table);
+        log.debug("table {}", table);
     }
 
     public float[] extract(int windowWidth, int windowHeight, int widthGap, int heightGap) {
