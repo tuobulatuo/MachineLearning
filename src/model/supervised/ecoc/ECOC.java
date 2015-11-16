@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.array.ArraySumUtil;
 import utils.random.RandomUtils;
-import utils.sort.SortIntIntUtils;
+import utils.sort.SortIntDoubleUtils;
 
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
@@ -63,29 +63,24 @@ public abstract class ECOC implements Predictable, Trainable{
 
     @Override
     public double predict(double[] feature) {
-
-        int[] classError = new int[classCount];
-        for (int i = 0; i < classCount; i++) {
-            int[] predicts = IntStream.range(0, codeWordLength).map(j -> (int) predictables[j].predict(feature)).toArray();
-            classError[i] = codeErrorRate(table[i], predicts);
-        }
         int[] indexes = RandomUtils.getIndexes(classCount);
-        SortIntIntUtils.sort(indexes, classError);
-        return indexes[0];
+        double[] probs = probs(feature);
+        SortIntDoubleUtils.sort(indexes, probs);
+        return indexes[indexes.length - 1];
     }
 
+    @Override
     public double[] probs(double[] feature) {
         double[] classError = new double[classCount];
         for (int i = 0; i < classCount; i++) {
             int[] predicts = IntStream.range(0, codeWordLength).map(j -> (int) predictables[j].predict(feature)).toArray();
             classError[i] = codeErrorRate(table[i], predicts);
         }
-        ArraySumUtil.normalize(classError);
+        double[] probs = ArraySumUtil.normalize(classError);
 
         // change error rate to correctness rate
-        IntStream.range(0, classError.length).forEach(i -> classError[i] = 1 - classError[i]);
-
-        return classError;
+        IntStream.range(0, classError.length).forEach(i -> probs[i] = 1 - probs[i]);
+        return ArraySumUtil.normalize(probs);
     }
 
     @Override
