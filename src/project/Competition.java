@@ -38,9 +38,9 @@ public class Competition {
         String sep = "\t";
         boolean hasHeader = false;
         boolean needBias = true;
-        int m = 51;
+        int m = 50;
         int n = 878049;
-        int[] featureCategoryIndex = {0,1,2,3,4,5,6,7};
+        int[] featureCategoryIndex = {0,1,2,3,4,5,6,7,8};
         boolean isClassification = true;
 
         Builder builder =

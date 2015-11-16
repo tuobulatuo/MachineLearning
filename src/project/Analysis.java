@@ -17,7 +17,7 @@ import model.supervised.boosting.gradiantboost.GradientBoostRegression;
 import model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree;
 import model.supervised.cart.ClassificationTree;
 import model.supervised.cart.Tree;
-import model.supervised.eoec.EOECAdaBoost;
+import model.supervised.ecoc.ECOCAdaBoost;
 import model.supervised.generative.MixtureGaussianDiscriminantAnalysis;
 import model.supervised.neuralnetwork.NeuralNetwork;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +27,6 @@ import performance.CrossValidationEvaluator;
 import performance.Evaluator;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
@@ -379,9 +378,9 @@ public class Analysis {
         String sep = "\t";
         boolean hasHeader = false;
         boolean needBias = false;
-        int m = 44;
+        int m = 51;
         int n = 11314;
-        int[] featureCategoryIndex = {0, 1, 2, 3, 4};
+        int[] featureCategoryIndex = {0, 1, 2, 3, 4,5,6,7,8};
         boolean isClassification = true;
 
         Builder builder =
@@ -392,10 +391,10 @@ public class Analysis {
         DataSet dataset = builder.getDataSet();
 
         String className = "model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump";
-        EOECAdaBoost.ADABOOST_CLASSIFIER_CLASS_NAME = className;
-        EOECAdaBoost.MAX_THREADS = 4;
-        EOECAdaBoost.MAX_ITERATION = 10;
-        EOECAdaBoost.DEFAULT_CODE_WORD_LENGTH = 25;
+        ECOCAdaBoost.ADABOOST_CLASSIFIER_CLASS_NAME = className;
+        ECOCAdaBoost.MAX_THREADS = 4;
+        ECOCAdaBoost.MAX_ITERATION = 10;
+        ECOCAdaBoost.DEFAULT_CODE_WORD_LENGTH = 25;
         DecisionStump.MAX_THREADS = 1;
         DecisionStump.THREAD_WORK_LOAD = Integer.MAX_VALUE;
 
@@ -406,7 +405,7 @@ public class Analysis {
             int[] testIndexes = IntStream.range(0, dataset.getInstanceLength()).filter(pred).toArray();
             DataSet trainSet = dataset.subDataSetByRow(trainIndexes.toArray());
 
-            EOECAdaBoost eoecAdaBoost = new EOECAdaBoost();
+            ECOCAdaBoost eoecAdaBoost = new ECOCAdaBoost();
             eoecAdaBoost.initialize(trainSet);
             eoecAdaBoost.train();
 
@@ -430,9 +429,9 @@ public class Analysis {
         String sep = "\t";
         boolean hasHeader = false;
         boolean needBias = false;
-        int m = 44;
+        int m = 51;
         int n = 11314;
-        int[] featureCategoryIndex = {0, 1, 2, 3, 4};
+        int[] featureCategoryIndex = {0, 1, 2, 3, 4,5,6,7,8};
         boolean isClassification = true;
 
         Builder builder =
@@ -445,10 +444,10 @@ public class Analysis {
         MixtureGaussianEM.MAX_ROUND = 50;
         MixtureGaussianEM.PRINT_GAP = 50;
         MixtureGaussianEM.THRESHOLD = 0.0001;
-        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 3;
+        MixtureGaussianDiscriminantAnalysis.COMPONENTS = 5;
         MixtureGaussianDiscriminantAnalysis.MAX_THREADS = 4;
 
-        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 2);
+        int[][] kFoldIndex = CrossValidationEvaluator.partition(dataset, 20);
         for (int i = 0; i < kFoldIndex.length; i++) {
             TIntHashSet trainIndexes = new TIntHashSet(kFoldIndex[i]);
             IntPredicate pred = (x) -> !trainIndexes.contains(x);
@@ -474,7 +473,7 @@ public class Analysis {
     }
 
     public static void main(String[] args) throws Exception{
-        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.expand.txt";
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/old/data.expand.txt";
 //        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.full.no.x.y.txt";
 //        String path = args[0];
 //        int boost = Integer.parseInt(args[1]);
@@ -485,14 +484,14 @@ public class Analysis {
 
 //        adaBoostTest2(path);
 
-//        eoec(path);
+//        ecoc(path);
 
 //        gradientBoostTest(path, 5);
 
-        bagging(path);
+//        bagging(path);
 
 //        neuralNetworkTest(path);
 
-//        mixtureGDATest(path);
+        mixtureGDATest(path);
     }
 }

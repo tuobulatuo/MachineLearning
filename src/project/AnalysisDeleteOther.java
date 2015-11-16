@@ -16,7 +16,7 @@ import model.supervised.boosting.gradiantboost.GradientBoostRegression;
 import model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree;
 import model.supervised.cart.ClassificationTree;
 import model.supervised.cart.Tree;
-import model.supervised.eoec.EOECAdaBoost;
+import model.supervised.ecoc.ECOCAdaBoost;
 import model.supervised.neuralnetwork.NeuralNetwork;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -351,10 +351,10 @@ public class AnalysisDeleteOther {
         DataSet dataset = builder.getDataSet();
 
         String className = "model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump";
-        EOECAdaBoost.ADABOOST_CLASSIFIER_CLASS_NAME = className;
-        EOECAdaBoost.MAX_THREADS = 4;
-        EOECAdaBoost.MAX_ITERATION = 10;
-        EOECAdaBoost.DEFAULT_CODE_WORD_LENGTH = 25;
+        ECOCAdaBoost.ADABOOST_CLASSIFIER_CLASS_NAME = className;
+        ECOCAdaBoost.MAX_THREADS = 4;
+        ECOCAdaBoost.MAX_ITERATION = 10;
+        ECOCAdaBoost.DEFAULT_CODE_WORD_LENGTH = 25;
         DecisionStump.MAX_THREADS = 1;
         DecisionStump.THREAD_WORK_LOAD = Integer.MAX_VALUE;
 
@@ -365,7 +365,7 @@ public class AnalysisDeleteOther {
             int[] testIndexes = IntStream.range(0, dataset.getInstanceLength()).filter(pred).toArray();
             DataSet trainSet = dataset.subDataSetByRow(trainIndexes.toArray());
 
-            EOECAdaBoost eoecAdaBoost = new EOECAdaBoost();
+            ECOCAdaBoost eoecAdaBoost = new ECOCAdaBoost();
             eoecAdaBoost.initialize(trainSet);
             eoecAdaBoost.train();
 
@@ -397,7 +397,7 @@ public class AnalysisDeleteOther {
 
 //        adaBoostTest2(path);
 
-//        eoec(path);
+//        ecoc(path);
 
 //        gradientBoostTest(path, 5);
 

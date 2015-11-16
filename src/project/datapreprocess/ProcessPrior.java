@@ -17,9 +17,9 @@ import java.util.stream.IntStream;
 /**
  * Created by hanxuan on 11/3/15 for machine_learning.
  */
-public class ProcessPosterior {
+public class ProcessPrior {
 
-    private static Logger log = LogManager.getLogger(ProcessPosterior.class);
+    private static Logger log = LogManager.getLogger(ProcessPrior.class);
 
     public static void outlierCorrect(String path, String output) throws Exception{
 
@@ -72,7 +72,7 @@ public class ProcessPosterior {
         double[] logOddsAddress = new double[addressArray.length];
         logOddsAddress(in, addressArray, logOddsAddress);
 
-        logOddsPosterior(table, 2);
+        logOddsPosterior(table, 10);
 
         write(in, out, table, addressArray, logOddsAddress);
     }
@@ -238,10 +238,10 @@ public class ProcessPosterior {
     public static void main(String[] args) throws Exception{
 
         String raw = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/posterior/data.all.raw.txt";
-        String correct = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/posterior/data.all.correct.txt";
-        String expand = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/posterior/data.all.expand.txt";
+        String correct = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/posterior.10/data.all.correct.txt";
+        String expand = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/posterior.10/data.all.expand.txt";
 
-        outlierCorrect(raw, correct);
+//        outlierCorrect(raw, correct);
 
         featureExpand(correct, expand);
     }
