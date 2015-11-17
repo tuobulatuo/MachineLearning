@@ -144,11 +144,11 @@ public class GradientBoostClassification implements Predictable, Trainable, Boos
 
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(trainData, this);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         trainError = 1 - evaluator.evaluate();
 
         evaluator.initialize(testData, this);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         testError = 1 - evaluator.evaluate();
     }
 
