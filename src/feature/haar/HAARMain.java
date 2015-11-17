@@ -43,7 +43,7 @@ public class HAARMain {
         log.info("test accu {}", evaluator.evaluate());
 
         /*
-        * 5% data + 100 round + 20 length => 0.8866
+        * 5% data + 100 round + 20 length => 0.8866 | 0.8948
         * */
 
     }
