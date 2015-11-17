@@ -64,7 +64,7 @@ public class AdaBoostMain {
 
             ClassificationEvaluator evaluator = new ClassificationEvaluator();
             evaluator.initialize(testSet, samme);
-            evaluator.getPredictLabel();
+            evaluator.getPredictLabelByProbs();
             evaluator.getArea();
             evaluator.printROC();
 
@@ -114,6 +114,16 @@ public class AdaBoostMain {
         evaluator.getPredictLabel();
         evaluator.getArea();
         evaluator.printROC();
+
+        /**
+         *  alpha: [0.6789267938621621, 0.5758799486449195, 0.46752177387180377, 0.45954145919252765, 0.38172309521695363, 0.25857032749378756, 0.30306460373727623, 0.22789056394739626, 0.1964398940294384, 0.1785598318812742]
+         roundTestingError: [0.2147505422993492, 0.2147505422993492, 0.12364425162689807, 0.13449023861171372, 0.08026030368763559, 0.08242950108459868, 0.08242950108459868, 0.07592190889370931, 0.06941431670281994, 0.06941431670281994]
+         roundTestingAUC: [0.7179881050848823, 0.8418015676080218, 0.9104336523691384, 0.9263657489463956, 0.9526763559021653, 0.9606325574067539, 0.966245224309743, 0.9694749694749731, 0.9694355823388103, 0.972212375438185]
+         roundTrainingError: [0.20458937198067628, 0.20458937198067628, 0.15024154589371985, 0.1427536231884058, 0.10265700483091789, 0.1089371980676328, 0.09589371980676331, 0.09975845410628015, 0.09202898550724636, 0.09396135265700478]
+         roundError: [0.20458937198067398, 0.24016777745074003, 0.28190260920954346, 0.2851447928446733, 0.31789852902926086, 0.3735210868951161, 0.35294268284686037, 0.3879871335233632, 0.40302424300098366, 0.4116569925064149]
+         topN features [52, 6, 15, 54, 51, 20, 1050, 1049, 1048, 1047, 1046, 1045, 1044, 1043, 1042]
+         */
+
     }
 
 
@@ -153,7 +163,7 @@ public class AdaBoostMain {
 
             ClassificationEvaluator evaluator = new ClassificationEvaluator();
             evaluator.initialize(testSet, samme);
-            evaluator.getPredictLabel();
+            evaluator.getPredictLabelByProbs();
             evaluator.getArea();
             evaluator.printROC();
 
@@ -200,7 +210,7 @@ public class AdaBoostMain {
 
             ClassificationEvaluator evaluator = new ClassificationEvaluator();
             evaluator.initialize(testSet, samme);
-            evaluator.getPredictLabel();
+            evaluator.getPredictLabelByProbs();
             System.out.print(evaluator.evaluate());
 
             break;
@@ -247,7 +257,7 @@ public class AdaBoostMain {
 
             ClassificationEvaluator evaluator = new ClassificationEvaluator();
             evaluator.initialize(testSet, sammeSampleSimulation);
-            evaluator.getPredictLabel();
+            evaluator.getPredictLabelByProbs();
             System.out.print(evaluator.evaluate());
 
             break;
@@ -293,7 +303,7 @@ public class AdaBoostMain {
 
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(testSet, sammeSampleSimulation);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         System.out.print(evaluator.evaluate());
     }
 
@@ -333,7 +343,7 @@ public class AdaBoostMain {
 
             ClassificationEvaluator evaluator = new ClassificationEvaluator();
             evaluator.initialize(testSet, samme);
-            evaluator.getPredictLabel();
+            evaluator.getPredictLabelByProbs();
             evaluator.getArea();
             evaluator.printROC();
 
@@ -395,7 +405,7 @@ public class AdaBoostMain {
 
             ClassificationEvaluator evaluator = new ClassificationEvaluator();
             evaluator.initialize(testSet, samme);
-            evaluator.getPredictLabel();
+            evaluator.getPredictLabelByProbs();
             evaluator.getArea();
             evaluator.printROC();
 
@@ -407,7 +417,7 @@ public class AdaBoostMain {
 
 //        DecisionStumpTest();
 
-        DecisionStumpOnPollutedSetTest();
+//        DecisionStumpOnPollutedSetTest();
 
 //        RandomDecisionStumpTest();
 

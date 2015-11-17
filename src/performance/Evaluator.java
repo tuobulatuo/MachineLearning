@@ -28,7 +28,7 @@ public class Evaluator {
         long t1 = System.currentTimeMillis();
         int instanceLength = testSet.getInstanceLength();
         float[] predict = new float[instanceLength];
-        IntStream.range(0, instanceLength).parallel().forEach(
+        IntStream.range(0, instanceLength).forEach(
                 i -> predict[i] = (float) model.predict(testSet.getInstance(i))
         );
         predictLabel = new Label(predict, null);

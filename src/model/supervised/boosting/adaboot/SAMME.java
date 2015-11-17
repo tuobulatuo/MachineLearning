@@ -57,15 +57,21 @@ public class SAMME implements Trainable, Predictable, Boost{
 
     @Override
     public double predict(double[] feature) {
+        double[] classScores = probs(feature);
+        int[] indexes = RandomUtils.getIndexes(classCount);
+        SortIntDoubleUtils.sort(indexes, classScores);
+        return indexes[classCount - 1];
+    }
+
+    @Override
+    public double[] probs(double[] feature) {
         double[] classScores = new double[classCount];
         for (int i = 0; i < alpha.length; i++) {
             if (alpha[i] == 0) continue;
             int predictClass = (int) adaBoostClassifiers[i].boostPredict(feature);
             classScores[predictClass] += alpha[i];
         }
-        int[] indexes = RandomUtils.getIndexes(classCount);
-        SortIntDoubleUtils.sort(indexes, classScores);
-        return indexes[classCount - 1];
+        return ArraySumUtil.normalize(classScores);
     }
 
     @Override

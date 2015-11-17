@@ -49,7 +49,7 @@ public class ECOCMain {
 
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(testSet, eoecAdaBoost);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         System.out.print(evaluator.evaluate());
     }
 

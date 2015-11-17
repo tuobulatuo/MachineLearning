@@ -1,12 +1,9 @@
 package model.supervised.linearmodel;
 
-import algorithms.gradient.Decent;
-import com.sun.prism.paint.Gradient;
 import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
 import data.core.Norm;
-import model.supervised.naivebayes.Gaussian;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
 import performance.Evaluator;
@@ -210,12 +207,12 @@ public class LRMain {
     public static void main(String[] args) throws Exception {
 
 //        normEquaHouseTest();
-        lmHouseTest();
+//        lmHouseTest();
 
 //        normEquaSpamTest();
 //        lmSpamTest();
 //        lgSpamTest();
 
-        lgPollutedSetTest();
+        lgPollutedSetTest(); // 0.92 ~ 0.93
     }
 }

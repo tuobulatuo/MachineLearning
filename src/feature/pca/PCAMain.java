@@ -58,8 +58,8 @@ public class PCAMain {
         log.info("{}", cpve);
         log.info("==============");
 
-        DataSet principleTopNSet = pca.project(dataset, 10);
-        String pcaOut = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_polluted/allSet.pca.10";
+        DataSet principleTopNSet = pca.project(dataset, 200);
+        String pcaOut = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_polluted/allSet.pca.200";
         BufferedWriter writer = new BufferedWriter(new FileWriter(pcaOut), 1024 * 1024 * 32);
         Map indexClassMap = dataset.getLabels().getIndexClassMap();
         for (int i = 0; i < principleTopNSet.getInstanceLength(); i++) {

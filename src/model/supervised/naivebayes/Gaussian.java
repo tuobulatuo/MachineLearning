@@ -26,8 +26,7 @@ public class Gaussian extends NaiveBayes{
         double[] probabilities = new double[classCount];
         for (int classIndex : indexClassMap.keySet()) {
             for (int i = 0; i < featureLength; i++) {
-                double p = featureProbabilityDistribution[classIndex][i].density(features[i]);
-                probabilities[classIndex] += Math.log(p);
+                probabilities[classIndex] += featureProbabilityDistribution[classIndex][i].logDensity(features[i]);
             }
         }
         return probabilities;

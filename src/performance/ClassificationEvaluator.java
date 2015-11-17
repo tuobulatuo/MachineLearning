@@ -118,7 +118,7 @@ public class ClassificationEvaluator extends Evaluator{
         log.info("probs matrix get, elapsed {} ms", t2 - t1);
     }
 
-    public void getPredictLabel() {
+    public void getPredictLabelByProbs() {
 
         probs();
 

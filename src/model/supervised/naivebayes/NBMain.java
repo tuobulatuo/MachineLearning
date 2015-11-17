@@ -148,15 +148,15 @@ public class NBMain {
         ClassificationEvaluator.ROC = true;
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(trainSet, g);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         evaluator.evaluate();
 
         evaluator.initialize(testSet, g);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         evaluator.evaluate();
     }
 
-    public static void gaussianNBMissingSetTest() throws Exception{
+    public static void multinoulliNBMissingSetTest() throws Exception{
 
         String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/spam_missing/missing.all.txt";
         String sep = "\t";
@@ -188,11 +188,11 @@ public class NBMain {
         ClassificationEvaluator.ROC = true;
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(trainSet, multinoulli);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         evaluator.evaluate();
 
         evaluator.initialize(testSet, multinoulli);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         evaluator.evaluate();
     }
 
@@ -213,6 +213,7 @@ public class NBMain {
         builder.build();
 
         DataSet dataset = builder.getDataSet();
+        dataset.meanVarianceNorm();
 
         int trainSize = 4140;
         int allSize = 4601;
@@ -228,7 +229,7 @@ public class NBMain {
         ClassificationEvaluator.ROC = true;
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(trainSet, g);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         evaluator.evaluate();
 
         evaluator.initialize(testSet, g);
@@ -243,15 +244,15 @@ public class NBMain {
 //        multinoulliNBTest(4, new double[]{25, 50, 75});
 //        System.out.println("\n\n\n");
 //        multinoulliNBTest(9, new double[]{11, 22, 33, 44, 55, 66, 77, 88});
-
+//
 //        gaussianNBTest();
-
+//
 //        mixGaussianNBTest();
 
-//        gaussianNBPollutedSetTest();
+        gaussianNBPollutedSetTest(); //0.62
 
-//        gaussianNBPCAPollutedSetTest();
+        gaussianNBPCAPollutedSetTest(); //0.67
 
-        gaussianNBMissingSetTest();
+        multinoulliNBMissingSetTest(); // 0.88
     }
 }

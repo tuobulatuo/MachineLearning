@@ -58,6 +58,11 @@ public class ActiveAdaBoost implements Predictable, Trainable, ActiveLearning {
     }
 
     @Override
+    public double[] probs(double[] feature){
+        return samme.probs(feature);
+    }
+
+    @Override
     public void train() {
         loop();
         log.info("ActiveAdaBoost training finished ...");
@@ -121,7 +126,7 @@ public class ActiveAdaBoost implements Predictable, Trainable, ActiveLearning {
 
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(testSet, this);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         double accuracy = evaluator.evaluate();
         double percent = labelledIds.size() / (double) fullData.getInstanceLength();
         percentReport.add(percent);
