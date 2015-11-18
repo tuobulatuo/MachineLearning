@@ -4,20 +4,13 @@ import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
-import model.supervised.bagging.BaggingClassification;
 import model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump;
-import model.supervised.boosting.gradiantboost.GradientBoostClassification;
-import model.supervised.boosting.gradiantboost.GradientBoostRegression;
-import model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree;
-import model.supervised.cart.ClassificationTree;
 import model.supervised.ecoc.ECOCAdaBoost;
-import model.supervised.naivebayes.Multinoulli;
 import model.supervised.neuralnetwork.NeuralNetwork;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
-import performance.Evaluator;
 import utils.random.RandomUtils;
 
 import java.io.BufferedWriter;
@@ -53,16 +46,15 @@ public class CompetitionLaplace {
         DataSet dataset = builder.getDataSet();
         dataset.meanVarianceNorm();
 
-        int[] structure = {149, 30, 39};
+        int[] structure = {149, 20, 39};
         boolean biased = true;
         NeuralNetwork.MAX_THREADS = 4;
         NeuralNetwork.THREAD_WORK_LOAD = 500;
         NeuralNetwork.BUCKET_COUNT = 220;
-        NeuralNetwork.ALPHA = 0.25;
-//        NeuralNetwork.LAMBDA = 0.001;
+        NeuralNetwork.ALPHA = 0.275;
         NeuralNetwork.COST_DECENT_THRESHOLD = 0;
-        NeuralNetwork.MAX_ROUND = 10000;
-        NeuralNetwork.PRINT_GAP = 10000;
+        NeuralNetwork.MAX_ROUND = 30000;
+        NeuralNetwork.PRINT_GAP = 30000;
         NeuralNetwork.EPSILON = 0.0001;
 
         int trainSize = 878049;
@@ -82,50 +74,24 @@ public class CompetitionLaplace {
         ClassificationEvaluator.THREAD_WORK_LOAD = 50000;
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(miniTrainSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("miniTrainSet accu: {}", evaluator.evaluate());
         log.info("miniTrainSet log loss {}", evaluator.logLoss());
-
-//        double loss = 0;
-//        for (int i = 0; i < miniTrainSet.getInstanceLength(); i++) {
-//            double y = miniTrainSet.getLabel(i);
-//            double[] feature = miniTrainSet.getInstance(i);
-//            double[] probs = nn.probs(feature);
-//            loss -= Math.log(probs[(int) y]);
-//        }
-//
-//        log.info("miniTrainSet avg loss {}", loss / (double) miniTrainSet.getInstanceLength());
 
 
         TIntHashSet validateIndex = new TIntHashSet(trainSize);
         IntStream.range(1, kFoldIndex.length).forEach(i -> validateIndex.addAll(kFoldIndex[i]));
         DataSet validateSet = trainSet.subDataSetByRow(validateIndex.toArray());
         evaluator.initialize(validateSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("validate accu: {}", evaluator.evaluate());
         log.info("validate log loss: {}", evaluator.logLoss());
-
-//        accu = 0;
-//        for (int j = 0; j < validateSet.getInstanceLength(); j++) {
-//            double y = validateSet.getLabel(j);
-//            double[] yVector = new double[structure[structure.length - 1]];
-//            yVector[(int) y] = 1;
-//
-//            double[] feature = validateSet.getInstance(j);
-//            double[] probs = nn.probs(feature);
-//
-//            for (int k = 0; k < yVector.length; k++) {
-//                accu += - yVector[k] * Math.log(probs[k]);
-//            }
-//        }
-//
-//        log.info("validate avg loss {}", accu / (double) validateSet.getInstanceLength());
 
 
         DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, trainSize + testSize).toArray());
 
         evaluator.initialize(testSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         double[][] probs = evaluator.getProbs();
 
         String probsPredictsPath = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.probs.predicts.txt";
@@ -223,7 +189,7 @@ public class CompetitionLaplace {
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         ClassificationEvaluator.THREAD_WORK_LOAD = 5000;
         evaluator.initialize(miniTrainSet, ecocAdaBoost);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
 
         log.info("miniTrainSet accu: {}", evaluator.evaluate());
         log.info("miniTrainSet avg loss: {}", evaluator.logLoss());
@@ -232,7 +198,7 @@ public class CompetitionLaplace {
         IntStream.range(1, kFoldIndex.length).forEach(i -> validateIndex.addAll(kFoldIndex[i]));
         DataSet validateSet = trainSet.subDataSetByRow(validateIndex.toArray());
         evaluator.initialize(validateSet, ecocAdaBoost);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("validate accu: {}", evaluator.evaluate());
         log.info("validate avg loss {}", evaluator.logLoss());
 
