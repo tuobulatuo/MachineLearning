@@ -1,5 +1,7 @@
 package model.supervised.naivebayes;
 
+import gnu.trove.list.array.TDoubleArrayList;
+import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +28,7 @@ public class Multinoulli extends NaiveBayes{
 
 
     @Override
-    protected double[] predictClassProbability(double[] features) {
+    public double[] predictClassProbability(double[] features) {
 
         double[] probabilities = new double[classCount];
         for (int classIndex : indexClassMap.keySet()) {
@@ -45,7 +47,8 @@ public class Multinoulli extends NaiveBayes{
         Percentile percentile = new Percentile();
         for (int i = 0; i < featureLength; i++) {
             double[] fi = data.getFeatureCol(i);
-            log.debug("FI {}", fi);
+            log.debug("FI len {}", fi.length);
+            log.debug("FI len {}", fi.length);
             for (int j = 0; j < QUOTIENTS.length; j++) {
                 featureThresholds[i][j] = percentile.evaluate(fi, QUOTIENTS[j]);
             }
