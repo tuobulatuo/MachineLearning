@@ -151,8 +151,4 @@ public class GradientBoostClassification implements Predictable, Trainable, Boos
         evaluator.getPredictLabelByProbs();
         testError = 1 - evaluator.evaluate();
     }
-
-//    private void klCalculation() {
-//
-//    }
 }
