@@ -1,6 +1,5 @@
 package model.supervised.svm.kernels;
 
-import org.apache.commons.math3.util.FastMath;
 import utils.array.ArrayUtil;
 
 /**
@@ -13,11 +12,11 @@ public class GaussianK implements Kernel {
     @Override
     public double similarity(double[] x1, double[] x2) {
         double dis = ArrayUtil.euclidean(x1, x2);
-        return FastMath.exp( - GAMMA * dis);
+        return Math.exp( - GAMMA * dis);
     }
 
     public double similarity(double x1x1, double x2x2, double[] x1, double[] x2) {
         double dis = x1x1 - 2 * ArrayUtil.innerProduct(x1, x2) + x2x2;
-        return FastMath.exp( - GAMMA * dis);
+        return Math.exp( - GAMMA * dis);
     }
 }
