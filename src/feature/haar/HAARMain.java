@@ -5,6 +5,9 @@ import data.core.FullMatrix;
 import data.core.Label;
 import model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump;
 import model.supervised.ecoc.ECOCAdaBoost;
+import model.supervised.ecoc.ECOCSVMs;
+import model.supervised.svm.SVMsSMO;
+import model.supervised.svm.kernels.GaussianK;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
@@ -48,6 +51,59 @@ public class HAARMain {
 
     }
 
+    public static void ecocSVM(DataSet trainSet, DataSet testSet) throws Exception{
+
+        trainSet.meanVarianceNorm();
+        testSet.meanVarianceNorm();
+
+        int[][] kFoldIndex = CrossValidationEvaluator.partition(trainSet, 50);
+        trainSet = trainSet.subDataSetByRow(kFoldIndex[0]);
+
+        SVMsSMO.C = 10;
+        SVMsSMO.MAX_CHANGE = 100000;
+        SVMsSMO.PRINT_GAP = 20000;
+        SVMsSMO.LRU_MAX_ENTRY = 2000000;
+        SVMsSMO.TOL = 0.01;
+        SVMsSMO.EPS1 = 0.001;
+        SVMsSMO.EPS2 = 1E-8;
+
+        String kernelClassName = "model.supervised.svm.kernels.GaussianK";
+        GaussianK.GAMMA = 1 / (double) 200;
+
+//        String kernelClassName = "model.supervised.svm.kernels.LinearK";
+        ECOCSVMs.KERNEL_CLASS_NAME = kernelClassName;
+        ECOCSVMs.MAX_THREADS = 4;
+        ECOCSVMs.DEFAULT_CODE_WORD_LENGTH = 20;
+
+        ClassificationEvaluator.THREAD_WORK_LOAD = 125;
+
+        ECOCSVMs ecocsvMs = new ECOCSVMs();
+        ecocsvMs.initialize(trainSet);
+        ecocsvMs.train();
+
+        int[][] testIndexes = CrossValidationEvaluator.partition(testSet, 10);
+        testSet = testSet.subDataSetByRow(testIndexes[0]);
+
+        ClassificationEvaluator evaluator = new ClassificationEvaluator();
+        evaluator.initialize(trainSet, ecocsvMs);
+        evaluator.getPredictLabelByProbs();
+        log.info("train accu {}", evaluator.evaluate());
+
+        evaluator.initialize(testSet, ecocsvMs);
+        evaluator.getPredictLabelByProbs();
+        log.info("test accu {}", evaluator.evaluate());
+
+        /*
+        * 5% data + 100000 max change + 30 length + C = 0.01, TOL = 0.01  => 0.82
+        *
+        *
+        * 1% data + 10 length + C = 10, GaussianKernel(gamma = 1 / 200) =>
+        * train accu 0.9966666666666667
+        * test accu 0.935
+        * */
+
+    }
+
     public static DataSet buildSet(String path, String imageFile, String labelFile) throws Exception{
 
         MNISTReader reader = new MNISTReader(path, imageFile, labelFile);
@@ -81,6 +137,22 @@ public class HAARMain {
         return new DataSet(matrix, labels);
     }
 
+//    public static void writeTxt(DataSet data, String filePath) throws Exception{
+//
+//        BufferedWriter writer = new BufferedWriter(new FileWriter(filePath), 1024 * 1024 * 64);
+//        for (int i = 0; i < data.getInstanceLength(); i++) {
+//            double[] x = data.getInstance(i);
+//            double y = data.getLabel(i);
+//            StringBuilder sb = new StringBuilder();
+//            for (double e: x) sb.append(e+"\t");
+//            sb.append(y);
+//            writer.write(sb.toString() + "\n");
+//        }
+//        writer.close();
+//    }
+
+
+
     public static void main(String[] args) throws Exception{
 
         String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.mnist";
@@ -97,6 +169,8 @@ public class HAARMain {
         log.info("train dim {} {}", train.getInstanceLength(), train.getFeatureLength());
         log.info("test dim {} {}", test.getInstanceLength(), test.getFeatureLength());
 
-        ecoc(train, test);
+//        ecoc(train, test);
+
+        ecocSVM(train, test);
     }
 }
