@@ -29,13 +29,15 @@ public class CrossValidationEvaluator {
 
     private Evaluator evaluator;
 
-    private Norm norm;
-
     public CrossValidationEvaluator(Evaluator eva, DataSet dataSet, int k, Norm norm) {
 
         evaluator = eva;
         rowDataSet = dataSet;
-        this.norm = norm;
+
+        if (norm.equals(Norm.MEANSD)) rowDataSet.meanVarianceNorm();
+        else if (norm.equals(Norm.MINMAX)) rowDataSet.shiftCompressNorm();
+        else if (norm.equals(Norm.NULL)) log.info("CrossValidationEvaluator give up normalization .. ");
+        else log.error("unrecognized norm method {} .. ", norm);
 
         kFoldIndex = partition(dataSet, k);
     }
@@ -70,12 +72,6 @@ public class CrossValidationEvaluator {
             IntPredicate pred = (n) -> !testIndexes.contains(n);
             int[] trainIndexes = IntStream.range(0, rowDataSet.getInstanceLength()).filter(pred).toArray();
 
-            if (norm.equals(Norm.MEANSD)) {
-                rowDataSet.meanVarianceNorm();
-            }else if (norm.equals(Norm.MINMAX)) {
-                rowDataSet.shiftCompressNorm();
-            }
-
             DataSet trainSet = rowDataSet.subDataSetByRow(trainIndexes);
             DataSet testSet = rowDataSet.subDataSetByRow(testIndexes.toArray());
 
@@ -96,7 +92,6 @@ public class CrossValidationEvaluator {
 
             avgOnTest += performOnTest;
             avgOnTrain += performOnTrain;
-            break;
         }
 
         avgOnTest /= kFoldIndex.length;
