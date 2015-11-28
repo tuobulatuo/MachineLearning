@@ -65,7 +65,7 @@ public class LRMain {
         DataSet dataset = builder.getDataSet();
 
         Evaluator eva = new Evaluator();
-        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, null);
+        CrossValidationEvaluator crossEvaluator = new CrossValidationEvaluator(eva, dataset, 10, Norm.NULL);
         NormalEquation normalEquation = new NormalEquation();
         crossEvaluator.crossValidateEvaluate(normalEquation);
     }
@@ -213,6 +213,6 @@ public class LRMain {
 //        lmSpamTest();
 //        lgSpamTest();
 
-        lgPollutedSetTest(); // 0.92 ~ 0.93
+//        lgPollutedSetTest(); // 0.92 ~ 0.93
     }
 }
