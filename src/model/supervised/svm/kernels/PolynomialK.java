@@ -11,10 +11,12 @@ public class PolynomialK implements Kernel {
 
     public static double COEF = 1.0D;
 
+    public static double GAMMA = 1.0D;
+
     @Override
     public double similarity(double[] x1, double[] x2) {
         double innerProduct = ArrayUtil.innerProduct(x1, x2);
-        return Math.pow(innerProduct * COEF, DEGREE);
+        return Math.pow((GAMMA * innerProduct) + COEF, DEGREE);
     }
 }
 
