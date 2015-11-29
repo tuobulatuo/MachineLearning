@@ -34,13 +34,13 @@ public class ArraySumUtil {
 		return total;
 	}
 	
-//	public static float[] normalize(float[] values) {
-//		float sum = sum(values);
-//		for (int i = 0; i < values.length; i++) {
-//			values[i] = values[i]/sum;
-//		}
-//		return values;
-//	}
+	public static float[] normalize(float[] values) {
+		float sum = sum(values);
+		for (int i = 0; i < values.length; i++) {
+			values[i] = values[i]/sum;
+		}
+		return values;
+	}
 	
 	public static double[] normalize(double[] array){
 		double sum = sum(array);
