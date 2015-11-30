@@ -287,7 +287,6 @@ public class SVMsSMO implements Trainable, Predictable{
         }
 
         double kernelIJ = getKernelFromLRU(Math.max(i, j), Math.min(i, j));
-//        double kernelIJ = kernel.similarity(data.getInstance(i), data.getInstance(j));
         double eta = kernelCache[i] + kernelCache[j] - 2 * kernelIJ;
 
         double alphaJ;
@@ -372,15 +371,9 @@ public class SVMsSMO implements Trainable, Predictable{
         double ti = y[i] * deltaAlphaI;
         double tj = y[j] * deltaAlphaJ;
 
-//        double[] xi = data.getInstance(i);
-//        double[] xj = data.getInstance(j);
-
         for (int k = 0; k < instanceLength; k++) {
-//            double[] xk = data.getInstance(k);
-//            if (alphas[k] > 0 && alphas[k] < C) errorCache[k] += ti * kernel.similarity(xk, xi) +
-//                    tj * kernel.similarity(xk, xj) + deltaB;
-            if (alphas[k] > 0 && alphas[k] < C) errorCache[k] += ti * getKernelFromLRU(Math.max(i, k), Math.min(i, k)) +
-                    tj * getKernelFromLRU(Math.max(j, k), Math.min(j, k)) + deltaB;
+            if (alphas[k] > 0 && alphas[k] < C)
+                errorCache[k] += ti * getKernelFromLRU(Math.max(i, k), Math.min(i, k)) + tj * getKernelFromLRU(Math.max(j, k), Math.min(j, k)) + deltaB;
         }
 
         errorCache[i] = 0; // even if alphaI == 0 or alphaI == C, we can set this way.
