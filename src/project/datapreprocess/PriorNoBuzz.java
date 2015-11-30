@@ -4,8 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.array.ArraySumUtil;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
@@ -30,7 +28,7 @@ public class PriorNoBuzz extends Process{
             IntStream.range(0, probs.length).forEach(j -> probs[j] /= backgroundProbs[j]);
         }
 
-        log.info("PriorNoBuzz");
+        log.info("tableProcess PriorNoBuzz");
         log.debug("backgroundProbs {}", backgroundProbs);
     }
 }
