@@ -52,10 +52,10 @@ public class SVMMain {
         SVMsSMO.C = 0.05;
 //        SVMsSMO.MAX_CHANGE = 100000;
         SVMsSMO.MAX_CHANGE = Integer.MAX_VALUE;
-        SVMsSMO.LRU_MAX_ENTRY = 1000000;
+        SVMsSMO.LRU_MAX_ENTRY = 200;
         SVMsSMO.DEBUG = false;
         SVMsSMO.PRINT_GAP = 20000;
-        SVMsSMO.TOL = 0.01;
+        SVMsSMO.TOL = 0.1;
         SVMsSMO.EPS1 = 0.001;
         SVMsSMO.EPS2 = 1E-8;
         spamTest(linearKernelClassName);    //AVG_TEST (0.9243478260869565), AVG_TRAIN (0.9304998792562185)
