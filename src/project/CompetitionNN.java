@@ -19,42 +19,40 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 /**
- * Created by hanxuan on 11/12/15 for machine_learning.
+ * Created by hanxuan on 11/8/15 for machine_learning.
  */
-public class BalancedData {
+public class CompetitionNN {
 
-    private static Logger log = LogManager.getLogger(BalancedData.class);
-
+    private static Logger log = LogManager.getLogger(CompetitionNN.class);
 
     public static void neuralNetworkTest(String path) throws Exception{
 
         String sep = "\t";
         boolean hasHeader = false;
         boolean needBias = true;
-        int m = 51;
-        int n = 878049;
-        int[] featureCategoryIndex = {0,1,2,3,4,5,6,7};
+        int m = 52+39;
+        int n = 1762311;
+        int[] featureCategoryIndex = {0,1,2,3,4,5,6,7,8};
         boolean isClassification = true;
 
         Builder builder =
                 new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, isClassification);
 
         builder.build();
+        System.gc();
 
         DataSet dataset = builder.getDataSet();
         dataset.meanVarianceNorm();
 
-        int[] structure = {137, 20, 39};
+        int[] structure = {150 + 39, 50, 39};
         boolean biased = true;
-        NeuralNetwork.MAX_THREADS = 7;
+        NeuralNetwork.MAX_THREADS = 4;
         NeuralNetwork.THREAD_WORK_LOAD = 500;
         NeuralNetwork.BUCKET_COUNT = 220;
-        NeuralNetwork.ALPHA = 0.0275 / (double) NeuralNetwork.BUCKET_COUNT;
-        NeuralNetwork.LAMBDA = 0.0001 / (double) NeuralNetwork.BUCKET_COUNT;
+        NeuralNetwork.ALPHA = 0.25;
         NeuralNetwork.COST_DECENT_THRESHOLD = 0;
-        NeuralNetwork.MAX_ROUND = 15000;
-        NeuralNetwork.PRINT_GAP = 1000;
-        NeuralNetwork.PRINT_HIDDEN = false;
+        NeuralNetwork.MAX_ROUND = 4000;
+        NeuralNetwork.PRINT_GAP = 4000;
         NeuralNetwork.EPSILON = 0.0001;
 
         int trainSize = 878049;
@@ -62,9 +60,7 @@ public class BalancedData {
         int partition = 2;
 
 
-        DataSet train = dataset.subDataSetByRow(RandomUtils.getIndexes(trainSize));
-        // 50000, 10000 => 781385
-        DataSet trainSet = train.balancedDataSet(50000, 10000);
+        DataSet trainSet = dataset.subDataSetByRow(RandomUtils.getIndexes(trainSize));
 
         int[][] kFoldIndex = CrossValidationEvaluator.partition(trainSet, partition);
         DataSet miniTrainSet = dataset.subDataSetByRow(kFoldIndex[0]);
@@ -73,74 +69,31 @@ public class BalancedData {
         nn.initialize(miniTrainSet);
         nn.train();
 
+        ClassificationEvaluator.THREAD_WORK_LOAD = 50000;
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(miniTrainSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("miniTrainSet accu: {}", evaluator.evaluate());
-
-        double accu = 0;
-        for (int j = 0; j < miniTrainSet.getInstanceLength(); j++) {
-            double y = miniTrainSet.getLabel(j);
-            double[] yVector = new double[structure[structure.length - 1]];
-            yVector[(int) y] = 1;
-
-            double[] feature = miniTrainSet.getInstance(j);
-            double[] probs = nn.probs(feature);
-
-            for (int k = 0; k < yVector.length; k++) {
-                accu += - yVector[k] * Math.log(probs[k]);
-            }
-        }
-
-        log.info("miniTrainSet avg loss {}", accu / (double) miniTrainSet.getInstanceLength());
+        log.info("miniTrainSet log loss {}", evaluator.logLoss());
 
 
         TIntHashSet validateIndex = new TIntHashSet(trainSize);
         IntStream.range(1, kFoldIndex.length).forEach(i -> validateIndex.addAll(kFoldIndex[i]));
         DataSet validateSet = trainSet.subDataSetByRow(validateIndex.toArray());
         evaluator.initialize(validateSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("validate accu: {}", evaluator.evaluate());
+        log.info("validate log loss: {}", evaluator.logLoss());
 
-        accu = 0;
-        for (int j = 0; j < validateSet.getInstanceLength(); j++) {
-            double y = validateSet.getLabel(j);
-            double[] yVector = new double[structure[structure.length - 1]];
-            yVector[(int) y] = 1;
-
-            double[] feature = validateSet.getInstance(j);
-            double[] probs = nn.probs(feature);
-
-            for (int k = 0; k < yVector.length; k++) {
-                accu += - yVector[k] * Math.log(probs[k]);
-            }
-        }
-
-        log.info("validate avg loss {}", accu / (double) validateSet.getInstanceLength());
-
-        evaluator.initialize(train, nn);
-        evaluator.getPredictLabel();
-        log.info("all accu: {}", evaluator.evaluate());
-
-        accu = 0;
-        for (int j = 0; j < train.getInstanceLength(); j++) {
-            double y = train.getLabel(j);
-            double[] yVector = new double[structure[structure.length - 1]];
-            yVector[(int) y] = 1;
-
-            double[] feature = train.getInstance(j);
-            double[] probs = nn.probs(feature);
-
-            for (int k = 0; k < yVector.length; k++) {
-                accu += - yVector[k] * Math.log(probs[k]);
-            }
-        }
-
-        log.info("all avg loss {}", accu / (double) validateSet.getInstanceLength());
 
         DataSet testSet = dataset.subDataSetByRow(IntStream.range(trainSize, trainSize + testSize).toArray());
+
+        evaluator.initialize(testSet, nn);
+        evaluator.getPredictLabelByProbs();
+        double[][] probs = evaluator.getProbs();
+
         String probsPredictsPath = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.test.probs.predicts.txt";
-        BufferedWriter writer = new BufferedWriter(new FileWriter(probsPredictsPath), 1024 * 1024 * 32);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(probsPredictsPath), 1024 * 1024 * 64);
 
         String head = "Id,ARSON,ASSAULT,BAD CHECKS,BRIBERY,BURGLARY,DISORDERLY CONDUCT,DRIVING UNDER THE INFLUENCE,DRUG/NARCOTIC,DRUNKENNESS,EMBEZZLEMENT,EXTORTION,FAMILY OFFENSES,FORGERY/COUNTERFEITING,FRAUD,GAMBLING,KIDNAPPING,LARCENY/THEFT,LIQUOR LAWS,LOITERING,MISSING PERSON,NON-CRIMINAL,OTHER OFFENSES,PORNOGRAPHY/OBSCENE MAT,PROSTITUTION,RECOVERED VEHICLE,ROBBERY,RUNAWAY,SECONDARY CODES,SEX OFFENSES FORCIBLE,SEX OFFENSES NON FORCIBLE,STOLEN PROPERTY,SUICIDE,SUSPICIOUS OCC,TREA,TRESPASS,VANDALISM,VEHICLE THEFT,WARRANTS,WEAPON LAWS";
         writer.write(head+"\n");
@@ -158,26 +111,33 @@ public class BalancedData {
 
             StringBuilder sb = new StringBuilder(id + ",");
 
-            double[] probs = nn.probs(testSet.getInstance(i));
-            double[] arrangedProbs = new double[probs.length];
-            for (int j = 0; j < probs.length; j++) {
+            double[] probsI = probs[i];
+            double[] arrangedProbs = new double[probsI.length];
+            for (int j = 0; j < probsI.length; j++) {
                 String className = (String) indexClassMap.get(j);
                 int arrangeIndex = idxMap.get(className);
-                arrangedProbs[arrangeIndex] = probs[j];
+                arrangedProbs[arrangeIndex] = probsI[j];
             }
 
             Arrays.stream(arrangedProbs).forEach(x -> sb.append(x + ","));
             sb.deleteCharAt(sb.length() - 1);
             writer.write(sb.toString() + "\n");
-            id ++;
+
+            if (id ++ % 100000 == 0) log.info("write {} lines ..", id);
         }
         writer.close();
+
+        log.info("task done, exit ..");
     }
+
+
 
     public static void main(String[] args) throws Exception{
 
-        String path = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/data.all.txt";
+//        String prior = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/prior/data.all.expand.txt";
+//        neuralNetworkTest(prior);
 
-        neuralNetworkTest(path);
+        String nobuzz = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/nobuzz/data.all.expand.txt";
+        neuralNetworkTest(nobuzz);
     }
 }

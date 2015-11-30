@@ -1,15 +1,12 @@
 package project;
 
-import algorithms.parameterestimate.MixtureGaussianEM;
 import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
-import model.supervised.bagging.BaggingClassification;
 import model.supervised.boosting.gradiantboost.GradientBoostClassification;
 import model.supervised.boosting.gradiantboost.GradientBoostRegression;
 import model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree;
-import model.supervised.generative.MixtureGaussianDiscriminantAnalysis;
 import model.supervised.neuralnetwork.NeuralNetwork;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,15 +20,14 @@ import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 
 /**
  * Created by hanxuan on 11/8/15 for machine_learning.
  */
-public class Competition {
+public class ModelTests {
 
-    private static Logger log = LogManager.getLogger(Competition.class);
+    private static Logger log = LogManager.getLogger(ModelTests.class);
 
     public static void neuralNetworkTest(String path) throws Exception{
 
@@ -80,7 +76,7 @@ public class Competition {
 
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(miniTrainSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("miniTrainSet accu: {}", evaluator.evaluate());
 
         double accu = 0;
@@ -104,7 +100,7 @@ public class Competition {
         IntStream.range(1, kFoldIndex.length).forEach(i -> validateIndex.addAll(kFoldIndex[i]));
         DataSet validateSet = trainSet.subDataSetByRow(validateIndex.toArray());
         evaluator.initialize(validateSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("validate accu: {}", evaluator.evaluate());
 
         accu = 0;
@@ -207,7 +203,7 @@ public class Competition {
 
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(miniTrainSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("miniTrainSet accu: {}", evaluator.evaluate());
 
         double accu = 0;
@@ -231,7 +227,7 @@ public class Competition {
         IntStream.range(1, kFoldIndex.length).forEach(i -> validateIndex.addAll(kFoldIndex[i]));
         DataSet validateSet = trainSet.subDataSetByRow(validateIndex.toArray());
         evaluator.initialize(validateSet, nn);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("validate accu: {}", evaluator.evaluate());
 
         accu = 0;
@@ -329,7 +325,7 @@ public class Competition {
 
         ClassificationEvaluator evaluator = new ClassificationEvaluator();
         evaluator.initialize(miniTrainSet, boostClassification);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("miniTrainSet accu: {}", evaluator.evaluate());
 
         double accu = 0;
@@ -352,7 +348,7 @@ public class Competition {
         IntStream.range(1, kFoldIndex.length).forEach(i -> validateIndex.addAll(kFoldIndex[i]));
         DataSet validateSet = trainSet.subDataSetByRow(validateIndex.toArray());
         evaluator.initialize(validateSet, boostClassification);
-        evaluator.getPredictLabel();
+        evaluator.getPredictLabelByProbs();
         log.info("validate accu: {}", evaluator.evaluate());
 
         accu = 0;
@@ -461,7 +457,7 @@ public class Competition {
 //
 //        ClassificationEvaluator evaluator = new ClassificationEvaluator();
 ////        evaluator.initialize(miniTrainSet, mixGDA);
-////        evaluator.getPredictLabel();
+////        evaluator.getPredictLabelByProbs();
 ////        log.info("miniTrainSet accu: {}", evaluator.evaluate());
 ////
 //        double accu = 0;
@@ -485,7 +481,7 @@ public class Competition {
 //        IntStream.range(1, kFoldIndex.length).forEach(i -> validateIndex.addAll(kFoldIndex[i]));
 //        DataSet validateSet = trainSet.subDataSetByRow(validateIndex.toArray());
 //        evaluator.initialize(validateSet, mixGDA);
-//        evaluator.getPredictLabel();
+//        evaluator.getPredictLabelByProbs();
 //        log.info("validate accu: {}", evaluator.evaluate());
 //
 //        accu = 0;
@@ -584,7 +580,7 @@ public class Competition {
 //
 //
 //        evaluator.initialize(trainSet, baggingClassification);
-//        evaluator.getPredictLabel();
+//        evaluator.getPredictLabelByProbs();
 //        log.info("train accu: {}", evaluator.evaluate());
 //
 //        double accu = 0;
