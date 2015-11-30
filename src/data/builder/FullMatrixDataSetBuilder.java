@@ -52,6 +52,9 @@ public class FullMatrixDataSetBuilder extends Builder{
                 line -> {
                     line = line.toUpperCase().trim();
                     n.getAndIncrement();
+
+                    if (n.get() % 100000 == 0) log.info("{} lines read ..", n.get());
+
                     if (categoryIndex.size() > 0) {
                         String[] es = line.split(sep);
                         for (int i : categoryIndex.toArray()) {
@@ -100,6 +103,8 @@ public class FullMatrixDataSetBuilder extends Builder{
 
         log.info("Expanded featureCount: {}, instanceCount: {}", featureCount, instanceCount);
 
+        log.info("Memory use ~ {} GB", (featureCount + 1 )* instanceCount * 4.0 / 1024 / 1024 /1024);
+
         final float[][] data = new float[instanceCount][featureCount];
         IntStream.range(0, instanceCount).forEach(i -> data[i][0] = 1);
         final float[] labelVec = new float[instanceCount];
@@ -127,7 +132,7 @@ public class FullMatrixDataSetBuilder extends Builder{
 
                     n.getAndIncrement();
 
-                    if (n.get() % 200000 == 0) {
+                    if (n.get() % 100000 == 0) {
                         log.info("{} lines processed ... ", n.get());
                     }
                 }
