@@ -24,11 +24,11 @@ public class ProcessPrior extends Process{
     @Override
     public void tableProcess(float[][] table) {
 
-        double[] defaultProbs = new double[table[0].length];
+        float[] defaultProbs = new float[table[0].length];
         IntStream.range(0, table.length).forEach(i ->
                 IntStream.range(0, table[i].length).forEach(j -> defaultProbs[j] += table[i][j]));
         ArraySumUtil.normalize(defaultProbs);
-        IntStream.range(0, defaultProbs.length).forEach(i -> defaultProbs[i] = NumericalComputation.logOdds(defaultProbs[i]));
+        IntStream.range(0, defaultProbs.length).forEach(i -> defaultProbs[i] = (float) NumericalComputation.logOdds(defaultProbs[i]));
 
         AtomicInteger rareEvent = new AtomicInteger(0);
         IntStream.range(0, table.length).forEach(i -> {
