@@ -8,10 +8,12 @@ import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 //import org.neu.util.sort.SortIntDoubleUtils;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntPredicate;
@@ -33,6 +35,8 @@ public abstract class Tree implements Trainable, Predictable{
     public static int MAX_THREADS = 4;
 
     public static int THREAD_WORK_LOAD = 1;
+
+    public static double SELECTED_FEATURE_LENGTH = Integer.MAX_VALUE;
 
     protected int td;
 
@@ -103,7 +107,13 @@ public abstract class Tree implements Trainable, Predictable{
             return;
         }
 
-        final int featureLength = dataSet.getFeatureLength();
+        // random forest
+        final int featureLength = (int) Math.min(dataSet.getFeatureLength(), SELECTED_FEATURE_LENGTH);
+        TIntArrayList selectedFeatureIndices = new TIntArrayList(RandomUtils.getIndexes(dataSet.getFeatureLength()));
+        selectedFeatureIndices.shuffle(new Random());
+        int[] selectedFeature = new int[featureLength];
+        for (int i = 0; i < featureLength; i++) selectedFeature[i] = selectedFeatureIndices.get(i);
+
         final AtomicInteger bestFeatureId = new AtomicInteger(Integer.MIN_VALUE);
         final AtomicDouble bestThreshold = new AtomicDouble(Integer.MIN_VALUE);
         final AtomicDouble bestGain = new AtomicDouble(Integer.MIN_VALUE);
@@ -116,7 +126,7 @@ public abstract class Tree implements Trainable, Predictable{
         countDownLatch = new CountDownLatch(realTaskCount);
         log.debug("Task Count: {}", countDownLatch.getCount());
         TIntArrayList taskPackage = new TIntArrayList();
-        IntStream.range(0, featureLength).forEach(i -> {
+        Arrays.stream(selectedFeature).forEach(i -> {
             taskPackage.add(i);
             if (taskPackage.size() == THREAD_WORK_LOAD || i == featureLength - 1) {
                 TIntArrayList taskPackage2 = new TIntArrayList(taskPackage);
