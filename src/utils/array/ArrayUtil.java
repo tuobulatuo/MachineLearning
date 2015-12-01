@@ -52,4 +52,12 @@ public class ArrayUtil {
 		for (double x: x3) if (x != 0) result += x * x;
 		return result;
 	}
+
+
+	public static double KLDivergence(float[] p, float[] q) {
+		double result = 0;
+		for (int i = 0; i < p.length; i ++)
+			if (p[i] > 0) result += p[i] * Math.log(p[i] / q[i]);
+		return result;
+	}
 }
