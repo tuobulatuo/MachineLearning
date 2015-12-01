@@ -36,14 +36,14 @@ public class FullMatrix extends AMatrix {
     @Override
     public double[] getRow(int rowNum) {
         double[] out = new double[featureLength];
-        IntStream.range(0, featureLength).forEach(i -> out[i] = (double) data[rowNum][i]);
+        IntStream.range(0, featureLength).forEach(i -> out[i] = data[rowNum][i]);
         return out;
     }
 
     @Override
     public double[] getCol(int colNum) {
         double[] out = new double[instanceLength];
-        IntStream.range(0, instanceLength).forEach(i -> out[i] = (double) data[i][colNum]);
+        IntStream.range(0, instanceLength).forEach(i -> out[i] = data[i][colNum]);
         return out;
     }
 
