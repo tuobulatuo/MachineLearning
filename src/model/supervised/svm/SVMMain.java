@@ -3,9 +3,12 @@ package model.supervised.svm;
 import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
+import data.builder.SparseMatrixDataSetBuilder;
 import data.core.Norm;
 import model.supervised.svm.kernels.GaussianK;
 import model.supervised.svm.kernels.PolynomialK;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
 
@@ -14,6 +17,8 @@ import performance.CrossValidationEvaluator;
  * Created by hanxuan on 11/26/15 for machine_learning.
  */
 public class SVMMain {
+
+    private static Logger log = LogManager.getLogger(SVMMain.class);
 
     public static void spamTest (String kernelClassName) throws Exception {
 
@@ -68,7 +73,10 @@ public class SVMMain {
         SVMsSMO.LRU_MAX_ENTRY = 1000000;
         SVMsSMO.DEBUG = false;
         SVMsSMO.PRINT_GAP = 10000;
-        PolynomialK.COEF = 0.1;
+        SVMsSMO.TOL = 0.01;
+        SVMsSMO.EPS1 = 0.001;
+        SVMsSMO.EPS2 = 1E-8;
+        PolynomialK.GAMMA = 0.1;
         PolynomialK.DEGREE = 2;
         spamTest(polynomialKernelClassName);    //AVG_TEST (0.9199999999999999), AVG_TRAIN (0.93477420912823)
 
