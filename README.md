@@ -28,7 +28,7 @@ machine learning code for Northeastern University CS6140 fall 2015
     <br/>
     - Boosting:<br/>
         1) AdaBoost by classification tree for classification <br/>
-        2) GradientBoost by regression tree for regression and classification (serious bug, not fixed)<br/>
+        2) GradientBoost by regression tree for regression and classification<br/>
     <br/>
     - ECOC:<br/>
         1) On top of AdaBoost<br/>
