@@ -56,11 +56,13 @@ public class SVMsSMO implements Trainable, Predictable{
 
     private DataSet data = null;
     private int instanceLength = 0;
+    private int featureLength = 0;
 
 
     private int totalChange = 0;
     private int count1 = 0;
     private int count2 = 0;
+    private long examineErrorTotalTime = 0;
 
 
     public SVMsSMO(String kernelClassName) throws Exception{
@@ -73,6 +75,7 @@ public class SVMsSMO implements Trainable, Predictable{
 
         data = d;
         instanceLength = data.getInstanceLength();
+        featureLength = data.getFeatureLength();
         alphas = new float[instanceLength];
         errorCache = new float[instanceLength];
         kernelCache = new float[instanceLength];
@@ -87,7 +90,7 @@ public class SVMsSMO implements Trainable, Predictable{
         }
 
         if (kernel.getClass().isInstance(new LinearK())) {
-            w = new float[instanceLength];
+            w = new float[featureLength];
         }
 
         if (kernel.getClass().isInstance(new GaussianK())) {
@@ -104,7 +107,7 @@ public class SVMsSMO implements Trainable, Predictable{
         count1 = 0;
         count2 = 0;
 
-        lruKernelCache = new LinkedHashMap(LRU_MAX_ENTRY+1, .75F, true) {
+        lruKernelCache = new LinkedHashMap(LRU_MAX_ENTRY + 1, .75F, true) {
             public boolean removeEldestEntry(Map.Entry eldest) {
                 return size() > LRU_MAX_ENTRY;
             }
@@ -159,6 +162,8 @@ public class SVMsSMO implements Trainable, Predictable{
 
         log.info("hit LRU {}", count2);
         log.info("miss LRU {}", count1);
+
+        log.info("examineErrorTotalTime {}", examineErrorTotalTime);
         log.info("============ ==== ============");
     }
 
@@ -173,12 +178,10 @@ public class SVMsSMO implements Trainable, Predictable{
 
             if (examineAll) {
                 for (int i = 0; i < instanceLength; i++) {
-//                    numChanged += examineExample(i);
                     numChanged += examineExampleOptimized(i);
                 }
             }else {
                 for (int i = 0; i < instanceLength; i++) {
-//                    if (alphas[i] > 0 && alphas[i] < C) numChanged += examineExample(i);
                     if (alphas[i] > 0 && alphas[i] < C) numChanged += examineExampleOptimized(i);
                 }
             }
@@ -190,49 +193,13 @@ public class SVMsSMO implements Trainable, Predictable{
         }
     }
 
-//    private int examineExample(int i) {
-//
-//        double errorI = error(i);
-//        double ri = errorI * y[i];    // ri = Ei * Yi = f(xi)*Yi - 1
-//        if ((ri < -TOL && alphas[i] < C) || (ri > TOL && alphas[i] > 0)) {
-//
-//            // select j by argmax |Ei - Ej|
-//            int bestJ = -1;
-//            double maxGap = 0;
-//            for (int j = 0; j < instanceLength; j++) {
-//                if (alphas[j] > 0 && alphas[j] < C) {
-//                    double errorJ = error(j);
-//                    double gap = Math.abs(errorI - errorJ);
-//                    if (gap > maxGap) {
-//                        bestJ = j;
-//                        maxGap = gap;
-//                    }
-//                }
-//            }
-//
-//            if (bestJ >= 0 && takeStep(errorI, i, bestJ)) return 1;
-//
-//            // loop over all non-boundary points
-//            int randIndex = new Random(System.currentTimeMillis()).nextInt(instanceLength);
-//            for (int jj = randIndex; jj < instanceLength + randIndex; jj++) {
-//                int j = jj % instanceLength;
-//                if (alphas[j] > 0 && alphas[j] < C) if (takeStep(errorI, i, j)) return 1;
-//            }
-//
-//            // loop over all points
-//            randIndex = new Random(System.currentTimeMillis()).nextInt(instanceLength);
-//            for (int jj = randIndex; jj < instanceLength + randIndex; jj++) {
-//                int j = jj % instanceLength;
-//                if (takeStep(errorI, i, j)) return 1;
-//            }
-//        }
-//
-//        return 0;
-//    }
-
     private int examineExampleOptimized(int i) {
 
+        long tic = System.currentTimeMillis();
         double errorI = error(i);
+        long toc = System.currentTimeMillis();
+        examineErrorTotalTime += toc - tic;
+
         double ri = errorI * y[i];    // ri = Ei * Yi = f(xi)*Yi - 1
         if ((ri < -TOL && alphas[i] < C) || (ri > TOL && alphas[i] > 0)) {
 
@@ -250,13 +217,12 @@ public class SVMsSMO implements Trainable, Predictable{
             int[] idx1 = idx.toArray();
             SortIntDoubleUtils.sort(idx1, gap1);
             ArrayUtil.reverse(idx1);
-            for (int bestJ: idx1) if (takeStep(errorI, i, bestJ)) return 1;
+            for (int bestJ: idx1) if (takeStep(errorI, i, bestJ)) return 1; // loop over best J
 
 
             TIntHashSet seen = new TIntHashSet(idx);
-            // loop over all points
             int randIndex = new Random(System.currentTimeMillis()).nextInt(instanceLength);
-            for (int jj = randIndex; jj < instanceLength + randIndex; jj++) {
+            for (int jj = randIndex; jj < instanceLength + randIndex; jj++) { // loop over all points
                 int j = jj % instanceLength;
                 if (!seen.contains(j) && takeStep(errorI, i, j)) return 1;
             }
@@ -330,7 +296,7 @@ public class SVMsSMO implements Trainable, Predictable{
         updateB(kernelIJ, alphaI, alphaJ, errorI, errorJ, i, j);
         updateErrorCache(alphaI - alphas[i], alphaJ - alphas[j], i, j);
         if (kernel.getClass().isInstance(new LinearK())) {
-            updateW();
+            updateW(alphaI - alphas[i], alphaJ - alphas[j], i, j);
         }
 
         alphas[i] = (float) alphaI;
@@ -380,8 +346,14 @@ public class SVMsSMO implements Trainable, Predictable{
         errorCache[j] = 0;
     }
 
-    private void updateW() {
+    private void updateW(double deltaAlphaI, double deltaAlphaJ, int i, int j) {
 
+        double ti = y[i] * deltaAlphaI;
+        double tj = y[j] * deltaAlphaJ;
+        double[] xi = data.getInstance(i);
+        double[] xj = data.getInstance(j);
+
+        for (int k = 0; k < featureLength; k++) w[k] += ti * xi[k] + tj * xj[k];
     }
 
     private double error(int i) {
@@ -393,8 +365,11 @@ public class SVMsSMO implements Trainable, Predictable{
 
     private double f(double[] x) {
         double result = 0;
-        for (int i = 0; i < instanceLength; i++) {
-            if (alphas[i] > 0) result += alphas[i] * y[i] * kernel.similarity(data.getInstance(i), x);
+        if (kernel.getClass().isInstance(new LinearK())) {
+            for (int i = 0; i < featureLength; i++) if (x[i] != 0) result += w[i] * x[i];
+        }else {
+            for (int i = 0; i < instanceLength; i++)
+                if (alphas[i] > 0) result += alphas[i] * y[i] * kernel.similarity(data.getInstance(i), x);
         }
         return result + b;
     }
@@ -428,3 +403,44 @@ public class SVMsSMO implements Trainable, Predictable{
         log.info("check sum {}", result);
     }
 }
+
+
+//    private int examineExample(int i) {
+//
+//        double errorI = error(i);
+//        double ri = errorI * y[i];    // ri = Ei * Yi = f(xi)*Yi - 1
+//        if ((ri < -TOL && alphas[i] < C) || (ri > TOL && alphas[i] > 0)) {
+//
+//            // select j by argmax |Ei - Ej|
+//            int bestJ = -1;
+//            double maxGap = 0;
+//            for (int j = 0; j < instanceLength; j++) {
+//                if (alphas[j] > 0 && alphas[j] < C) {
+//                    double errorJ = error(j);
+//                    double gap = Math.abs(errorI - errorJ);
+//                    if (gap > maxGap) {
+//                        bestJ = j;
+//                        maxGap = gap;
+//                    }
+//                }
+//            }
+//
+//            if (bestJ >= 0 && takeStep(errorI, i, bestJ)) return 1;
+//
+//            // loop over all non-boundary points
+//            int randIndex = new Random(System.currentTimeMillis()).nextInt(instanceLength);
+//            for (int jj = randIndex; jj < instanceLength + randIndex; jj++) {
+//                int j = jj % instanceLength;
+//                if (alphas[j] > 0 && alphas[j] < C) if (takeStep(errorI, i, j)) return 1;
+//            }
+//
+//            // loop over all points
+//            randIndex = new Random(System.currentTimeMillis()).nextInt(instanceLength);
+//            for (int jj = randIndex; jj < instanceLength + randIndex; jj++) {
+//                int j = jj % instanceLength;
+//                if (takeStep(errorI, i, j)) return 1;
+//            }
+//        }
+//
+//        return 0;
+//    }
