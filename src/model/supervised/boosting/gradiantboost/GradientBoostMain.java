@@ -5,9 +5,9 @@ import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
 import data.builder.SparseMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
-import model.supervised.boosting.adaboot.SAMMESampleSimulation;
-import model.supervised.boosting.adaboot.adaboostclassifier.AdaBoostClassificationTree;
 import model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
 import performance.Evaluator;
@@ -19,6 +19,8 @@ import java.util.stream.IntStream;
  * Created by hanxuan on 11/2/15 for machine_learning.
  */
 public class GradientBoostMain {
+
+    private static Logger log = LogManager.getLogger(GradientBoostMain.class);
 
     public static void regressionTest() throws Exception {
 
@@ -107,8 +109,61 @@ public class GradientBoostMain {
         boostClassification.train();
     }
 
+    public static void classificationV2Test() throws Exception{
+        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/8newsgroup/train.trec/feature_matrix.txt";
+        String sep = "\\s+";
+        boolean hasHeader = false;
+        boolean needBias = false;
+        int m = 1754;
+        int n = 11314;
+        int[] featureCategoryIndex = {};
+        boolean isClassification = true;
+
+        Builder builder =
+                new SparseMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, isClassification);
+
+        builder.build();
+
+        DataSet trainSet = builder.getDataSet();
+
+        String path2 = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/8newsgroup/test.trec/feature_matrix.txt";
+        builder =
+                new SparseMatrixDataSetBuilder(path2, sep, hasHeader, needBias, m, n, featureCategoryIndex, isClassification);
+
+        builder.build();
+
+        DataSet testSet = builder.getDataSet();
+
+        GradientBoostClassificationV2.NEED_REPORT = false;
+        GradientBoostClassificationV2.MAX_THREADS = 4;
+        GradientBoostClassificationV2.LEARNING_RATE = 1;
+        GradientRegressionTree.MAX_THREADS = 1;
+        GradientRegressionTree.MAX_DEPTH = 3;
+
+        GradientBoostClassificationV2 boostClassification = new GradientBoostClassificationV2();
+        boostClassification.initialize(trainSet);
+        String className = "model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree";
+        boostClassification.boostConfig(20, className, new ClassificationEvaluator(), testSet);
+        boostClassification.train();
+
+
+
+        ClassificationEvaluator evaluator = new ClassificationEvaluator();
+
+        evaluator.initialize(testSet, boostClassification);
+        evaluator.getPredictLabelByProbs();
+        log.info("Test Accu: " + evaluator.evaluate());
+
+        evaluator.initialize(trainSet, boostClassification);
+        evaluator.getPredictLabelByProbs();
+        log.info("Train Accu: " + evaluator.evaluate());
+    }
+
     public static void main(String[] args) throws Exception{
-        regressionTest();
-        classificationTest(); // accu 0.79
+
+//        regressionTest();
+//        classificationTest(); // accu 0.79
+
+        classificationV2Test(); // accu 0.79
     }
 }
