@@ -82,7 +82,6 @@ public class ECOCMain {
         DataSet testSet = builder.getDataSet();
 
         SVMsSMO.C = 0.05;
-//        SVMsSMO.MAX_CHANGE = 100000;
         SVMsSMO.MAX_CHANGE = Integer.MAX_VALUE;
         SVMsSMO.LRU_MAX_ENTRY = 200;
         SVMsSMO.DEBUG = false;
