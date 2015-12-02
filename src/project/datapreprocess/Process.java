@@ -89,7 +89,7 @@ public abstract class Process {
         writer.close();
 
         log.info("mark ..");
-        log.info("{} duplicate feature", counter.size());
+        log.info("{} unique feature", counter.size());
     }
 
     public void featureExpand(String in1, String out) throws Exception{
