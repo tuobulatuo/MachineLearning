@@ -123,8 +123,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
     @Override
     public void train() {
 
-        double initialCost = cost(theta);
-        log.info("Training started, initialCost: {}", initialCost);
+        log.info("Training started ..");
         loop(data.getInstanceLength(), BUCKET_COUNT, theta, COST_DECENT_THRESHOLD, MAX_ROUND, PRINT_GAP);
         log.info("Training finished ...");
     }
@@ -154,13 +153,18 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
                                 for (int taskId : tasks2.toArray()) {
 
                                     double[] X = data.getInstance(taskId);
+                                    double y = data.getLabel(taskId);
                                     double[] labels = feedForward(X, theta);
-                                    double[] ys = yVector(taskId);
-                                    double accu = 0;
-                                    for (int j = 0; j < ys.length; j++) {
-                                        accu += -(ys[j] * Math.log(labels[j]) + (1 - ys[j]) * Math.log(1 - labels[j]));
-                                    }
-                                    cost.getAndAdd(accu);
+                                    cost.getAndAdd(- Math.log(labels[(int) y]));
+
+//                                    double[] ys = yVector(taskId);
+//                                    double accu = 0;
+                                    // accu += -(ys[j] * Math.log(labels[j]) + (1 - ys[j]) * Math.log(1 - labels[j]));
+//                                    for (int j = 0; j < ys.length; j++) {
+//                                        if (ys[j] == 1) accu -= Math.log(labels[j]);
+//                                        else accu -= Math.log(1 - labels[j]);
+//                                    }
+//                                    cost.getAndAdd(accu);
                                 }
                             } catch (Throwable t) {
                                 log.error(t.getMessage(), t);
@@ -188,17 +192,13 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
                 for (int k = 1; k < theta[i][j].length; k++)
                     punish += Math.pow(theta[i][j][k], 2);
 
-        return cost.get() + punish * LAMBDA;
+        return (cost.get() + punish * LAMBDA) / data.getInstanceLength();
     }
 
     @Override
     public <T> void gGradient(int start, int end, T params) {
 
         double[][][] theta = (double[][][]) params;
-        double[][][] gradient = new double[theta.length][][];
-        for (int i = 0; i < theta.length; i++) {
-            gradient[i] = new double[theta[i].length][theta[i][0].length];
-        }
 
         service = Executors.newFixedThreadPool(MAX_THREADS);
         int packageCount = (int) Math.ceil((end - start) / (double) THREAD_WORK_LOAD);
@@ -215,7 +215,20 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
                         {
                             try{
 
+                                double[][][] gradient = new double[theta.length][][];
+                                for (int j = 0; j < theta.length; j++) {
+                                    gradient[j] = new double[theta[j].length][theta[j][0].length];
+                                }
+
                                 Arrays.stream(tasks2.toArray()).forEach(taskId -> backPropagation(taskId, gradient));
+
+                                synchronized (theta) {
+                                    for (int j = 0; j < gradient.length; j++)
+                                        for (int k = 0; k < gradient[j].length; k++)
+                                            for (int l = 0; l < gradient[j][k].length; l++)
+                                                theta[j][k][l] -= ALPHA * gradient[j][k][l] / (double) (end - start)
+                                                        + (l > 0 ? LAMBDA * theta[j][k][l] : 0);
+                                }
 
                             }catch (Throwable t){
                                 log.error(t.getMessage(), t);
@@ -234,15 +247,9 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
             log.error(e.getMessage(), e);
         }
         service.shutdown();
-
-        for (int i = 0; i < theta.length; i++)
-            for (int j = 0; j < theta[i].length; j++)
-                for (int k = 0; k < theta[i][j].length; k++)
-                    theta[i][j][k] -= ALPHA * gradient[i][j][k] / (double) (end - start)
-                            + (k > 0 ? LAMBDA * theta[i][j][k] : 0);
     }
 
-    private void backPropagation(int i, double[][][] gradient) {
+    private void backPropagation(int i, double[][][] tempGradient) {
 
         double[] X = data.getInstance(i);
         double[] yVector = yVector(i);
@@ -302,12 +309,10 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
             }
         }
 
-        synchronized (gradient) {
-            for (int j = 0; j < gradient.length; j++)
-                for (int k = 0; k < gradient[j].length; k++)
-                    for (int l = 0; l < gradient[j][k].length; l++)
-                        gradient[j][k][l] += DELTA[j + 1][k] * A[j][l];
-        }
+        for (int j = 0; j < tempGradient.length; j++)
+            for (int k = 0; k < tempGradient[j].length; k++)
+                for (int l = 0; l < tempGradient[j][k].length; l++)
+                    tempGradient[j][k][l] += DELTA[j + 1][k] * A[j][l];
     }
 
     public double[] feedForward(double[] feature, double[][][] theta) {
