@@ -12,9 +12,9 @@ public class ProcessMain {
 
     public static void main(String[] args) throws Exception{
 
-        noBuzz();
+//        noBuzz();
 
-//        prior();
+        prior();
 
         log.info("pre precess finished, exit ..");
     }
