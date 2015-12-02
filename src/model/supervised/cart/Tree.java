@@ -36,7 +36,7 @@ public abstract class Tree implements Trainable, Predictable{
 
     public static int THREAD_WORK_LOAD = 1;
 
-    public static double SELECTED_FEATURE_LENGTH = Integer.MAX_VALUE;
+    public static int SELECTED_FEATURE_LENGTH = Integer.MAX_VALUE;
 
     protected int td;
 
@@ -107,8 +107,8 @@ public abstract class Tree implements Trainable, Predictable{
             return;
         }
 
-        // random forest
-        final int featureLength = (int) Math.min(dataSet.getFeatureLength(), SELECTED_FEATURE_LENGTH);
+        // random forest logic
+        final int featureLength = Math.min(dataSet.getFeatureLength(), SELECTED_FEATURE_LENGTH);
         TIntArrayList selectedFeatureIndices = new TIntArrayList(RandomUtils.getIndexes(dataSet.getFeatureLength()));
         selectedFeatureIndices.shuffle(new Random());
         int[] selectedFeature = new int[featureLength];
