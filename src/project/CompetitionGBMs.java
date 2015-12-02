@@ -6,7 +6,7 @@ import data.builder.FullMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
 import model.supervised.boosting.gradiantboost.GradientBoostClassificationV2;
 import model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree;
-import model.supervised.neuralnetwork.NeuralNetwork;
+import model.supervised.cart.Tree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
@@ -34,7 +34,7 @@ public class CompetitionGBMs {
         boolean needBias = false;
         int m = 52;
         int n = 1762311;
-        int[] featureCategoryIndex = {0,1,2,3,4,5,6,7,8};
+        int[] featureCategoryIndex = {4,5,6,7,8};
         boolean isClassification = true;
 
         Builder builder =
@@ -47,7 +47,7 @@ public class CompetitionGBMs {
 
         int trainSize = 878049;
         int testSize = 884262;
-        int partition = 50;
+        int partition = 10;
 
 
         DataSet trainSet = dataset.subDataSetByRow(RandomUtils.getIndexes(trainSize));
@@ -55,10 +55,11 @@ public class CompetitionGBMs {
         int[][] kFoldIndex = CrossValidationEvaluator.partition(trainSet, partition);
         DataSet miniTrainSet = dataset.subDataSetByRow(kFoldIndex[0]);
 
+        Tree.SELECTED_FEATURE_LENGTH = 4;
         GradientBoostClassificationV2.MAX_THREADS = 4;
-        GradientBoostClassificationV2.LEARNING_RATE = 1;
+        GradientBoostClassificationV2.LEARNING_RATE = 0.5;
         GradientRegressionTree.MAX_THREADS = 1;
-        GradientRegressionTree.MAX_DEPTH = 1;
+        GradientRegressionTree.MAX_DEPTH = 3;
         int boostRound = 10;
 
         GradientBoostClassificationV2 boostClassification = new GradientBoostClassificationV2();
@@ -117,7 +118,7 @@ public class CompetitionGBMs {
                 arrangedProbs[arrangeIndex] = probsI[j];
             }
 
-            Arrays.stream(arrangedProbs).forEach(x -> sb.append(x + ","));
+            Arrays.stream(arrangedProbs).forEach(x -> sb.append((float) x + ","));
             sb.deleteCharAt(sb.length() - 1);
             writer.write(sb.toString() + "\n");
 
@@ -131,9 +132,6 @@ public class CompetitionGBMs {
 
 
     public static void main(String[] args) throws Exception{
-
-//        String prior = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/prior/data.all.expand.txt";
-//        neuralNetworkTest(prior);
 
         String nobuzz = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/nobuzz/data.all.expand.txt";
         GBMsTest(nobuzz);

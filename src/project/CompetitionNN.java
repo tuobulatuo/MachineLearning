@@ -30,7 +30,7 @@ public class CompetitionNN {
         String sep = "\t";
         boolean hasHeader = false;
         boolean needBias = true;
-        int m = 52+39;
+        int m = 52;
         int n = 1762311;
         int[] featureCategoryIndex = {0,1,2,3,4,5,6,7,8};
         boolean isClassification = true;
@@ -44,15 +44,15 @@ public class CompetitionNN {
         DataSet dataset = builder.getDataSet();
         dataset.meanVarianceNorm();
 
-        int[] structure = {150 + 39, 50, 39};
+        int[] structure = {150, 20, 39};
         boolean biased = true;
         NeuralNetwork.MAX_THREADS = 4;
         NeuralNetwork.THREAD_WORK_LOAD = 500;
         NeuralNetwork.BUCKET_COUNT = 220;
         NeuralNetwork.ALPHA = 0.25;
         NeuralNetwork.COST_DECENT_THRESHOLD = 0;
-        NeuralNetwork.MAX_ROUND = 4000;
-        NeuralNetwork.PRINT_GAP = 4000;
+        NeuralNetwork.MAX_ROUND = 20000;
+        NeuralNetwork.PRINT_GAP = 1000;
         NeuralNetwork.EPSILON = 0.0001;
 
         int trainSize = 878049;
@@ -119,7 +119,7 @@ public class CompetitionNN {
                 arrangedProbs[arrangeIndex] = probsI[j];
             }
 
-            Arrays.stream(arrangedProbs).forEach(x -> sb.append(x + ","));
+            Arrays.stream(arrangedProbs).forEach(x -> sb.append((float) x + ","));
             sb.deleteCharAt(sb.length() - 1);
             writer.write(sb.toString() + "\n");
 
@@ -135,9 +135,9 @@ public class CompetitionNN {
     public static void main(String[] args) throws Exception{
 
 //        String prior = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/prior/data.all.expand.txt";
-//        neuralNetworkTest(prior);
+//        neuralNetworkTest(prior); //2.31
 
         String nobuzz = "/Users/hanxuan/Dropbox/neu/fall15/data mining/project/data/clean/nobuzz/data.all.expand.txt";
-        neuralNetworkTest(nobuzz);
+        neuralNetworkTest(nobuzz); // 2.29
     }
 }
