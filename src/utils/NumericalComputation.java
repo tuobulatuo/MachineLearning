@@ -11,12 +11,12 @@ public class NumericalComputation {
     private static Logger log = LogManager.getLogger(NumericalComputation.class);
 
     public static double sigmoid(double x) {
-        return 1 / (1 + Math.exp(-x));
+        return 1.0D / (1.0D + Math.exp(-x));
     }
 
     public static double sigmoidGradient(double x) {
         double sig = sigmoid(x);
-        return sig * (1 - sig);
+        return sig * (1.0D - sig);
     }
 
     public static double logOdds(double prob) {
