@@ -4,6 +4,7 @@ import algorithms.gradient.Decent;
 import algorithms.gradient.GradientDecent;
 import com.google.common.util.concurrent.AtomicDouble;
 import data.DataSet;
+import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.set.hash.TIntHashSet;
 import model.Predictable;
 import model.Trainable;
@@ -15,6 +16,7 @@ import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +35,8 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
     public static int MAX_THREADS = 4;
 
     public static int THREAD_WORK_LOAD = 200; // every thread should work at least 1 second
+
+    public static int BATCH_WORK_LOAD = 500;
 
     public static int MAX_ROUND = 5000;
 
@@ -204,32 +208,51 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         int packageCount = (int) Math.ceil((end - start) / (double) THREAD_WORK_LOAD);
         countDownLatch = new CountDownLatch(packageCount);
 
+        TIntArrayList indices = new TIntArrayList(IntStream.range(start, end).toArray());
+        indices.shuffle(new Random());
+        int[] indicesArray = indices.toArray();
+
         TIntHashSet tasks = new TIntHashSet();
-        IntStream.range(start, end).forEach(i ->{
+        IntStream.range(0, indicesArray.length).forEach(i ->{
 
-                    tasks.add(i);
+                    tasks.add(indicesArray[i]);
 
-                    if (tasks.size() == THREAD_WORK_LOAD || i == end - 1) {
-                        TIntHashSet tasks2 = new TIntHashSet(tasks);
+                    if (tasks.size() == THREAD_WORK_LOAD || i == indicesArray.length - 1) {
+                        TIntArrayList tasks2 = new TIntArrayList(tasks);
                         service.submit(() ->
                         {
                             try{
+                                TIntHashSet batchTasks = new TIntHashSet(BATCH_WORK_LOAD);
+                                for (int batchTaskIdIdx = 0; batchTaskIdIdx < tasks2.size(); batchTaskIdIdx++) {
 
-                                double[][][] gradient = new double[theta.length][][];
-                                for (int j = 0; j < theta.length; j++) {
-                                    gradient[j] = new double[theta[j].length][theta[j][0].length];
+                                    batchTasks.add(tasks2.get(batchTaskIdIdx));
+
+                                    if(batchTasks.size() == BATCH_WORK_LOAD || batchTaskIdIdx == tasks2.size() - 1) {
+
+                                        double[][][] gradient = new double[theta.length][][];
+                                        for (int j = 0; j < theta.length; j++) {
+                                            gradient[j] = new double[theta[j].length][theta[j][0].length];
+                                        }
+
+                                        Arrays.stream(batchTasks.toArray()).forEach(taskId -> backPropagation(taskId, gradient));
+
+
+                                        for (int j = 0; j < gradient.length; j++)
+                                            for (int k = 0; k < gradient[j].length; k++)
+                                                for (int l = 0; l < gradient[j][k].length; l++)
+                                                    gradient[j][k][l] = ALPHA * gradient[j][k][l] / (double) batchTasks.size()
+                                                            + (l > 0 ? LAMBDA * theta[j][k][l] : 0);
+
+                                        synchronized (theta) {
+                                            for (int j = 0; j < gradient.length; j++)
+                                                for (int k = 0; k < gradient[j].length; k++)
+                                                    for (int l = 0; l < gradient[j][k].length; l++)
+                                                        theta[j][k][l] -= gradient[j][k][l];
+                                        }
+
+                                        batchTasks.clear();
+                                    }
                                 }
-
-                                Arrays.stream(tasks2.toArray()).forEach(taskId -> backPropagation(taskId, gradient));
-
-                                synchronized (theta) {
-                                    for (int j = 0; j < gradient.length; j++)
-                                        for (int k = 0; k < gradient[j].length; k++)
-                                            for (int l = 0; l < gradient[j][k].length; l++)
-                                                theta[j][k][l] -= ALPHA * gradient[j][k][l] / (double) (end - start)
-                                                        + (l > 0 ? LAMBDA * theta[j][k][l] : 0);
-                                }
-
                             }catch (Throwable t){
                                 log.error(t.getMessage(), t);
                             }
@@ -249,6 +272,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         service.shutdown();
     }
 
+    private static final double sigmG1 = NumericalComputation.sigmoidGradient(1.0);
     private void backPropagation(int i, double[][][] tempGradient) {
 
         double[] X = data.getInstance(i);
@@ -279,33 +303,28 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         }
 
         double[][] DELTA = new double[layerCount][];
-        DELTA[layerCount - 1] = IntStream.range(0, yVector.length).mapToDouble(idx ->
-                A[layerCount - 1][idx] - yVector[idx]).toArray();
+        DELTA[layerCount - 1] = IntStream.range(0, yVector.length).mapToDouble(idx -> A[layerCount - 1][idx] - yVector[idx]).toArray();
         for (int j = layerCount - 2; j >= 1; --j) {
 
             double[][] currentLayerTheta = theta[j];
             double[] currentZ = Z[j];
             double[] sigmG;
             if (biased) {
-                double[] ZBias = new double[currentZ.length + 1];
-                ZBias[0] = 1;
-                System.arraycopy(currentZ, 0, ZBias, 1, currentZ.length);
-                sigmG = Arrays.stream(ZBias).map(x -> NumericalComputation.sigmoidGradient(x)).toArray();
+                sigmG = new double[currentZ.length + 1];
+                IntStream.range(1, sigmG.length).forEach(k -> sigmG[k] = NumericalComputation.sigmoidGradient(currentZ[k - 1]));
+                sigmG[0] = sigmG1;
+                DELTA[j] = new double[currentLayerTheta[0].length - 1];
+                for (int k = 0; k < DELTA[j].length; k++) {
+                    DELTA[j][k] = z(DELTA[j + 1], currentLayerTheta, k + 1) * sigmG[k + 1];
+                }
+
             }else {
-                sigmG = Arrays.stream(currentZ).map(x -> NumericalComputation.sigmoidGradient(x)).toArray();
-            }
-
-            DELTA[j] = new double[currentLayerTheta[0].length];
-            for (int k = 0; k < DELTA[j].length; k++) {
-                int col = k;
-                double[] w = IntStream.range(0, currentLayerTheta.length).mapToDouble(x -> currentLayerTheta[x][col]).toArray();
-                DELTA[j][k] = z(DELTA[j + 1], w) * sigmG[k];
-            }
-
-            if (biased) {
-                double[] DELTAremove0 = new double[DELTA[j].length - 1];
-                System.arraycopy(DELTA[j], 1, DELTAremove0, 0, DELTAremove0.length);
-                DELTA[j] = DELTAremove0;
+                sigmG = new double[currentZ.length];
+                IntStream.range(0, currentZ.length).forEach(k -> sigmG[k] = NumericalComputation.sigmoidGradient(currentZ[k]));
+                DELTA[j] = new double[currentLayerTheta[0].length];
+                for (int k = 0; k < DELTA[j].length; k++) {
+                    DELTA[j][k] = z(DELTA[j + 1], currentLayerTheta, k) * sigmG[k];
+                }
             }
         }
 
@@ -362,6 +381,10 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
     private double z(double[] A, double[] theta){
         return IntStream.range(0, A.length).mapToDouble(i -> A[i] * theta[i]).sum();
+    }
+
+    private double z(double[] A, double[][] theta, int col){
+        return IntStream.range(0, A.length).mapToDouble(i -> A[i] * theta[i][col]).sum();
     }
 
     @Override
