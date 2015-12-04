@@ -32,6 +32,8 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
     public static double COST_DECENT_THRESHOLD = 0.00000001;
 
+    public static double COST_COEF = 1;
+
     public static int MAX_THREADS = 4;
 
     public static int THREAD_WORK_LOAD = 200; // every thread should work at least 1 second
@@ -139,16 +141,22 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
         AtomicDouble cost = new AtomicDouble(0);
 
+        int costCalcLength = (int) (data.getInstanceLength() * COST_COEF);
+
         service = Executors.newFixedThreadPool(MAX_THREADS);
-        int packageCount = (int) Math.ceil(data.getInstanceLength() / (double) THREAD_WORK_LOAD);
+        int packageCount = (int) Math.ceil(costCalcLength / (double) THREAD_WORK_LOAD);
         countDownLatch = new CountDownLatch(packageCount);
 
+        TIntArrayList indices = new TIntArrayList(RandomUtils.getIndexes(data.getInstanceLength()));
+        indices.shuffle(new Random());
+        int[] indicesArray = indices.toArray();
+
         TIntHashSet tasks = new TIntHashSet();
-        IntStream.range(0, data.getInstanceLength()).forEach(i -> {
+        IntStream.range(0, costCalcLength).forEach(i -> {
 
-                    tasks.add(i);
+                    tasks.add(indicesArray[i]);
 
-                    if (tasks.size() == THREAD_WORK_LOAD || i == data.getInstanceLength() - 1) {
+                    if (tasks.size() == THREAD_WORK_LOAD || i == costCalcLength - 1) {
                         TIntHashSet tasks2 = new TIntHashSet(tasks);
                         service.submit(() ->
                         {
@@ -160,15 +168,6 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
                                     double y = data.getLabel(taskId);
                                     double[] labels = feedForward(X, theta);
                                     cost.getAndAdd(- Math.log(labels[(int) y]));
-
-//                                    double[] ys = yVector(taskId);
-//                                    double accu = 0;
-                                    // accu += -(ys[j] * Math.log(labels[j]) + (1 - ys[j]) * Math.log(1 - labels[j]));
-//                                    for (int j = 0; j < ys.length; j++) {
-//                                        if (ys[j] == 1) accu -= Math.log(labels[j]);
-//                                        else accu -= Math.log(1 - labels[j]);
-//                                    }
-//                                    cost.getAndAdd(accu);
                                 }
                             } catch (Throwable t) {
                                 log.error(t.getMessage(), t);
@@ -196,7 +195,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
                 for (int k = 1; k < theta[i][j].length; k++)
                     punish += Math.pow(theta[i][j][k], 2);
 
-        return (cost.get() + punish * LAMBDA) / data.getInstanceLength();
+        return (cost.get() + punish * LAMBDA) / costCalcLength;
     }
 
     @Override
