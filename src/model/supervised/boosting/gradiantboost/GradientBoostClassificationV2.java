@@ -78,7 +78,7 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
         for (int i = 0; i < boosters.length; i++){
             if (roundIndicator[i]){
                 for (int j = 0; j < boosters[i].length; j++)
-                    probs[j] += boosters[i][j].boostPredict(feature);
+                    probs[j] += LEARNING_RATE * boosters[i][j].boostPredict(feature);
             }
         }
 
@@ -226,9 +226,8 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
 
         float[] labels = tempLabels[classId];
         for (int i = 0; i < labels.length; i++) {
-            if (trainData.getLabel(i) == classId) {
-                labels[i] = 1.0F;
-            }
+            if (trainData.getLabel(i) == classId) labels[i] = 1.0F;
+            labels[i] -= 1 / classCount;
         }
         return new Label(labels, trainData.getLabels().getClassIndexMap());
     }
