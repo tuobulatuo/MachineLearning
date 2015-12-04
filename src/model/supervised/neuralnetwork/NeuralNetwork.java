@@ -64,6 +64,8 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
     private DataSet data = null;
 
+    private TIntArrayList indices = null;
+
     private ExecutorService service = null;
 
     private CountDownLatch countDownLatch = null;
@@ -77,6 +79,8 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
     public void initialize(DataSet d) {
 
         this.data = d;
+
+        indices = new TIntArrayList(RandomUtils.getIndexes(d.getInstanceLength()));
 
         layerCount = structure.length;
         theta = new double[layerCount - 1][][];
@@ -134,6 +138,8 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         log.info("Training finished ...");
     }
 
+
+
     @Override
     public <T> double cost(T params) {
 
@@ -147,7 +153,6 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         int packageCount = (int) Math.ceil(costCalcLength / (double) THREAD_WORK_LOAD);
         countDownLatch = new CountDownLatch(packageCount);
 
-        TIntArrayList indices = new TIntArrayList(RandomUtils.getIndexes(data.getInstanceLength()));
         indices.shuffle(new Random());
         int[] indicesArray = indices.toArray();
 
@@ -207,7 +212,6 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         int packageCount = (int) Math.ceil((end - start) / (double) THREAD_WORK_LOAD);
         countDownLatch = new CountDownLatch(packageCount);
 
-        TIntArrayList indices = new TIntArrayList(IntStream.range(start, end).toArray());
         indices.shuffle(new Random());
         int[] indicesArray = indices.toArray();
 
