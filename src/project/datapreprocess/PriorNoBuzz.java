@@ -25,7 +25,7 @@ public class PriorNoBuzz extends Process{
 
         for (int i = 0; i < table.length; i++) {
             float[] probs = ArraySumUtil.normalize(table[i]);
-            IntStream.range(0, probs.length).forEach(j -> probs[j] /= backgroundProbs[j]);
+            IntStream.range(0, probs.length).forEach(j -> probs[j] = (float) Math.log(probs[j] / backgroundProbs[j]));
         }
 
         log.info("tableProcess PriorNoBuzz");
