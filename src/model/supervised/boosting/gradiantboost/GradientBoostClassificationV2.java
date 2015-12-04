@@ -1,7 +1,9 @@
 package model.supervised.boosting.gradiantboost;
 
 import data.DataSet;
+import data.core.AMatrix;
 import data.core.Label;
+import gnu.trove.list.array.TIntArrayList;
 import model.Predictable;
 import model.Trainable;
 import model.supervised.boosting.Boost;
@@ -15,6 +17,7 @@ import utils.array.ArrayUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,6 +33,8 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
 
     public static double LEARNING_RATE = 0.1;
 
+    public static double SAMPLE_RATE = 0.8;
+
     public static int MAX_THREADS = 4;
 
     private static Logger log = LogManager.getLogger(GradientBoostClassification.class);
@@ -39,6 +44,8 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
     private float[][] scoreCache = null;
 
     private DataSet trainData = null;
+
+    private TIntArrayList indices = null;
 
     private DataSet testData = null;
 
@@ -111,7 +118,7 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
                 }
 
                 long toc = System.currentTimeMillis();
-                log.info("round {}, task: {}/{} finished, elapsed {} ms", ROUND, j, classCount, toc - tic);
+                log.debug("round {}, task: {}/{} finished, elapsed {} ms", ROUND, j, classCount, toc - tic);
                 countDownLatch.countDown();
             }));
             try {
@@ -125,7 +132,6 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
             roundIndicator[ROUND] = true;
 
             long t2 = System.currentTimeMillis();
-
 
             float[] probs = new float[classCount];
             for (int j = 0; j < trainData.getInstanceLength(); j++) {
@@ -149,8 +155,14 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
 
             roundKL[ROUND] /= trainData.getInstanceLength();
 
+            indices.shuffle(new Random());
+            int[] indexArray = indices.toArray();
+            TIntArrayList sample = new TIntArrayList((int) (indexArray.length * SAMPLE_RATE));
+            for (int j = 0; j < indexArray.length * SAMPLE_RATE; j++) sample.add(indexArray[j]);
+            int[] sampleArray = sample.toArray();
+            AMatrix m = trainData.getFeatureMatrix().subMatrixByRow(sampleArray);
             for (int j = 0; j < classCount; j++) {
-                roundData[j] = new DataSet(trainData.getFeatureMatrix(), new Label(tempLabels[j], null));
+                roundData[j] = new DataSet(m, new Label(tempLabels[j], null).subLabelByRow(sampleArray));
             }
 
             long t3 = System.currentTimeMillis();
@@ -185,6 +197,7 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
     public void initialize(DataSet d) {
 
         trainData = d;
+        indices = new TIntArrayList(RandomUtils.getIndexes(d.getInstanceLength()));
         classCount = trainData.getLabels().getClassIndexMap().size();
         scoreCache = new float[trainData.getInstanceLength()][classCount];
         roundData = new DataSet[classCount];
