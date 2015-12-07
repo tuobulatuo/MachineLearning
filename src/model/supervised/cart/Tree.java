@@ -111,8 +111,8 @@ public abstract class Tree implements Trainable, Predictable{
         final int featureLength = Math.min(dataSet.getFeatureLength(), SELECTED_FEATURE_LENGTH);
         TIntArrayList selectedFeatureIndices = new TIntArrayList(RandomUtils.getIndexes(dataSet.getFeatureLength()));
         selectedFeatureIndices.shuffle(new Random());
-        int[] selectedFeature = new int[featureLength];
-        for (int i = 0; i < featureLength; i++) selectedFeature[i] = selectedFeatureIndices.get(i);
+//        int[] selectedFeature = new int[featureLength];
+//        for (int i = 0; i < featureLength; i++) selectedFeature[i] = selectedFeatureIndices.get(i);
 
         final AtomicInteger bestFeatureId = new AtomicInteger(Integer.MIN_VALUE);
         final AtomicDouble bestThreshold = new AtomicDouble(Integer.MIN_VALUE);
@@ -125,9 +125,12 @@ public abstract class Tree implements Trainable, Predictable{
         int realTaskCount = (int) Math.ceil(featureLength / (double) THREAD_WORK_LOAD);
         countDownLatch = new CountDownLatch(realTaskCount);
         log.debug("Task Count: {}", countDownLatch.getCount());
+
         TIntArrayList taskPackage = new TIntArrayList();
-        Arrays.stream(selectedFeature).forEach(i -> {
-            taskPackage.add(i);
+        IntStream.range(0, featureLength).forEach(i -> {
+
+            taskPackage.add(selectedFeatureIndices.get(i));
+
             if (taskPackage.size() == THREAD_WORK_LOAD || i == featureLength - 1) {
                 TIntArrayList taskPackage2 = new TIntArrayList(taskPackage);
                 service.submit(()->
