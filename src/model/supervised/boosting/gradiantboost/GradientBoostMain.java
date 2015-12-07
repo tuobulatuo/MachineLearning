@@ -6,6 +6,7 @@ import data.builder.FullMatrixDataSetBuilder;
 import data.builder.SparseMatrixDataSetBuilder;
 import gnu.trove.set.hash.TIntHashSet;
 import model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree;
+import model.supervised.cart.Tree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
@@ -134,16 +135,21 @@ public class GradientBoostMain {
 
         DataSet testSet = builder.getDataSet();
 
+
+        Tree.SELECTED_FEATURE_LENGTH = trainSet.getFeatureLength();
+
         GradientBoostClassificationV2.NEED_REPORT = false;
         GradientBoostClassificationV2.MAX_THREADS = 4;
         GradientBoostClassificationV2.LEARNING_RATE = 1;
+        GradientBoostClassificationV2.SAMPLE_RATE = 0.67;
         GradientRegressionTree.MAX_THREADS = 1;
-        GradientRegressionTree.MAX_DEPTH = 3;
+        GradientRegressionTree.MAX_DEPTH = 2;
+        int boostRound = 100;
 
         GradientBoostClassificationV2 boostClassification = new GradientBoostClassificationV2();
         boostClassification.initialize(trainSet);
         String className = "model.supervised.boosting.gradiantboost.gradientboostor.GradientRegressionTree";
-        boostClassification.boostConfig(20, className, new ClassificationEvaluator(), testSet);
+        boostClassification.boostConfig(boostRound, className, new ClassificationEvaluator(), testSet);
         boostClassification.train();
 
 
