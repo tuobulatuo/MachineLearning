@@ -26,7 +26,7 @@ public abstract class Tree implements Trainable, Predictable{
 
     private static final Logger log = LogManager.getLogger(Tree.class);
 
-    public static int TREE_ID = 0;
+    private static int TREE_ID = 0;
 
     public static int MAX_DEPTH = 10;
 
