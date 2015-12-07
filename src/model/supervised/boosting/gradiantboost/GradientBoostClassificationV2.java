@@ -203,9 +203,20 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
         roundData = new DataSet[classCount];
         tempLabels = new float[classCount][trainData.getInstanceLength()];
 
-        for (int i = 0; i < classCount; i++) {
-            roundData[i] = new DataSet(trainData.getFeatureMatrix(), makeClassLabel(i));
+
+        indices.shuffle(new Random());
+        int[] indexArray = indices.toArray();
+        TIntArrayList sample = new TIntArrayList((int) (indexArray.length * SAMPLE_RATE));
+        for (int j = 0; j < indexArray.length * SAMPLE_RATE; j++) sample.add(indexArray[j]);
+        int[] sampleArray = sample.toArray();
+        AMatrix m = trainData.getFeatureMatrix().subMatrixByRow(sampleArray);
+        for (int j = 0; j < classCount; j++) {
+            roundData[j] = new DataSet(m, makeClassLabel(j).subLabelByRow(sampleArray));
         }
+
+//        for (int i = 0; i < classCount; i++) {
+//            roundData[i] = new DataSet(trainData.getFeatureMatrix(), makeClassLabel(i));
+//        }
 
         log.info("initialize finished, tempLabels + ScoreCache MEM use ~ {} GB",
                 2.0 * scoreCache.length * scoreCache[0].length * 4 / 1024 /1024 / 1024);
