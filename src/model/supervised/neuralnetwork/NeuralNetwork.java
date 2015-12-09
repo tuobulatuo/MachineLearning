@@ -154,12 +154,11 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         countDownLatch = new CountDownLatch(packageCount);
 
         indices.shuffle(new Random());
-        int[] indicesArray = indices.toArray();
 
         TIntHashSet tasks = new TIntHashSet();
         IntStream.range(0, costCalcLength).forEach(i -> {
 
-                    tasks.add(indicesArray[i]);
+                    tasks.add(indices.get(i));
 
                     if (tasks.size() == THREAD_WORK_LOAD || i == costCalcLength - 1) {
                         TIntHashSet tasks2 = new TIntHashSet(tasks);
@@ -171,7 +170,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
                                     double[] X = data.getInstance(taskId);
                                     double y = data.getLabel(taskId);
-                                    double[] labels = feedForward(X, theta);
+                                    double[] labels = probs(X);
                                     cost.getAndAdd(- Math.log(labels[(int) y]));
                                 }
                             } catch (Throwable t) {
@@ -212,15 +211,15 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
         int packageCount = (int) Math.ceil((end - start) / (double) THREAD_WORK_LOAD);
         countDownLatch = new CountDownLatch(packageCount);
 
-        indices.shuffle(new Random());
-        int[] indicesArray = indices.toArray();
+        TIntArrayList tempIndices = new TIntArrayList(IntStream.range(start, end).toArray());
+        tempIndices.shuffle(new Random());
 
         TIntHashSet tasks = new TIntHashSet();
-        IntStream.range(0, indicesArray.length).forEach(i ->{
+        IntStream.range(0, tempIndices.size()).forEach(i ->{
 
-                    tasks.add(indicesArray[i]);
+                    tasks.add(tempIndices.get(i));
 
-                    if (tasks.size() == THREAD_WORK_LOAD || i == indicesArray.length - 1) {
+                    if (tasks.size() == THREAD_WORK_LOAD || i == tempIndices.size() - 1) {
                         TIntArrayList tasks2 = new TIntArrayList(tasks);
                         service.submit(() ->
                         {
