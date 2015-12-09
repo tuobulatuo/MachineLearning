@@ -67,7 +67,11 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
 
     private boolean[] roundIndicator = null;
 
+    private int[] roundIndices = null;
+
     private float[][] tempLabels = null;
+
+//    private DataSet roundData = null;
 
 
     @Override
@@ -111,7 +115,7 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
                 long tic = System.currentTimeMillis();
 
                 try {
-                    boosters[ROUND][j].boostInitialize(roundData[j], "");
+                    boosters[ROUND][j].boostInitialize(roundData[j], roundIndices);
                     boosters[ROUND][j].boost();
                 }catch (Throwable t) {
                     log.error(t.getMessage(), t);
@@ -155,15 +159,12 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
 
             roundKL[ROUND] /= trainData.getInstanceLength();
 
+            for (int j = 0; j < classCount; j++)
+                roundData[j] = new DataSet(trainData.getFeatureMatrix(), new Label(tempLabels[j], null));
+
             indices.shuffle(new Random());
-            int[] indexArray = indices.toArray();
-            TIntArrayList sample = new TIntArrayList((int) (indexArray.length * SAMPLE_RATE));
-            for (int j = 0; j < indexArray.length * SAMPLE_RATE; j++) sample.add(indexArray[j]);
-            int[] sampleArray = sample.toArray();
-            AMatrix m = trainData.getFeatureMatrix().subMatrixByRow(sampleArray);
-            for (int j = 0; j < classCount; j++) {
-                roundData[j] = new DataSet(m, new Label(tempLabels[j], null).subLabelByRow(sampleArray));
-            }
+            for (int j = 0; j < roundIndices.length; j++)
+                roundIndices[j] = indices.get(j);
 
             long t3 = System.currentTimeMillis();
 
@@ -201,22 +202,16 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
         classCount = trainData.getLabels().getClassIndexMap().size();
         scoreCache = new float[trainData.getInstanceLength()][classCount];
         roundData = new DataSet[classCount];
+        roundIndices = new int[(int) (trainData.getInstanceLength() * SAMPLE_RATE)];
         tempLabels = new float[classCount][trainData.getInstanceLength()];
 
 
         indices.shuffle(new Random());
-        int[] indexArray = indices.toArray();
-        TIntArrayList sample = new TIntArrayList((int) (indexArray.length * SAMPLE_RATE));
-        for (int j = 0; j < indexArray.length * SAMPLE_RATE; j++) sample.add(indexArray[j]);
-        int[] sampleArray = sample.toArray();
-        AMatrix m = trainData.getFeatureMatrix().subMatrixByRow(sampleArray);
-        for (int j = 0; j < classCount; j++) {
-            roundData[j] = new DataSet(m, makeClassLabel(j).subLabelByRow(sampleArray));
-        }
+        for (int j = 0; j < roundIndices.length; j++) roundIndices[j] = indices.get(j);
 
-//        for (int i = 0; i < classCount; i++) {
-//            roundData[i] = new DataSet(trainData.getFeatureMatrix(), makeClassLabel(i));
-//        }
+        for (int j = 0; j < classCount; j++) {
+            roundData[j] = new DataSet(trainData.getFeatureMatrix(), makeClassLabel(j));
+        }
 
         log.info("initialize finished, tempLabels + ScoreCache MEM use ~ {} GB",
                 2.0 * scoreCache.length * scoreCache[0].length * 4 / 1024 /1024 / 1024);
@@ -253,7 +248,7 @@ public class GradientBoostClassificationV2 implements Predictable, Trainable, Bo
             if (trainData.getLabel(i) == classId) labels[i] = 1.0F;
             labels[i] -= 1 / classCount;
         }
-        return new Label(labels, trainData.getLabels().getClassIndexMap());
+        return new Label(labels, null);
     }
 
     private void statisticReport(int round){

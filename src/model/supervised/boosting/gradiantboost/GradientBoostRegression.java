@@ -60,7 +60,7 @@ public class GradientBoostRegression implements Predictable, Trainable, Boost{
 
             long t1 = System.currentTimeMillis();
 
-            boosters[i].boostInitialize(roundData, "");
+            boosters[i].boostInitialize(roundData, null);
             boosters[i].boost();
             roundIndicator[i] = true;
 

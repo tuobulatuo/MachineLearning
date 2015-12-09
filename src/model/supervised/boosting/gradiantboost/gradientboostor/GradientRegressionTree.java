@@ -37,8 +37,16 @@ public class GradientRegressionTree extends RegressionTree implements GradientBo
 
     @Override
     public <T> void boostInitialize(DataSet data, T info) {
+
         this.dataSet = data;
-        this.existIds = RandomUtils.getIndexes(dataSet.getInstanceLength());
+        if (info == null) {
+            this.existIds = RandomUtils.getIndexes(dataSet.getInstanceLength());
+        }else if (info.getClass().isInstance(new int[0])) {
+            this.existIds = (int[]) info;
+        }else {
+            log.error("Fatal error, info: {}", info.getClass().toGenericString());
+        }
+
         log.debug("boostInitialize finished ...");
     }
 
