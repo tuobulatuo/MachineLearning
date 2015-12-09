@@ -62,7 +62,7 @@ public class NeuralNetwork implements Trainable, Predictable, GradientDecent, De
 
     private boolean biased = true;
 
-    private DataSet data = null;
+    protected DataSet data = null;
 
     private TIntArrayList indices = null;
 
