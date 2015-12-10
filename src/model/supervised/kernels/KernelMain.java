@@ -12,8 +12,8 @@ public class KernelMain {
         double[] p3 = new double[]{1, 0};
         double[] p4 = new double[]{0, 1};
 
-        Kernel k1 = new Cosine();
-        Kernel k2 = new Euclidean();
+        Kernel k1 = new CosineK();
+        Kernel k2 = new EuclideanK();
 
         System.out.println(k1.similarity(p1, p2));
         System.out.println(k1.similarity(p3, p2));
