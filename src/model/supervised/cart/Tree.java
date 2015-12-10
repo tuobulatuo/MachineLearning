@@ -111,8 +111,6 @@ public abstract class Tree implements Trainable, Predictable{
         final int featureLength = Math.min(dataSet.getFeatureLength(), SELECTED_FEATURE_LENGTH);
         TIntArrayList selectedFeatureIndices = new TIntArrayList(RandomUtils.getIndexes(dataSet.getFeatureLength()));
         selectedFeatureIndices.shuffle(new Random());
-//        int[] selectedFeature = new int[featureLength];
-//        for (int i = 0; i < featureLength; i++) selectedFeature[i] = selectedFeatureIndices.get(i);
 
         final AtomicInteger bestFeatureId = new AtomicInteger(Integer.MIN_VALUE);
         final AtomicDouble bestThreshold = new AtomicDouble(Integer.MIN_VALUE);
