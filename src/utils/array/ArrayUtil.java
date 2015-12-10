@@ -50,7 +50,7 @@ public class ArrayUtil {
 		double[] x3 = arraySubtract(x1, x2);
 		double result = 0;
 		for (double x: x3) if (x != 0) result += x * x;
-		return result;
+		return Math.pow(result, 0.5);
 	}
 
 
@@ -59,5 +59,10 @@ public class ArrayUtil {
 		for (int i = 0; i < p.length; i ++)
 			if (p[i] > 0) result += p[i] * Math.log(p[i] / q[i]);
 		return result;
+	}
+
+	public static double norm2(double[] x) {
+		double result = innerProduct(x, x);
+		return Math.pow(result, 0.5);
 	}
 }
