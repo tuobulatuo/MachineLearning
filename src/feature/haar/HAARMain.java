@@ -13,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
 import performance.CrossValidationEvaluator;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.HashMap;
 
 /**
@@ -137,19 +139,19 @@ public class HAARMain {
         return new DataSet(matrix, labels);
     }
 
-//    public static void writeTxt(DataSet data, String filePath) throws Exception{
-//
-//        BufferedWriter writer = new BufferedWriter(new FileWriter(filePath), 1024 * 1024 * 64);
-//        for (int i = 0; i < data.getInstanceLength(); i++) {
-//            double[] x = data.getInstance(i);
-//            double y = data.getLabel(i);
-//            StringBuilder sb = new StringBuilder();
-//            for (double e: x) sb.append(e+"\t");
-//            sb.append(y);
-//            writer.write(sb.toString() + "\n");
-//        }
-//        writer.close();
-//    }
+    public static void writeTxt(DataSet data, String filePath) throws Exception{
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(filePath), 1024 * 1024 * 64);
+        for (int i = 0; i < data.getInstanceLength(); i++) {
+            double[] x = data.getInstance(i);
+            double y = data.getLabel(i);
+            StringBuilder sb = new StringBuilder();
+            for (double e: x) sb.append(e+"\t");
+            sb.append(y);
+            writer.write(sb.toString() + "\n");
+        }
+        writer.close();
+    }
 
 
 
@@ -166,11 +168,14 @@ public class HAARMain {
         DataSet train = buildSet(path, imageTrainFile, labelTrainFile);
         DataSet test = buildSet(path, imageTestFile, labelTestFile);
 
+        writeTxt(train, "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.mnist/text/train.txt");
+        writeTxt(test, "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/digits.mnist/text/test.txt");
+
         log.info("train dim {} {}", train.getInstanceLength(), train.getFeatureLength());
         log.info("test dim {} {}", test.getInstanceLength(), test.getFeatureLength());
 
 //        ecoc(train, test);
 
-        ecocSVM(train, test);
+//        ecocSVM(train, test);
     }
 }
