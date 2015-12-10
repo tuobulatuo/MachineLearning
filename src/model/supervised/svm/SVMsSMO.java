@@ -158,7 +158,7 @@ public class SVMsSMO implements Trainable, Predictable{
         log.info("support vectors count {}", counter1);
         log.info("in margin count {}", counter2);
         log.info("out margin {}", counter3);
-        log.info("abnormal alphas count {}", counter4);
+        log.info("abnormal alphas count {}", counter4); // this must be 0, only for debug purpose..
 
         log.info("hit LRU {}", count2);
         log.info("miss LRU {}", count1);
