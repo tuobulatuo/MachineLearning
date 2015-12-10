@@ -118,4 +118,8 @@ public class DataSet {
 
         return labels;
     }
+
+    public int getClassCount() {
+        return labels.getClassIndexMap().size();
+    }
 }
