@@ -21,9 +21,9 @@ public class KNN implements Predictable, Trainable{
 
     public static double R = 0;
 
-    public SelectNeighborBy selectNeighborBy = SelectNeighborBy.RANK;
+    public static SelectNeighborBy SELECT_NEIGHBOR_BY = SelectNeighborBy.RANK;
 
-    public EstimateBy estimateBy = EstimateBy.NEIGHBOR;
+    public static EstimateBy ESTIMATE_BY = EstimateBy.NEIGHBOR;
 
     private static Logger log = LogManager.getLogger(KNN.class);
 
@@ -34,6 +34,8 @@ public class KNN implements Predictable, Trainable{
     private int instanceLength = 0;
 
     private Kernel kernel = null;
+
+    private int zeroNeighborCounter = 0;
 
     public KNN (String kernelClassName) throws Exception{
         kernel = (Kernel) Class.forName(kernelClassName).newInstance();
@@ -52,12 +54,12 @@ public class KNN implements Predictable, Trainable{
     @Override
     public double[] probs(double[] feature) {
 
-        if(estimateBy == EstimateBy.NEIGHBOR) {
+        if(ESTIMATE_BY == EstimateBy.NEIGHBOR) {
             return probsByNeighbor(feature);
-        }else if (estimateBy == EstimateBy.DENSITY) {
+        }else if (ESTIMATE_BY == EstimateBy.DENSITY) {
             return probsByDensity(feature);
         }else {
-            log.error("unknown estimate {}", estimateBy);
+            log.error("unknown estimate {}", ESTIMATE_BY);
             return new double[0];
         }
     }
@@ -69,20 +71,23 @@ public class KNN implements Predictable, Trainable{
 
         SortIntDoubleUtils.sort(indices, distance); // small -> big, ascending
 
+        log.debug("max dis {}, min dis {}", distance[distance.length -1], distance[0]);
+
         int[] topNeighbor = null;
-        if (selectNeighborBy == SelectNeighborBy.RADIUS) {
+        if (SELECT_NEIGHBOR_BY == SelectNeighborBy.RADIUS) {
             topNeighbor = getTopNeighbourByRadius(indices, distance);
-        }else if (selectNeighborBy == selectNeighborBy.RANK) {
+        } else if (SELECT_NEIGHBOR_BY == SELECT_NEIGHBOR_BY.RANK) {
             topNeighbor = getTopNeighbourByRank(indices);
         }
 
         if (topNeighbor.length == 0) {
-            log.warn("topNeighbor.length == 0");
+            log.debug("topNeighbor.length == 0");
+            zeroNeighborCounter++;
         }
 
         double[] probs = new double[classCount];
         for (int i = 0; i < topNeighbor.length; i++) {
-            probs[(int) data.getLabel(i)] ++;
+            probs[(int) data.getLabel(topNeighbor[i])] ++;
         }
         ArraySumUtil.normalize(probs);
         return probs;
@@ -99,7 +104,7 @@ public class KNN implements Predictable, Trainable{
 
     // similarity is not always positive, so this probability is not a probability strictly.
     // probs may appear negative numbers, use with caution.
-    // so we shift all the numbers to 0.
+    // so we shift all the numbers to above 0
 
         double min = Arrays.stream(probs).min().getAsDouble();
         for (int i = 0; i < classCount; i++) probs[i] = probs[i] - min;
@@ -109,7 +114,7 @@ public class KNN implements Predictable, Trainable{
 
     @Override
     public void train() {
-        log.info("~ KNN is ready ~");
+        log.info("~ KNN is too lazy to train ~");
     }
 
     @Override
@@ -137,7 +142,7 @@ public class KNN implements Predictable, Trainable{
 
         TIntArrayList topR = new TIntArrayList((int) R);
         int pointer = 0;
-        while (pointer < R && pointer < indices.length) topR.add(indices[pointer++]);
+        while (pointer < indices.length && pointer < R) topR.add(indices[pointer++]);
         return topR.toArray();
     }
 
@@ -145,7 +150,7 @@ public class KNN implements Predictable, Trainable{
 
         TIntArrayList withinR = new TIntArrayList(instanceLength / 100);
         int pointer = 0;
-        while (distances[pointer] <= R && pointer < indices.length) withinR.add(indices[pointer++]);
+        while (pointer < indices.length && distances[pointer] <= R) withinR.add(indices[pointer++]);
         return withinR.toArray();
     }
 }
