@@ -7,7 +7,7 @@ import model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump;
 import model.supervised.ecoc.ECOCAdaBoost;
 import model.supervised.ecoc.ECOCSVMs;
 import model.supervised.svm.SVMsSMO;
-import model.supervised.svm.kernels.GaussianK;
+import model.supervised.kernels.GaussianK;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
@@ -67,10 +67,10 @@ public class HAARMain {
         SVMsSMO.EPS1 = 0.001;
         SVMsSMO.EPS2 = 1E-8;
 
-        String kernelClassName = "model.supervised.svm.kernels.GaussianK";
+        String kernelClassName = "model.supervised.kernels.GaussianK";
         GaussianK.GAMMA = 1 / (double) 200;
 
-//        String kernelClassName = "model.supervised.svm.kernels.LinearK";
+//        String kernelClassName = "model.supervised.kernels.LinearK";
         ECOCSVMs.KERNEL_CLASS_NAME = kernelClassName;
         ECOCSVMs.MAX_THREADS = 4;
         ECOCSVMs.DEFAULT_CODE_WORD_LENGTH = 20;

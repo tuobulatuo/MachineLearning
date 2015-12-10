@@ -1,4 +1,4 @@
-package model.supervised.svm.kernels;
+package model.supervised.kernels;
 
 import utils.array.ArrayUtil;
 

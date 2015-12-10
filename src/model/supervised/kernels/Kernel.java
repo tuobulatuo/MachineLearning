@@ -1,4 +1,4 @@
-package model.supervised.svm.kernels;
+package model.supervised.kernels;
 
 /**
  * Created by hanxuan on 11/25/15 for machine_learning.

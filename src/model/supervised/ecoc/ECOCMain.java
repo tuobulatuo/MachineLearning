@@ -5,7 +5,6 @@ import data.builder.Builder;
 import data.builder.SparseMatrixDataSetBuilder;
 import model.supervised.boosting.adaboot.adaboostclassifier.DecisionStump;
 import model.supervised.svm.SVMsSMO;
-import model.supervised.svm.kernels.GaussianK;
 import performance.ClassificationEvaluator;
 
 /**
@@ -90,10 +89,10 @@ public class ECOCMain {
         SVMsSMO.EPS1 = 0.001;
         SVMsSMO.EPS2 = 1E-8;
 
-//        String kernelClassName = "model.supervised.svm.kernels.GaussianK";
+//        String kernelClassName = "model.supervised.kernels.GaussianK";
 //        GaussianK.GAMMA = 1 / (double) 200;
 
-        String kernelClassName = "model.supervised.svm.kernels.LinearK";
+        String kernelClassName = "model.supervised.kernels.LinearK";
         ECOCSVMs.KERNEL_CLASS_NAME = kernelClassName;
         ECOCSVMs.MAX_THREADS = 4;
         ECOCSVMs.DEFAULT_CODE_WORD_LENGTH = 20;

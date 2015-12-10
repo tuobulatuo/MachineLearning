@@ -3,10 +3,9 @@ package model.supervised.svm;
 import data.DataSet;
 import data.builder.Builder;
 import data.builder.FullMatrixDataSetBuilder;
-import data.builder.SparseMatrixDataSetBuilder;
 import data.core.Norm;
-import model.supervised.svm.kernels.GaussianK;
-import model.supervised.svm.kernels.PolynomialK;
+import model.supervised.kernels.GaussianK;
+import model.supervised.kernels.PolynomialK;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import performance.ClassificationEvaluator;
@@ -50,9 +49,9 @@ public class SVMMain {
 
 
 
-        String linearKernelClassName = "model.supervised.svm.kernels.LinearK";
-        String polynomialKernelClassName = "model.supervised.svm.kernels.PolynomialK";
-        String gaussianKernelClassName = "model.supervised.svm.kernels.GaussianK";
+        String linearKernelClassName = "model.supervised.kernels.LinearK";
+        String polynomialKernelClassName = "model.supervised.kernels.PolynomialK";
+        String gaussianKernelClassName = "model.supervised.kernels.GaussianK";
 
         SVMsSMO.C = 0.05;
 //        SVMsSMO.MAX_CHANGE = 100000;
