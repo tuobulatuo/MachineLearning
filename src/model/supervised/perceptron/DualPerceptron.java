@@ -43,7 +43,7 @@ public class DualPerceptron implements Trainable, Predictable, GradientDecent, D
 
     @Override
     public double predict(double[] feature) {
-        return 0;
+        return hypothesis(feature) > 0 ? 1 : -1;
     }
 
     @Override
