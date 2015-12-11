@@ -36,8 +36,8 @@ public class NNMain {
         DataSet dataset = builder.getDataSet();
         dataset.shiftCompressNorm();
         dataset.meanVarianceNorm();
-        Perceptron.ALPHA = 0.005;
-        Perceptron.PRINT_GAP = 10;
+        Perceptron.ALPHA = .005;
+        Perceptron.PRINT_GAP = 1;
         Perceptron.BUCKET_COUNT = 1;
         Perceptron.COST_DECENT_THRESHOLD = 0.000000001;
         Perceptron.MAX_ROUND = 100;
@@ -206,7 +206,7 @@ public class NNMain {
 
     public static void main(String[] args) throws Exception{
 
-//        perceptronTest();
+        perceptronTest();
 
 //        neuralNetworkTest();
 
@@ -214,6 +214,6 @@ public class NNMain {
 //
 //        neuralNetworkSpam();
 
-        letterTest();
+//        letterTest();
     }
 }

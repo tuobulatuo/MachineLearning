@@ -57,8 +57,7 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
 
     @Override
     public void train() {
-
-        double[] initTheta = RandomUtils.randomZeroOneArray(data.getFeatureLength());
+        double[] initTheta = new double[data.getFeatureLength()];
         double finalCost = loop(data.getInstanceLength(), BUCKET_COUNT, initTheta, COST_DECENT_THRESHOLD, MAX_ROUND, PRINT_GAP);
         log.info("Training finished, final cost: {}", finalCost);
         log.info("theta: {}", initTheta);
@@ -84,7 +83,7 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
                 j -> {
                     double[] X = data.getInstance(j);
                     double y = data.getLabel(j);
-                    IntStream.range(0, g.length).forEach(i -> g[i] += X[i] * theta[i] * y);
+                    IntStream.range(0, g.length).forEach(i -> g[i] += X[i] * y);
                 }
         );
 
