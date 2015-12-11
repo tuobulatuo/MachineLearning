@@ -36,7 +36,7 @@ public class NNMain {
         DataSet dataset = builder.getDataSet();
         dataset.shiftCompressNorm();
         dataset.meanVarianceNorm();
-        Perceptron.ALPHA = .005;
+        Perceptron.ALPHA = 1;
         Perceptron.PRINT_GAP = 1;
         Perceptron.BUCKET_COUNT = 1;
         Perceptron.COST_DECENT_THRESHOLD = 0.000000001;

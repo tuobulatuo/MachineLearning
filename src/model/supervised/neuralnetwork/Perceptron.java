@@ -70,24 +70,15 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
 
         double[] theta = (double[]) params;
 
-        TIntHashSet mistakes = new TIntHashSet();
         IntStream.range(0, data.getInstanceLength()).forEach(
                 i -> {
-                    if (hypothesis(data.getInstance(i), theta) * data.getLabel(i) <= 0) mistakes.add(i);
+                    if (hypothesis(data.getInstance(i), theta) * data.getLabel(i) <= 0) {
+                        double[] X = data.getInstance(i);
+                        double y = data.getLabel(i);
+                        IntStream.range(0, theta.length).forEach(j -> theta[j] += X[j] * y);
+                    }
                 }
         );
-
-        double[] g = new double[theta.length];
-        int[] mistakesArray = mistakes.toArray();
-        Arrays.stream(mistakesArray).forEach(
-                j -> {
-                    double[] X = data.getInstance(j);
-                    double y = data.getLabel(j);
-                    IntStream.range(0, g.length).forEach(i -> g[i] += X[i] * y);
-                }
-        );
-
-        IntStream.range(0, theta.length).forEach(i -> theta[i] += ALPHA * g[i]);
     }
 
     @Override
