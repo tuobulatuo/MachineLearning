@@ -8,6 +8,7 @@ import model.supervised.kernels.Kernel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utils.array.ArraySumUtil;
+import utils.array.ArrayUtil;
 import utils.random.RandomUtils;
 import utils.sort.SortIntDoubleUtils;
 
@@ -64,7 +65,72 @@ public class KNN implements Predictable, Trainable{
         }
     }
 
+    @Override
+    public void train() {
+        log.info("~ KNN is too lazy to train ~");
+    }
+
+    @Override
+    public void initialize(DataSet d) {
+        this.data = d;
+        classCount = data.getClassCount();
+        instanceLength = data.getInstanceLength();
+    }
+
+    public int[] TopFeatureIndex(int topK) {
+
+        double[] featureQuality = new double[data.getFeatureLength()];
+        for (int i = 0; i < instanceLength; i++) {
+
+            double[] X = data.getInstance(i);
+            double y = data.getLabel(i);
+
+            int[] topNeighbor = topNeighbor(X);
+
+            for (int j = 0; j < topNeighbor.length; j++) {
+                int neighborId = topNeighbor[j];
+                double[] nX = data.getInstance(neighborId);
+                double ny = data.getLabel(neighborId);
+                if (ny == y)
+//                    IntStream.range(0, X.length).forEach(k -> featureQuality[k] -= Math.pow(X[k] - nX[k], 4));
+                    IntStream.range(0, X.length).forEach(k -> featureQuality[k] -= Math.exp(Math.abs(X[k] - nX[k])));
+                else
+//                    IntStream.range(0, X.length).forEach(k -> featureQuality[k] += Math.pow(X[k] - nX[k], 4));
+                    IntStream.range(0, X.length).forEach(k -> featureQuality[k] += Math.exp(Math.abs(X[k] - nX[k])));
+            }
+
+            if (i % 1000 == 0) {
+                log.info("feature selection {} instances processed ..", i);
+            }
+        }
+
+        log.info("{}", featureQuality);
+
+        int[] index = RandomUtils.getIndexes(featureQuality.length);
+        SortIntDoubleUtils.sort(index, featureQuality);
+        ArrayUtil.reverse(index);
+
+        TIntArrayList topList = new TIntArrayList(topK);
+        for (int i = 0; i < index.length && i < topK; i++) {
+            topList.add(index[i]);
+        }
+
+        return topList.toArray();
+    }
+
     private double[] probsByNeighbor(double[] feature) {
+
+        int[] topNeighbor = topNeighbor(feature);
+
+        double[] probs = new double[classCount];
+        for (int i = 0; i < topNeighbor.length; i++) {
+            probs[(int) data.getLabel(topNeighbor[i])] ++;
+        }
+        ArraySumUtil.normalize(probs);
+        return probs;
+    }
+
+    private int[] topNeighbor(double[] feature) {
 
         double[] distance = neighborDistance(feature);
         int[] indices = RandomUtils.getIndexes(instanceLength);
@@ -84,13 +150,8 @@ public class KNN implements Predictable, Trainable{
             log.debug("topNeighbor.length == 0");
             zeroNeighborCounter++;
         }
+        return topNeighbor;
 
-        double[] probs = new double[classCount];
-        for (int i = 0; i < topNeighbor.length; i++) {
-            probs[(int) data.getLabel(topNeighbor[i])] ++;
-        }
-        ArraySumUtil.normalize(probs);
-        return probs;
     }
 
     private double[] probsByDensity(double[] feature) {
@@ -102,26 +163,14 @@ public class KNN implements Predictable, Trainable{
             probs[(int) data.getLabel(i)] += neighborSimilarity[i];
         }
 
-    // similarity is not always positive, so this probability is not a probability strictly.
-    // probs may appear negative numbers, use with caution.
-    // so we shift all the numbers to above 0
+        // similarity from kernel is not always positive, so this probability is not a probability strictly.
+        // probs may appear negative numbers, use with caution.
+        // so we shift all the numbers to above 0
 
         double min = Arrays.stream(probs).min().getAsDouble();
         for (int i = 0; i < classCount; i++) probs[i] = probs[i] - min;
         ArraySumUtil.normalize(probs);
         return probs;
-    }
-
-    @Override
-    public void train() {
-        log.info("~ KNN is too lazy to train ~");
-    }
-
-    @Override
-    public void initialize(DataSet d) {
-        this.data = d;
-        classCount = data.getClassCount();
-        instanceLength = data.getInstanceLength();
     }
 
     private double[] neighborDistance(double[] x) {
@@ -152,5 +201,9 @@ public class KNN implements Predictable, Trainable{
         int pointer = 0;
         while (pointer < indices.length && distances[pointer] <= R) withinR.add(indices[pointer++]);
         return withinR.toArray();
+    }
+
+    public int getZeroNeighborCounter() {
+        return zeroNeighborCounter;
     }
 }
