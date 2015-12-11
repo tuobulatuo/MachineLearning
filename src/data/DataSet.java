@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -42,12 +43,21 @@ public class DataSet {
         for (int i = 0; i < labels.getClassIndexMap().size(); i++) {
             int classIndex = i;
             int[] indexes = IntStream.range(0, getInstanceLength()).filter(j -> (int) getLabel(j) == classIndex).toArray();
-            double[] probs = new double[indexes.length];
-            Arrays.fill(probs, 1 / (double) indexes.length);
-            EnumeratedIntegerDistribution integerDistribution = new EnumeratedIntegerDistribution(indexes, probs);
-            int sampleSize = Math.max(Math.min(indexes.length, sampleSizeMax), sampleSizeMin);
-            ids.addAll(integerDistribution.sample(sampleSize));
-            log.info("balance sampling class {} | instances {} | sampling {}", i, indexes.length, sampleSize);
+            if (indexes.length >= sampleSizeMin){
+                TIntArrayList list = new TIntArrayList(indexes);
+                list.shuffle(new Random());
+                int j = 0;
+                for (; j < indexes.length && j < sampleSizeMax; j++) {
+                    ids.add(list.get(j));
+                }
+                log.info("balance sampling class {} | instances {} | sampling {}", i, indexes.length, j);
+            }else {
+                double[] probs = new double[indexes.length];
+                Arrays.fill(probs, 1 / (double) indexes.length);
+                EnumeratedIntegerDistribution integerDistribution = new EnumeratedIntegerDistribution(indexes, probs);
+                ids.addAll(integerDistribution.sample(sampleSizeMin));
+                log.info("balance sampling class {} | instances {} | sampling {}", i, indexes.length, sampleSizeMin);
+            }
         }
         log.info("balance sampling total {}", ids.size());
 
