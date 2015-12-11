@@ -1,15 +1,13 @@
-package model.supervised.neuralnetwork;
+package model.supervised.perceptron;
 
 import algorithms.gradient.Decent;
 import algorithms.gradient.GradientDecent;
 import com.google.common.util.concurrent.AtomicDouble;
 import data.DataSet;
-import gnu.trove.set.hash.TIntHashSet;
 import model.Predictable;
 import model.Trainable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import utils.random.RandomUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,9 +70,9 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
 
         IntStream.range(0, data.getInstanceLength()).forEach(
                 i -> {
-                    if (hypothesis(data.getInstance(i), theta) * data.getLabel(i) <= 0) {
-                        double[] X = data.getInstance(i);
-                        double y = data.getLabel(i);
+                    double[] X = data.getInstance(i);
+                    double y = data.getLabel(i);
+                    if (hypothesis(X, theta) * y <= 0) {
                         IntStream.range(0, theta.length).forEach(j -> theta[j] += X[j] * y);
                     }
                 }
@@ -87,19 +85,19 @@ public class Perceptron implements Predictable, Trainable, GradientDecent, Decen
         double[] theta = (double[]) params;
 
         AtomicDouble cost = new AtomicDouble(0);
-        AtomicInteger counter = new AtomicInteger(0);
-        IntStream.range(0, data.getInstanceLength()).parallel().forEach(
+        AtomicInteger mistakeCounter = new AtomicInteger(0);
+        IntStream.range(0, data.getInstanceLength()).forEach(
                 i -> {
                     double[] X = data.getInstance(i);
                     double test = hypothesis(X, theta) * data.getLabel(i);
                     if (test <= 0) {
                         cost.getAndAdd(test * -1.0);
-                        counter.getAndIncrement();
+                        mistakeCounter.getAndIncrement();
                     }
                 }
         );
 
-        log.info("ITERATION: {}, TOTAL_MISTAKE : {}, COST: {}", ITER_COUNT++, counter.get(), cost.get());
+        log.info("ITERATION: {}, TOTAL_MISTAKE : {}, COST: {}", ITER_COUNT++, mistakeCounter.get(), cost.get());
 
         return cost.get();
     }

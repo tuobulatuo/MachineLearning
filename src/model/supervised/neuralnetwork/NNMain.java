@@ -16,38 +16,6 @@ import java.util.Arrays;
  */
 public class NNMain {
 
-
-    public static void perceptronTest() throws Exception{
-
-        String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/perceptron.data.txt";
-        String sep = "\\s+";
-        boolean hasHeader = false;
-        boolean needBias = true;
-        int m = 4;
-        int n = 1000;
-        int[] featureCategoryIndex = {};
-        boolean classification = false;
-
-        Builder builder =
-                new FullMatrixDataSetBuilder(path, sep, hasHeader, needBias, m, n, featureCategoryIndex, classification);
-
-        builder.build();
-
-        DataSet dataset = builder.getDataSet();
-        dataset.shiftCompressNorm();
-        dataset.meanVarianceNorm();
-        Perceptron.ALPHA = 1;
-        Perceptron.PRINT_GAP = 1;
-        Perceptron.BUCKET_COUNT = 1;
-        Perceptron.COST_DECENT_THRESHOLD = 0.000000001;
-        Perceptron.MAX_ROUND = 100;
-        Perceptron perceptron = new Perceptron();
-        perceptron.initialize(dataset);
-        perceptron.train();
-
-    }
-
-
     public static void neuralNetworkTest() throws Exception{
 
         String path = "/Users/hanxuan/Dropbox/neu/fall15/machine learning/data/nn.data";
@@ -205,8 +173,6 @@ public class NNMain {
     }
 
     public static void main(String[] args) throws Exception{
-
-        perceptronTest();
 
 //        neuralNetworkTest();
 
