@@ -72,6 +72,7 @@ public class ClassificationEvaluator extends Evaluator{
 
         service = Executors.newFixedThreadPool(MAX_THREADS);
         int packageCount = (int) Math.ceil(testSet.getInstanceLength() / (double) THREAD_WORK_LOAD);
+        log.info("packageCount {}", packageCount);
         countDownLatch = new CountDownLatch(packageCount);
 
         AtomicInteger counter = new AtomicInteger(0);
