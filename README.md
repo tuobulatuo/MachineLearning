@@ -36,7 +36,7 @@ machine learning code for Northeastern University CS6140 fall 2015
     <br/>
     - Bagging / RandomForest on top of Tree <br/>
     <br/>
-    - KNN with various kernels
+    - KNN with various kernels<br/>
     <br/>
     - PCA
 
