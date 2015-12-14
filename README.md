@@ -34,7 +34,9 @@ machine learning code for Northeastern University CS6140 fall 2015
         1) On top of AdaBoost<br/>
         2) On top of SVMs <br/>
     <br/>
-    - Bagging on top of Tree <br/>
+    - Bagging / RandomForest on top of Tree <br/>
+    <br/>
+    - KNN with various kernels
     <br/>
     - PCA
 
