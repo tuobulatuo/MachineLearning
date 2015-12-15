@@ -206,6 +206,6 @@ public class KNNMain {
         PolynomialK.GAMMA = 0.05;   // 0.74
         digitTest(-1, kn4, EstimateBy.DENSITY, SelectNeighborBy.RANK);
 
-        topFeatureTest(3, kn2, EstimateBy.NEIGHBOR, SelectNeighborBy.RANK); // AVG_TEST (0.8319565217391306), AVG_TRAIN (0.8727119053368751)
+        topFeatureTest(3, kn2, EstimateBy.NEIGHBOR, SelectNeighborBy.RANK); // AVG_TEST ( , AVG_TRAIN (0.8727119053368751)
     }
 }

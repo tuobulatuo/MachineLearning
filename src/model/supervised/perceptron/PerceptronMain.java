@@ -112,6 +112,7 @@ public class PerceptronMain {
         String kn4 = "model.supervised.kernels.PolynomialK";
         String kn5 = "model.supervised.kernels.LinearK";
 
+        dualPerceptronTest(kn5);
 
 //        dualPerceptronTest2(kn5);
 //        dualPerceptronTest2(kn1);
