@@ -27,7 +27,7 @@ import java.util.stream.IntStream;
 /**
  * Created by hanxuan on 11/30/15 for machine_learning.
  */
-public class GradientBoostClassificationV2 implements Predictable, Trainable, Boost {
+public class GradientBoostClassification implements Predictable, Trainable, Boost {
 
     public static boolean NEED_REPORT = false;
 
